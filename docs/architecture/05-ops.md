@@ -62,7 +62,7 @@ Target: under 10 minutes. Cache the pnpm store and Playwright browsers.
 ## Deploys <a id="deploys"></a>
 
 - Vercel Git integration: a PR gets a preview deploy; merging to `main` deploys production. Both use the same Supabase project (D30).
-- `vercel.json` sets the build command to `pnpm vercel-build`. It runs `pnpm db:migrate` **only when `VERCEL_ENV=production`**, then `next build`. Preview builds never migrate, so an unmerged PR can't change the shared database. Migrations must be backward compatible ([02-schema](02-schema.md#migration-rules)), because a preview built from an older branch may still be running against the newer schema.
+- The Vercel project uses the Next.js framework preset, which auto-detects the `vercel-build` script in `package.json`. That script runs `pnpm db:migrate` **only when `VERCEL_ENV=production`** and a drizzle config and `DIRECT_URL` exist, then `next build`. Preview builds never migrate, so an unmerged PR can't change the shared database. Migrations must be backward compatible ([02-schema](02-schema.md#migration-rules)), because a preview built from an older branch may still be running against the newer schema.
 - Rollback: Vercel "Promote previous deployment" (instant). Database changes are fixed forward with a new migration.
 
 ## Nightly job (`bala-palana-ops/.github/workflows/nightly.yml`, D14, D29) <a id="nightly-job"></a>
