@@ -32,6 +32,11 @@ export function formatDate(iso: string): string {
   return format(parseISODate(iso), DATE_FORMAT);
 }
 
+/** A stored instant as staff read it in IST: `24 Nov 2026, 18:40`. */
+export function formatDateTimeIST(value: Date): string {
+  return format(new TZDate(value, TIME_ZONE), "d MMM yyyy, HH:mm");
+}
+
 /**
  * Calendar days from `fromISO` to `toISO` (positive when `toISO` is later).
  * Used for "2 days overdue" and "in 3 days".
