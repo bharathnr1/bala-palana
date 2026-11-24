@@ -182,7 +182,7 @@ const addLookup = action(addLookupInput, async (input, user) => {
   if (!key) throw new AppError("INVALID", strings.settings.errors.labelNeeded);
 
   try {
-    return await mutate(user, async (tx) => {
+    const id = await mutate(user, async (tx) => {
       const [{ next }] = await tx
         .select({ next: sql<number>`coalesce(max(${lookup.sort}), 0) + 1` })
         .from(lookup)
@@ -194,11 +194,12 @@ const addLookup = action(addLookupInput, async (input, user) => {
       if (!created) throw new AppError("INVALID", strings.errors.unexpected);
       return created.id;
     });
+    revalidatePath("/settings");
+    return id;
   } catch (error) {
     if (isUniqueViolation(error)) throw new AppError("CONFLICT", strings.settings.errors.duplicate);
     throw error;
   }
-  revalidatePath("/settings");
 });
 
 const renameLookupInput = z.object({ id: uuid, label: z.string().trim().min(1).max(120) });
@@ -252,7 +253,11 @@ const moveLookup = action(moveLookupInput, async (input, user) => {
     // Normalise the whole kind so swaps stay stable however many gaps exist.
     const ids = ordered.map((row) => row.id);
     const swapWith = ids.indexOf(neighbour.id);
-    [ids[index], ids[swapWith]] = [ids[swapWith]!, ids[index]!];
+    const mine = ids[index];
+    const theirs = ids[swapWith];
+    if (mine === undefined || theirs === undefined) return;
+    ids[index] = theirs;
+    ids[swapWith] = mine;
     for (const [position, id] of ids.entries()) {
       await tx.update(lookup).set({ sort: position + 1 }).where(eq(lookup.id, id));
     }
