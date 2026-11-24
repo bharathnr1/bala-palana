@@ -95,6 +95,16 @@ jobs:
       - name: Build
         run: pnpm build
 
-      # 6. Mobile and desktop browsers against `next start` and the database.
+      # 6. Mobile and desktop browsers against `next start`. The database tests
+      #    truncate every table, so the end-to-end run gets its own freshly
+      #    seeded database (06-testing § Fixtures).
+      - name: Prepare the end-to-end database
+        run: |
+          psql "postgresql://postgres@localhost:5432/postgres" -c "create database bala_palana_e2e"
+          DIRECT_URL=postgresql://postgres@localhost:5432/bala_palana_e2e pnpm db:migrate
+          DATABASE_URL=postgresql://postgres@localhost:5432/bala_palana_e2e pnpm seed:demo
+
       - name: End-to-end tests
+        env:
+          DATABASE_URL: postgresql://postgres@localhost:5432/bala_palana_e2e
         run: pnpm e2e
