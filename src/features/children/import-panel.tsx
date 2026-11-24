@@ -153,16 +153,16 @@ export function ImportPanel() {
                         </label>
                       </td>
                       <td className="p-2">
-                        <span className="block">{row.values.full_name || "—"}</span>
+                        <span className="block">{row.values.full_name || strings.children.fields.none}</span>
                         {hasErrors ? (
                           <span className="block text-xs text-destructive">
                             {row.errors.join("; ")}
                           </span>
                         ) : null}
                       </td>
-                      <td className="p-2">{row.values.dob || "—"}</td>
-                      <td className="p-2">{row.values.grade || "—"}</td>
-                      <td className="p-2">{row.values.guardian_name || "—"}</td>
+                      <td className="p-2">{row.values.dob || strings.children.fields.none}</td>
+                      <td className="p-2">{row.values.grade || strings.children.fields.none}</td>
+                      <td className="p-2">{row.values.guardian_name || strings.children.fields.none}</td>
                       <td className="hidden p-2 sm:table-cell">
                         {hasErrors ? (
                           <span className="text-xs text-destructive">{row.errors.join("; ")}</span>

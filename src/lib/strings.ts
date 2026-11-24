@@ -143,6 +143,7 @@ export const strings = {
       consent: "Consent recorded",
       consentHint: "Needed before a child becomes a student.",
       yearHint: "For example 2026-27",
+      none: "—",
     },
     errors: {
       consent: "Record consent before moving a child to student.",
