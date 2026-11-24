@@ -75,6 +75,8 @@ Check with `git config user.email` before committing. Commits with any other ide
 
 ### GitHub account
 - The repo is **`bharathnr1/bala-palana`**. All pushes, PRs, issues, comments and `gh` calls use the **`bharathnr1`** account and nothing else.
+- The `bharathnr1` token is provided automatically: Claude Code sessions in this folder get `GH_TOKEN` from the git-ignored `.claude/settings.local.json`. Any other shell loads it from the git-ignored `.env` with `set -a; . ./.env; set +a`. Without it, `gh` falls back to a different account on this machine.
+- Git identity and the remote are enforced for this folder by a conditional include in the owner's git config, plus local `pre-commit` / `pre-push` hooks. The hooks reject the wrong identity or remote, company names, and anything that looks like a token or database password. Never bypass them (`--no-verify` is forbidden).
 - Before any `gh` command, check `gh api user --jq .login` prints `bharathnr1`. If it doesn't, **stop**. Don't switch accounts or log in yourself; ask the human.
 - The remote must be `git@github-personal:bharathnr1/bala-palana.git` (an SSH alias with the personal key) or HTTPS authenticated as `bharathnr1`. Never change the remote or the credentials.
 

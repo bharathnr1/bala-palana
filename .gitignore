@@ -25,3 +25,6 @@ test-results/
 *.log
 .idea/
 .vscode/
+
+# Claude Code local settings (holds the GitHub token)
+.claude/settings.local.json
