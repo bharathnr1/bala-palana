@@ -42,7 +42,7 @@ export function parseCsv(text: string): { rows: string[][]; error?: string } {
   const input = text.replace(/^﻿/, "");
 
   while (index < input.length) {
-    const char = input[index]!;
+    const char = input[index];
     const next = input[index + 1];
 
     if (inQuotes) {
