@@ -18,6 +18,11 @@ const canMigrate = hasDrizzleConfig && Boolean(process.env.DIRECT_URL);
 if (isProduction && canMigrate) {
   console.log("vercel-build: production — applying migrations");
   execSync("pnpm db:migrate", { stdio: "inherit" });
+
+  // The bootstrap admin comes from BOOTSTRAP_ADMIN_EMAIL; the seed is a no-op
+  // when the row already exists or the variable is unset (02-schema § Seeds).
+  console.log("vercel-build: production — ensuring the bootstrap admin");
+  execSync("pnpm seed:bootstrap", { stdio: "inherit" });
 } else if (isProduction) {
   console.log("vercel-build: production — no drizzle config or DIRECT_URL, skipping migrations");
 } else {

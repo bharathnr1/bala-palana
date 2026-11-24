@@ -36,6 +36,20 @@
       "when": 1795515718765,
       "tag": "0004_domain_constraints_triggers_rls",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795516488730,
+      "tag": "0005_seed_defaults",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795516818033,
+      "tag": "0006_audit_row_row_key",
+      "breakpoints": true
     }
   ]
 }

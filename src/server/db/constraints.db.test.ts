@@ -5,7 +5,7 @@ import { createChild, createLookup, createUser, resetDatabase } from "../../../t
 
 import { getDb } from "./client";
 import { mutate } from "./mutate";
-import { assessment, cycle, entry, lookup } from "./schema";
+import { assessment, cycle, entry, entryTag, lookup } from "./schema";
 
 beforeEach(resetDatabase);
 
@@ -114,6 +114,36 @@ describe("entry", () => {
         mutate(actor, (tx) => tx.insert(entry).values({ ...base, note: "a".repeat(2001) })),
       ),
     ).toBe("23514");
+  });
+
+  it("audits a composite-key table with a non-null row id", async () => {
+    const actor = await createUser("teacher");
+    const child = await createChild();
+    const category = await createLookup("entry_category", "observation");
+    const tag = await createLookup("tag", "kindness");
+
+    const [created] = await mutate(actor, (tx) =>
+      tx
+        .insert(entry)
+        .values({
+          childId: child.id,
+          categoryId: category.id,
+          authorId: actor.id,
+          note: "Tagged observation",
+        })
+        .returning(),
+    );
+
+    await mutate(actor, (tx) =>
+      tx.insert(entryTag).values({ entryId: created.id, tagId: tag.id }),
+    );
+
+    const rows = await getDb().execute(
+      sql`select table_name, row_id, actor_id from audit_log where table_name = 'entry_tag'`,
+    );
+
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ row_id: created.id, actor_id: actor.id });
   });
 });
 

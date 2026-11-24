@@ -180,7 +180,7 @@ Applied by a custom migration (idempotent: `on conflict (kind, key) do nothing`)
 |---|---|---|
 | `admission_status` | application_received, selected_for_interview, invited, selected_as_student, not_interested, not_eligible, admission_not_taken, follow_up_later (the requirements' wording) | `{ terminal: bool }` |
 | `admission_source` | word_of_mouth, existing_family, alumna, website_social, event, school_referral, other | |
-| `entry_category` | observation, concern, corrective_action, academic, skill, achievement, responsibility, health, alumni_interaction | `{ restricted, opens_follow_up, details_schema }` (D6) |
+| `entry_category` | observation, concern, corrective_action, academic, skill, achievement, responsibility, health, alumni_interaction | `{ restricted, opens_follow_up }` (D6); the `details` shape is the code registry in § Entry details schemas |
 | `tag` | improving, excellent, needs_help, homework_done, homework_pending, participation, leadership, kindness, discipline, punctuality, confidence, wellbeing | `{ categories?: string[] }` limits which categories show it |
 | `subject` | english, hindi, sanskrit, mathematics, science, social_studies, computer, lalita_sahasranama, vishnu_sahasranama, bhagavad_gita | `{ group: academic \| language \| stotra }`; the admin adds the regional language |
 | `term` | term_1, term_2, annual | |
