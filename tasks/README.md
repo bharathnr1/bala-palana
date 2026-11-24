@@ -44,7 +44,7 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | M0-03 | Database foundation | Platform | M0-01 | done |
 | M0-04 | Full domain schema | Platform | M0-03 | done |
 | M0-05 | Seeds and demo data | Platform | M0-04 | done |
-| M0-06 | Authentication and permissions | Platform | M0-04 | todo |
+| M0-06 | Authentication and permissions | Platform | M0-04 | done |
 | M0-07 | App shell and PWA | Feature A | M0-06 | todo |
 | M0-08 | Children list, profile, add/edit | Feature A | M0-07 | todo |
 | M0-09 | Settings: users, lists, preferences | Feature B | M0-07 | todo |

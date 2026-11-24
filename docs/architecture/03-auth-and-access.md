@@ -30,7 +30,7 @@ sequenceDiagram
 - **Session:** cookie-based via `@supabase/ssr`. `middleware.ts` refreshes the session and redirects signed-out requests to `/login`, except for `/login`, `/auth/*`, `/manifest.webmanifest` and static assets.
 - **`requireUser()`** (`src/server/auth/session.ts`) returns the `SessionUser { id, name, email, role }` from `app_user`. It's memoised per request with React `cache`. A user who is deactivated mid-session is signed out on their next request.
 - **Bootstrap:** the first admin's `app_user` row comes from `BOOTSTRAP_ADMIN_EMAIL` ([02-schema seeds](02-schema.md#seeds)); their auth account is created by hand in the Supabase dashboard (H2).
-- **Test auth mode:** when `AUTH_MODE=test`, `/login` shows a "sign in as …" list of seeded users and sets a signed test cookie. `src/lib/env.ts` **refuses to start** if `AUTH_MODE=test` on any Vercel deployment (`VERCEL_ENV` is set), because previews share the production database (D30). This mode is used only by Playwright and local demos.
+- **Test auth mode:** when `AUTH_MODE=test`, `/login` shows a "sign in as …" list of seeded users and sets a cookie holding the chosen `app_user.id`, which `requireUser()` revalidates against the database on every request. `src/lib/env.ts` **refuses to start** if `AUTH_MODE=test` on any Vercel deployment (`VERCEL_ENV` is set), because previews share the production database (D30). This mode is used only by Playwright and local demos.
 
 ## Roles
 
