@@ -9,6 +9,7 @@ import { appUser, child, entry, entryTag, lookup } from "@/server/db/schema";
 
 import { addFollowUp, createEntries, deleteEntry, setEntryStatus, updateEntry } from "./mutations";
 import { getEntryWithThread, listEntriesForChild } from "./queries";
+import { observeLookups } from "./lookups";
 import { resetDatabase } from "../../../tests/db/helpers";
 
 beforeEach(async () => {
@@ -55,20 +56,21 @@ async function categoryId(key: string): Promise<string> {
 }
 
 describe("createEntries", () => {
-  it("writes one row per child with a single group key", async () => {
+  it("writes five rows with a single group key for a group save", async () => {
     const admin = await makeUser("admin");
-    const ids = [await makeChild("A"), await makeChild("B"), await makeChild("C")];
+    const ids = ["A", "B", "C", "D", "E"].map(async (name) => makeChild(name));
+    const childIds = await Promise.all(ids);
 
     const result = await createEntries(admin, {
-      childIds: ids,
+      childIds,
       categoryKey: "observation",
       note: "Sang the morning prayer well.",
     });
 
-    expect(result.ids).toHaveLength(3);
+    expect(result.ids).toHaveLength(5);
     expect(result.groupKey).toBeTruthy();
     const rows = await getDb().select().from(entry);
-    expect(rows).toHaveLength(3);
+    expect(rows).toHaveLength(5);
     expect(new Set(rows.map((row) => row.groupKey))).toEqual(new Set([result.groupKey]));
   });
 
@@ -162,6 +164,20 @@ describe("createEntries", () => {
     await expect(
       createEntries(management, { childIds: [childId], categoryKey: "observation" }),
     ).rejects.toThrow(AppError);
+  });
+});
+
+describe("observeLookups", () => {
+  it("offers the restricted category only to a reader who may see it", async () => {
+    const admin = await makeUser("admin");
+    const teacher = await makeUser("teacher");
+
+    const forAdmin = await observeLookups(admin);
+    const forTeacher = await observeLookups(teacher);
+
+    expect(forAdmin.categories.map((row) => row.key)).toContain("health");
+    expect(forTeacher.categories.map((row) => row.key)).not.toContain("health");
+    expect(forTeacher.tags.length).toBeGreaterThan(0);
   });
 });
 

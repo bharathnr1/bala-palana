@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, eq, ilike } from "drizzle-orm";
+import { and, asc, eq, ilike, inArray } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
@@ -144,6 +144,44 @@ export async function listChildren(
 
   const hasNext = rows.length > CHILDREN_PAGE_SIZE;
   return { rows: hasNext ? rows.slice(0, CHILDREN_PAGE_SIZE) : rows, hasNext, page };
+}
+
+export type PickerChild = {
+  id: string;
+  fullName: string;
+  gradeLabel: string | null;
+  groupLabel: string | null;
+};
+
+/**
+ * The names the child picker offers (04-ui-spec § Shared components). It is a
+ * bounded list — students and applicants — searched in the browser so a tap is
+ * instant; the list screens keep their 50-row pagination.
+ */
+export async function listChildrenForPicker(user: { role: Role }): Promise<PickerChild[]> {
+  assertCan(user, "child.read");
+
+  const academicYear = await currentAcademicYear();
+  const grade = alias(lookup, "grade");
+  const group = alias(lookup, "group");
+
+  return getDb()
+    .select({
+      id: child.id,
+      fullName: child.fullName,
+      gradeLabel: grade.label,
+      groupLabel: group.label,
+    })
+    .from(child)
+    .leftJoin(
+      enrolment,
+      and(eq(enrolment.childId, child.id), eq(enrolment.academicYear, academicYear)),
+    )
+    .leftJoin(grade, eq(grade.id, enrolment.gradeId))
+    .leftJoin(group, eq(group.id, enrolment.groupId))
+    .where(inArray(child.stage, ["student", "applicant"]))
+    .orderBy(asc(child.fullName), asc(child.id))
+    .limit(500);
 }
 
 /** One child with her current enrolment and primary guardian. */
