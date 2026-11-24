@@ -5,7 +5,7 @@ You are part of a team of agents building **Bāla Pālana**, a child-journey tra
 ## Read first (in order)
 
 1. [docs/idea.md](docs/idea.md): what and why
-2. [docs/design-doc.md](docs/design-doc.md): architecture and **decisions D1–D29**
+2. [docs/design-doc.md](docs/design-doc.md): architecture and **decisions D1–D30**
 3. [docs/architecture/](docs/architecture/): conventions, schema, auth, UI, ops, testing
 4. [tasks/README.md](tasks/README.md): the board, then your task's spec
 

@@ -2,6 +2,10 @@
 
 ## Sign-in (D3)
 
+Two phases:
+- **Until go-live: email + password.** The admin creates each account in *Settings → Users* with a temporary password (Supabase admin API, server-side, service-role key) and shares it with the person, who changes it after signing in (*Account → Change password*). Self sign-up is disabled in Supabase. No email is sent, so no SMTP is needed.
+- **At go-live (M9-04): Google sign-in and email codes are added.** Password sign-in stays as a fallback. The flow below shows the go-live state.
+
 ```mermaid
 sequenceDiagram
   participant U as User (phone)
@@ -22,11 +26,11 @@ sequenceDiagram
   end
 ```
 
-- **Invite-only:** `app_user.email` is the allowlist. The admin adds a user in *Settings → Users*; no invitation email is sent, and the person simply signs in.
+- **Invite-only:** `app_user.email` is the allowlist. The admin adds a user in *Settings → Users*, which creates both the `app_user` row and the Supabase auth account. No invitation email is sent.
 - **Session:** cookie-based via `@supabase/ssr`. `middleware.ts` refreshes the session and redirects signed-out requests to `/login`, except for `/login`, `/auth/*`, `/manifest.webmanifest` and static assets.
 - **`requireUser()`** (`src/server/auth/session.ts`) returns the `SessionUser { id, name, email, role }` from `app_user`. It's memoised per request with React `cache`. A user who is deactivated mid-session is signed out on their next request.
-- **Bootstrap:** the first admin comes from `BOOTSTRAP_ADMIN_EMAIL` ([02-schema seeds](02-schema.md#seeds)).
-- **Test auth mode:** when `AUTH_MODE=test`, `/login` shows a "sign in as …" list of seeded users and sets a signed test cookie. `src/lib/env.ts` **refuses to start** if `AUTH_MODE=test` and `VERCEL_ENV=production`. This mode is used only by Playwright and local demos.
+- **Bootstrap:** the first admin's `app_user` row comes from `BOOTSTRAP_ADMIN_EMAIL` ([02-schema seeds](02-schema.md#seeds)); their auth account is created by hand in the Supabase dashboard (H2).
+- **Test auth mode:** when `AUTH_MODE=test`, `/login` shows a "sign in as …" list of seeded users and sets a signed test cookie. `src/lib/env.ts` **refuses to start** if `AUTH_MODE=test` on any Vercel deployment (`VERCEL_ENV` is set), because previews share the production database (D30). This mode is used only by Playwright and local demos.
 
 ## Roles
 

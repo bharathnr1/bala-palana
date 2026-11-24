@@ -2,13 +2,21 @@
 
 These need a person with account access. Agents can't do them, but they can prepare instructions and verify the results. Details are in [05-ops § Human setup](../docs/architecture/05-ops.md#human-setup-one-time).
 
-| ID | Task | Unblocks | Done when |
+**Now** (unblocks building and deploying):
+
+| ID | Task | Unblocks | Status |
 |---|---|---|---|
-| H1 | Create the **public** repo `bharathnr1/bala-palana` (✓ done) and enable branch protection on `main` (PRs only, CI required, linear history, 0 required approvals); set up a separate SSH key and `github-personal` host alias for `bharathnr1`; give agents a fine-grained token for this repo only (`GH_TOKEN`); push this folder; enable Actions | Everything | `gh api user --jq .login` prints `bharathnr1` in the agents' environment, and agents can open PRs |
-| H2 | Create Supabase projects `bala-palana-dev` and `bala-palana-prod` in **ap-south-1 (Mumbai)**, free plan; remove `public` from the Data API's exposed schemas | M0-11 | Connection strings and keys stored in Vercel and GitHub secrets |
-| H3 | Google Cloud project → OAuth consent screen + web client; add the client ID and secret to both Supabase projects; set the Site URL and redirect URLs | M0-06 (real Google sign-in) | Google sign-in works on a preview deploy |
-| H4 | School Gmail account → 2-step verification → app password → Supabase *Auth → SMTP* (both projects) | Email-code fallback | A code email arrives at a non-team address |
-| H5 | Vercel project (Hobby) linked to the repo; env vars per environment ([05-ops](../docs/architecture/05-ops.md#environment-variables)) | M0-11 | Preview and production deploys succeed |
-| H6 | `age-keygen`: public key → ops-repo secret `BACKUP_AGE_PUBLIC_KEY`; private key stored offline (password manager + printed copy) | M0-12 | First encrypted backup artifact exists |
-| H7 | Create the **private** repo `bharathnr1/bala-palana-ops`; add its Actions secrets `PROD_DIRECT_URL`, `PROD_SUPABASE_URL`, `PROD_SUPABASE_SERVICE_ROLE_KEY`, `BACKUP_AGE_PUBLIC_KEY` (plus the `DEV_*` equivalents for the restore drill); extend the agents' token to cover this repo | M0-12, M1-04 | The nightly job runs green in the ops repo |
-| H8 | Gurukula answers [open-questions](../docs/open-questions.md) #1–#4; consent forms collected | Real data in production | Integrator confirms the gate in [roadmap](../docs/roadmap.md#gate-before-real-data) |
+| H1 | Public repo `bharathnr1/bala-palana` ✓; branch protection on `main` (PRs only, CI required, linear history, 0 required approvals); a fine-grained token for agents (`GH_TOKEN`, this repo only) | Everything | Repo done; protection + token pending |
+| H2 | Supabase project `bala-palana` ✓. Remaining: sign-ups off, Site and redirect URLs, Data API without `public`, create the bootstrap admin user (05-ops §3) | M0-11 | Project done; settings pending |
+| H5 | Vercel project ✓ linked to the repo ✓; env vars for Production + Preview; Vercel Authentication on for previews | M0-11 | Project done; env vars pending |
+
+**At the end (M9, before go-live):**
+
+| ID | Task | Unblocks |
+|---|---|---|
+| H3 | Google Cloud OAuth client → Supabase Google provider | M9-04 |
+| H4 | School Gmail + app password → Supabase SMTP | M9-04 |
+| H6 | `age` key pair for backups; private key kept offline | M9-01 |
+| H7 | Private ops repo `bharathnr1/bala-palana-ops` + its secrets; extend the agents' token to it | M9-01, M9-02 |
+| H8 | Gurukula answers [open-questions](../docs/open-questions.md) #1–#4; consent forms collected | Real data |
+| H9 | Reset the Supabase database password; update `DATABASE_URL` / `DIRECT_URL` in Vercel and the ops repo | M9-05 |

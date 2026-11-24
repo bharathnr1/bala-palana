@@ -17,26 +17,27 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 
 | Lane | Can start in parallel |
 |---|---|
-| Platform | M0-05, M0-11*, M0-12*, M1-01, M3-01 → M3-02 |
+| Platform | M0-05, M0-11*, M1-01, M3-01 → M3-02 |
 | Feature A | M0-07 → M0-08 → M2-02 … |
 | Feature B | M0-09, M2-01 → M2-03, M2-06 |
 | QA | Playwright harness early, then each milestone's E2E |
 
-\* also needs human tasks H2, H5, H6, H7.
+\* also needs human tasks H2 and H5. H3, H4, H6, H7 and H9 are needed only for M9, at the end.
 
 ## Board
 
 | ID | Task | Lane | Depends on | Status |
 |---|---|---|---|---|
 | **H** | **Human setup** ([H.md](H.md)) | | | |
-| H1 | Private GitHub repo | Human | — | todo |
-| H2 | Supabase dev + prod (Mumbai) | Human | — | todo |
-| H3 | Google OAuth client | Human | H2 | todo |
-| H4 | School Gmail SMTP | Human | H2 | todo |
-| H5 | Vercel project + env vars | Human | H1, H2 | todo |
-| H6 | Backup encryption key pair | Human | H1 | todo |
-| H7 | GitHub Actions secrets | Human | H1, H2 | todo |
+| H1 | Repo ✓, branch protection, agents' token | Human | — | in-progress |
+| H2 | Supabase project ✓ + auth/API settings, bootstrap admin | Human | — | in-progress |
+| H5 | Vercel ✓ + env vars | Human | H2 | in-progress |
+| H3 | Google OAuth client (for M9) | Human | H2 | todo |
+| H4 | School Gmail SMTP (for M9) | Human | H2 | todo |
+| H6 | Backup encryption key pair (for M9) | Human | — | todo |
+| H7 | Private ops repo + its secrets (for M9) | Human | H1 | todo |
 | H8 | Open questions + consent forms | Human | — | todo |
+| H9 | Reset database password (for M9) | Human | — | todo |
 | **M0** | **Skeleton** ([M0.md](M0.md)) | | | |
 | M0-01 | Scaffold the app | Platform | H1 | todo |
 | M0-02 | CI workflow | Platform | M0-01 | todo |
@@ -49,13 +50,11 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | M0-09 | Settings: users, lists, preferences | Feature B | M0-07 | todo |
 | M0-10 | CSV import | Feature B | M0-08 | todo |
 | M0-11 | Deploy pipeline | Platform | M0-04, H2, H5 | todo |
-| M0-12 | Nightly backup, keep-alive, storage check | Platform | M0-11, H6, H7 | todo |
 | M0-13 | E2E smoke | QA | M0-08, M0-09 | todo |
 | **M1** | **Voice-note feedback** ([M1.md](M1.md)) | | | |
 | M1-01 | Storage helper | Platform | M0-06 | todo |
 | M1-02 | Record feedback | Feature A | M1-01, M0-07 | todo |
 | M1-03 | Feedback list | Feature A | M1-02 | todo |
-| M1-04 | Nightly transcription + retention | Platform | M1-02, M0-12 | todo |
 | **M2** | **Observations and follow-ups** ([M2.md](M2.md)) | | | |
 | M2-01 | Entries domain | Feature B | M0-06 | todo |
 | M2-02 | Quick observation screen | Feature A | M2-01, M0-08 | todo |
@@ -98,6 +97,12 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | M8-05 | Audit viewer and storage usage | Platform | M0-09 | todo |
 | M8-06 | Pilot readiness | QA | M8-01 … M8-05 | todo |
 | M8-07 | User guide | QA | M8-06 | todo |
+| **M9** | **Go-live** ([M9.md](M9.md)) | | | |
+| M9-01 | Nightly backup, keep-alive, storage check | Platform | M0-11, H6, H7 | todo |
+| M9-02 | Nightly transcription + retention | Platform | M1-02, M9-01 | todo |
+| M9-03 | Ops readiness check | QA | M9-01, M9-02, M9-04, M9-05 | todo |
+| M9-04 | Google sign-in and email codes | Platform | M0-06, H3, H4 | todo |
+| M9-05 | Go-live hardening | Platform | M9-01, H9 | todo |
 
 ## Task spec format
 

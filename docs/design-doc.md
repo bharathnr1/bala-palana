@@ -31,7 +31,7 @@ flowchart LR
 | Database | **Postgres on Supabase** (Mumbai region) | Relational data, strong reporting queries, free tier, data stays in India |
 | ORM | Drizzle | Type-safe; plain SQL migrations |
 | Validation | Zod | One schema per entry category, shared by forms and server (D6) |
-| Auth | Supabase Auth: **Google sign-in**, with an email-code fallback | No passwords and no paid email service (D3) |
+| Auth | Supabase Auth: **email + password** to start; **Google sign-in** and email codes added at go-live (D3) | No passwords and no paid email service (D3) |
 | Files | Supabase Storage (private buckets) | Photos, documents, voice notes (D16) |
 | Jobs | **GitHub Actions** nightly | Backups, keep-alive, transcription with **faster-whisper** (D14) |
 
@@ -145,7 +145,7 @@ Rule of thumb: **when the gurukula's practice varies or is unknown, pick a sensi
 |---|---|---|
 | D1 | **₹0 stack, permanently**: free tiers and open-source tools only (§11) | Non-profit, volunteer-built |
 | D2 | **English UI in v1**; all data fields accept any script; UI text kept in one file | Translation can be added later without rewriting screens |
-| D3 | **Google sign-in** as the main login; an email code via a dedicated school Gmail account (free SMTP) as fallback. Sessions last 30 days | Supabase's built-in email is too limited (about 2 emails an hour); Google sign-in sends no email |
+| D3 | **Two-phase sign-in.** Until go-live: **email + password**, with accounts created by the admin (self sign-up off). At go-live (M9): add **Google sign-in** and an **email code** sent through a school Gmail account (free SMTP). Sessions last 30 days | Needs no Google or email setup to start building; Supabase's built-in email is too limited for codes (about 2 an hour), and Google sign-in sends no email at all |
 | D4 | **PWA, Android-first**; no native app, no Play Store | Free; installs to the home screen; one codebase for phone and desktop |
 | D5 | **One `child` record across the lifecycle**, using a `stage` field | The requirements say admission data must stay with the child after she joins |
 | D6 | **Timeline entries as the backbone**; category-specific fields in `details` (jsonb, a JSON column in Postgres), validated by one Zod schema per category | One timeline, one follow-up system, one reporting surface; new plain categories need no code |
@@ -172,6 +172,7 @@ Rule of thumb: **when the gurukula's practice varies or is unknown, pick a sensi
 | D27 | **Money is stored as integer paise** | No rounding errors |
 | D28 | **Migrations run in the Vercel build**, and must be backward compatible | No separate deploy pipeline to maintain |
 | D29 | **Public code repo `bharathnr1/bala-palana`; private ops repo `bharathnr1/bala-palana-ops`** for the nightly job, backups and production secrets. Gurukula documents (`docs/inputs/`) are git-ignored | Public CI is free with no minute limits and allows branch protection, but logs and artifacts in a public repo are world-readable, so anything touching real data stays private |
+| D30 | **One Supabase project `bala-palana`** for previews and production. Previews never run migrations; test sign-in is blocked on every Vercel deployment; before go-live (M9-05), decide whether previews keep database access | Simpler to run, within the free limits; safe while only fake data exists |
 
 ## 11. Free-tier budget
 
@@ -192,7 +193,7 @@ Sized for ~120 children, ~20–30 new admissions a year, ~5 teachers and a few c
 **Watch-outs**
 - **Vercel Hobby is for non-commercial use only.** An unpaid volunteer building for a non-profit, with no payments or ads, fits that. If Vercel's terms change, the fallback is Cloudflare Pages/Workers, whose free tier allows any use.
 - **Supabase pauses projects after a week of inactivity**; the nightly job (D14) prevents this.
-- **Supabase allows 2 free projects**: one for production, one for development.
+- **One Supabase project** is used for everything (D30); the free plan allows a second if previews ever need isolating.
 - **Storage is the first limit we'll reach.** Settings shows usage; when it passes 70%, move documents to another free store such as Google Drive.
 
 ## 12. Open questions
