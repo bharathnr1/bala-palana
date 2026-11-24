@@ -14,7 +14,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --project unit",
-    "test:db": "vitest run --project db --passWithNoTests",
+    "test:db": "vitest run --project db",
     "e2e": "playwright test --pass-with-no-tests",
     "check": "pnpm lint && pnpm typecheck && pnpm test",
     "db:generate": "drizzle-kit generate",
