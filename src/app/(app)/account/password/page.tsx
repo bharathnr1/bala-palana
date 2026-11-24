@@ -18,7 +18,7 @@ export default async function PasswordPage({
   const { error, changed } = await searchParams;
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 px-4 py-10">
+    <div className="mx-auto flex w-full max-w-md flex-col gap-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">{strings.auth.changePassword}</h1>
         <p className="text-sm text-muted-foreground">
@@ -62,6 +62,6 @@ export default async function PasswordPage({
           {strings.auth.changePassword}
         </Button>
       </form>
-    </main>
+    </div>
   );
 }

@@ -32,6 +32,66 @@ export const strings = {
     role: "Role",
   },
 
+  nav: {
+    mainNav: "Main navigation",
+    primaryNav: "Primary navigation",
+    skipToContent: "Skip to content",
+    home: "Home",
+    children: "Children",
+    observe: "Observe",
+    followUps: "Follow-ups",
+    attention: "Needs attention",
+    duties: "Duties",
+    academics: "Academics",
+    admissions: "Admissions",
+    fees: "Fees",
+    alumni: "Alumni",
+    reports: "Reports",
+    feedback: "Feedback",
+    settings: "Settings",
+    more: "More",
+    closeMore: "Close menu",
+  },
+
+  home: {
+    greeting: "Hello",
+    followUpsTitle: "My follow-ups",
+    attentionTitle: "Needs attention",
+    recentTitle: "Recently viewed",
+    followUpsEmpty: "No follow-ups are due. Anything you schedule will show up here.",
+    attentionEmpty: "No children need attention right now.",
+    recentEmpty: "Children you open will appear here.",
+  },
+
+  install: {
+    title: "Install app",
+    body: "Add Bāla Pālana to your home screen for one-tap access.",
+    action: "Install",
+    dismiss: "Not now",
+  },
+
+  children: {
+    add: "Add child",
+    profile: "Child profile",
+  },
+
+  duties: {
+    lookup: "Who was on duty",
+  },
+
+  states: {
+    loading: "Loading…",
+    emptyTitle: "Nothing here yet",
+    errorTitle: "Something went wrong",
+    errorBody: "Please try again. If it keeps happening, tell the admin.",
+    errorRetry: "Try again",
+    pageMissing: "This screen is not available to your role.",
+  },
+
+  placeholder: {
+    comingSoon: "This screen arrives in a later milestone.",
+  },
+
   errors: {
     invalidForm: "Please check the form.",
     unexpected: "Something went wrong.",
