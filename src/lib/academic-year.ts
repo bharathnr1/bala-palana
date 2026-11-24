@@ -13,8 +13,12 @@ export function academicYearOf(date: string | Date, startMonth: number = 6): str
   if (!Number.isInteger(startMonth) || startMonth < 1 || startMonth > 12) {
     throw new RangeError(`startMonth must be 1–12, got ${startMonth}`);
   }
+  // Both branches read the calendar in IST. A date-only string must never be
+  // interpreted in the host's zone, or the year flips on a UTC server.
   const local =
-    typeof date === "string" ? new TZDate(`${date}T00:00:00+05:30`) : new TZDate(date, TIME_ZONE);
+    typeof date === "string"
+      ? new TZDate(`${date}T00:00:00+05:30`, TIME_ZONE)
+      : new TZDate(date, TIME_ZONE);
   const startYear =
     local.getMonth() + 1 < startMonth ? local.getFullYear() - 1 : local.getFullYear();
   const endYear = String((startYear + 1) % 100).padStart(2, "0");
