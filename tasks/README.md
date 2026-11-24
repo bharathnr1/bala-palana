@@ -46,7 +46,7 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | M0-05 | Seeds and demo data | Platform | M0-04 | done |
 | M0-06 | Authentication and permissions | Platform | M0-04 | done |
 | M0-07 | App shell and PWA | Feature A | M0-06 | done |
-| M0-08 | Children list, profile, add/edit | Feature A | M0-07 | todo |
+| M0-08 | Children list, profile, add/edit | Feature A | M0-07 | done |
 | M0-09 | Settings: users, lists, preferences | Feature B | M0-07 | todo |
 | M0-10 | CSV import | Feature B | M0-08 | todo |
 | M0-11 | Deploy pipeline | Platform | M0-04, H2, H5 | todo |
