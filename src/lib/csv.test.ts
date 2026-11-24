@@ -33,8 +33,8 @@ describe("parseCsv", () => {
 
 describe("parseImport", () => {
   const text = [
-    "full_name,dob,grade,guardian_name",
-    "Ananya Sharma,2015-04-12,Grade 6,Meera Sharma",
+    "full_name,dob,grade,guardian_name,consent",
+    "Ananya Sharma,2015-04-12,Grade 6,Meera Sharma,yes",
     ",2015-01-01,Grade 1,Nobody",
   ].join("\n");
 
@@ -48,12 +48,19 @@ describe("parseImport", () => {
     expect(result.rows[1]?.errors.length).toBeGreaterThan(0);
   });
 
+  it("asks for consent on a student row", () => {
+    const result = parseImport("full_name,stage\nAnanya,student");
+    expect(result.rows[0]?.errors.join(" ")).toMatch(/consent/);
+    expect(parseImport("full_name,stage,consent\nAnanya,student,yes").rows[0]?.errors).toEqual([]);
+    expect(parseImport("full_name,stage\nAnanya,applicant").rows[0]?.errors).toEqual([]);
+  });
+
   it("requires a full_name column", () => {
     expect(parseImport("name,dob\nAnanya,2015-04-12").error).toBe("missing_full_name");
   });
 
   it("rejects a date in the wrong shape", () => {
-    const result = parseImport("full_name,dob\nAnanya,12/04/2015");
+    const result = parseImport("full_name,dob,consent\nAnanya,12/04/2015,yes");
     expect(result.rows[0]?.errors[0]).toMatch(/dob: Use the date format/);
   });
 

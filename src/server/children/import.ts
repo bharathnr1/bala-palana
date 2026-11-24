@@ -96,7 +96,7 @@ export async function importChildren(
           preferredName: row.preferred_name ?? null,
           dob: row.dob ?? null,
           stage: row.stage,
-          consentGivenAt: row.stage === "student" ? new Date() : null,
+          consentGivenAt: row.consent === "yes" ? new Date() : null,
         })
         .returning({ id: child.id });
       if (!created) throw new AppError("INVALID", strings.errors.unexpected);

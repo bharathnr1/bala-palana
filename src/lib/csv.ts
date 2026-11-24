@@ -19,6 +19,7 @@ export const IMPORT_COLUMNS = [
   "guardian_name",
   "guardian_phone",
   "guardian_relation",
+  "consent",
 ] as const;
 
 export type ImportColumn = (typeof IMPORT_COLUMNS)[number];
@@ -26,7 +27,7 @@ export type ImportColumn = (typeof IMPORT_COLUMNS)[number];
 /** The file the admin downloads and fills in. */
 export const IMPORT_TEMPLATE = [
   IMPORT_COLUMNS.join(","),
-  "Ananya Sharma,,2015-04-12,student,grade_6,,Sunrise School,Meera Sharma,9876543210,mother",
+  "Ananya Sharma,,2015-04-12,student,grade_6,,Sunrise School,Meera Sharma,9876543210,mother,yes",
   "",
 ].join("\n");
 
@@ -116,7 +117,8 @@ const optionalText = z.preprocess(
   z.string().trim().max(200).optional(),
 );
 
-export const importRowSchema = z.object({
+export const importRowSchema = z
+  .object({
   full_name: z.string().trim().min(1).max(200),
   preferred_name: optionalText,
   dob: date,
@@ -127,7 +129,16 @@ export const importRowSchema = z.object({
   guardian_name: optionalText,
   guardian_phone: optionalText,
   guardian_relation: optionalText,
-});
+  consent: z.preprocess(
+    (value) => (typeof value === "string" ? value.trim().toLowerCase() : value),
+    z.enum(["yes", "no", ""]).optional(),
+  ),
+})
+  // Consent is recorded, never assumed: a student row must say yes (03).
+  .refine((row) => row.stage !== "student" || row.consent === "yes", {
+    message: "consent must be yes for a student",
+    path: ["consent"],
+  });
 
 export type ImportRow = z.infer<typeof importRowSchema>;
 

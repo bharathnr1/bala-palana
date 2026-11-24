@@ -37,6 +37,7 @@ function rows(count: number): ImportRow[] {
     guardian_name: `Guardian ${index}`,
     guardian_phone: "9876543210",
     guardian_relation: "mother",
+    consent: "yes" as const,
   }));
 }
 
