@@ -41,7 +41,7 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | **M0** | **Skeleton** ([M0.md](M0.md)) | | | |
 | M0-01 | Scaffold the app | Platform | H1 | done |
 | M0-02 | CI workflow | Platform | M0-01 | done |
-| M0-03 | Database foundation | Platform | M0-01 | in-progress (platform-2) |
+| M0-03 | Database foundation | Platform | M0-01 | done |
 | M0-04 | Full domain schema | Platform | M0-03 | todo |
 | M0-05 | Seeds and demo data | Platform | M0-04 | todo |
 | M0-06 | Authentication and permissions | Platform | M0-04 | todo |
