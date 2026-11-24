@@ -196,7 +196,7 @@ export async function createEntries(
     const tagIds = await lookupIds(tx, "tag", input.tagKeys ?? []);
     const parentId =
       input.categoryKey === "corrective_action"
-        ? await concernParentId(tx, input.parentId, childIds[0]!)
+        ? await concernParentId(tx, input.parentId, childIds[0])
         : null;
 
     const groupKey = childIds.length > 1 ? crypto.randomUUID() : null;
