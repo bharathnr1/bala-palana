@@ -21,7 +21,8 @@
     "db:migrate": "drizzle-kit migrate",
     "seed:demo": "tsx scripts/seed-demo.ts",
     "seed:bootstrap": "tsx scripts/seed.ts",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "icons": "tsx scripts/generate-icons.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
