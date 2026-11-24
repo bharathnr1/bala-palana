@@ -149,6 +149,33 @@ export const strings = {
       date: "Use the date format YYYY-MM-DD.",
       notFound: "That child does not exist.",
     },
+    import: {
+      title: "Import CSV",
+      download: "Download template",
+      choose: "Choose a CSV file",
+      hint: "Columns: name, date of birth, grade, group, outside school, guardian.",
+      row: "Row",
+      name: "Name",
+      dob: "Date of birth",
+      grade: "Grade",
+      guardian: "Guardian",
+      status: "Status",
+      ok: "Ready",
+      problem: "Fix this row or untick it",
+      submit: "Import selected rows",
+      summary: (imported: number, skipped: number) =>
+        `Imported ${imported} children; skipped ${skipped} that already existed.`,
+      empty: "The file has no rows.",
+      emptySelection: "Tick at least one row to import.",
+      fileTooBig: "That file is too large (max 1 MB).",
+      badPayload: "The rows could not be read. Choose the file again.",
+      unknownLookup: (line: number, kind: string, value: string) =>
+        `Line ${line}: unknown ${kind} "${value}".`,
+      missingFullName: "The file needs a full_name column.",
+      unclosedQuote: "A quoted value is not closed.",
+      readError: "That file could not be read.",
+      doneTitle: "Import finished",
+    },
   },
 
   duties: {
