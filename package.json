@@ -20,10 +20,12 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "seed:demo": "tsx scripts/seed-demo.ts",
+    "seed:bootstrap": "tsx scripts/seed.ts",
     "format": "prettier --write ."
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
+    "@faker-js/faker": "^10.6.0",
     "@hookform/resolvers": "^7.0.8",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.119.2",

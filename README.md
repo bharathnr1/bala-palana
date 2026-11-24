@@ -44,6 +44,7 @@ pnpm dev                      # http://localhost:3000
 | `pnpm e2e`                             | Playwright end-to-end tests                                   |
 | `pnpm db:generate` / `pnpm db:migrate` | Create a migration from the Drizzle schema / apply migrations |
 | `pnpm seed:demo`                       | Load deterministic demo data (never real child data)          |
+| `pnpm seed:bootstrap`                  | Create the first admin from `BOOTSTRAP_ADMIN_EMAIL` (no-op if set/unset twice) |
 | `pnpm format`                          | Prettier                                                      |
 
 Configuration is read from `.env`, validated at startup by `src/lib/env.ts`; the full list of variables is in [docs/architecture/05-ops.md](docs/architecture/05-ops.md#environment-variables). Never commit `.env` or any secret.
