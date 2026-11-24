@@ -28,3 +28,6 @@ test-results/
 
 # Claude Code local settings (holds the GitHub token)
 .claude/settings.local.json
+
+# TypeScript incremental state
+*.tsbuildinfo
