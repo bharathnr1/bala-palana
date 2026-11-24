@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  addDaysISO,
   daysBetween,
   formatDate,
   formatDateOrDash,
@@ -20,6 +21,12 @@ describe("dates", () => {
     expect(date.getHours()).toBe(0);
     expect(date.getDate()).toBe(1);
     expect(date.toISOString()).toBe("2026-06-01T00:00:00.000+05:30");
+  });
+
+  it("adds calendar days across a month boundary in IST", () => {
+    expect(addDaysISO("2026-11-24", 7)).toBe("2026-12-01");
+    expect(addDaysISO("2026-12-31", 1)).toBe("2027-01-01");
+    expect(addDaysISO("2026-11-24", 0)).toBe("2026-11-24");
   });
 
   it("counts calendar days across a month boundary", () => {

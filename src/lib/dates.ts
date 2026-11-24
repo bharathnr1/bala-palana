@@ -1,5 +1,5 @@
 import { TZDate } from "@date-fns/tz";
-import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { addDays, differenceInCalendarDays, format, parseISO } from "date-fns";
 
 /** All display dates and "today" are computed in India Standard Time (D15). */
 export const TIME_ZONE = "Asia/Kolkata";
@@ -25,6 +25,11 @@ export function todayISO(): string {
  */
 export function parseISODate(iso: string): TZDate {
   return new TZDate(`${iso}T00:00:00+05:30`, TIME_ZONE);
+}
+
+/** `addDaysISO("2026-11-24", 7)` → `2026-12-01`; calendar days in IST. */
+export function addDaysISO(iso: string, days: number): string {
+  return format(addDays(parseISODate(iso), days), "yyyy-MM-dd");
 }
 
 /** `2026-11-24` → `24 Nov 2026`. */
