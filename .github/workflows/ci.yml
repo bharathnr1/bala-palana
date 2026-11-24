@@ -1,0 +1,100 @@
+name: CI
+
+# Every PR and every push to main (05-ops § CI). Public repo, so this runs on
+# the free allowance: no secrets, no Supabase, a throwaway Postgres container.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A newer push to the same branch makes the older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Dummy public config: the app validates it at startup, and nothing in CI
+  # talks to Supabase (05-ops § CI).
+  NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: test-anon-key
+  APP_URL: http://localhost:3000
+  # The service container below accepts connections without a password
+  # (POSTGRES_HOST_AUTH_METHOD=trust), so no credential is written here.
+  DATABASE_URL: postgresql://postgres@localhost:5432/postgres
+  DIRECT_URL: postgresql://postgres@localhost:5432/postgres
+  # Test sign-in is allowed outside Vercel; env.ts refuses it when VERCEL_ENV is set (D30).
+  AUTH_MODE: test
+
+jobs:
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        # Same major version as Supabase (05-ops § CI).
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      # 1. Install from the lockfile; a mismatch fails the run.
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      # 2. Lint and types.
+      - name: Lint and typecheck
+        run: |
+          pnpm lint
+          pnpm typecheck
+
+      # 3. Pure logic.
+      - name: Unit tests
+        run: pnpm test
+
+      # 4. Real Postgres. The suite applies every migration to the service
+      #    container before it runs (06-testing § Layers).
+      - name: Database tests
+        run: pnpm test:db
+
+      # 5. Production build with dummy config and test sign-in.
+      #    Browsers are fetched first so a build failure cannot skip the cache.
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: playwright-${{ runner.os }}-
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Build
+        run: pnpm build
+
+      # 6. Mobile and desktop browsers against `next start` and the database.
+      - name: End-to-end tests
+        run: pnpm e2e
