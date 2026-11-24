@@ -16,9 +16,15 @@ export function todayISO(): string {
   return format(nowIST(), "yyyy-MM-dd");
 }
 
-/** Midnight IST on the given `YYYY-MM-DD`. */
+/**
+ * Midnight IST on the given `YYYY-MM-DD`.
+ *
+ * The zone argument is not optional: without it `TZDate` reads the calendar
+ * in the machine's local zone, and a date-only value silently shifts a day
+ * on any non-IST host (Vercel runs UTC).
+ */
 export function parseISODate(iso: string): TZDate {
-  return new TZDate(`${iso}T00:00:00+05:30`);
+  return new TZDate(`${iso}T00:00:00+05:30`, TIME_ZONE);
 }
 
 /** `2026-11-24` → `24 Nov 2026`. */

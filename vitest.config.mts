@@ -9,6 +9,9 @@ export default defineConfig({
     alias: { "@": srcDir },
   },
   test: {
+    // CI, Vercel and the nightly job run in UTC. Pin the tests to it so a
+    // developer's IST clock can never hide a date or time-zone bug.
+    env: { TZ: "UTC" },
     projects: [
       {
         // Pure logic: dates, money, academic years, Zod schemas, permissions.
