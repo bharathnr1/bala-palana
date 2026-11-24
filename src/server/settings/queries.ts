@@ -59,6 +59,14 @@ export async function listLookups(user: { role: Role }): Promise<LookupRow[]> {
     .orderBy(asc(lookup.kind), asc(lookup.sort), asc(lookup.label));
 }
 
+/** The stored rule is `{"type": "half_month"}`; unknown values fall back. */
+function cycleRuleOf(raw: unknown): Preferences["cycleRule"] {
+  if (typeof raw === "object" && raw !== null && (raw as { type?: unknown }).type === "half_month") {
+    return "half_month";
+  }
+  return DEFAULT_PREFERENCES.cycleRule;
+}
+
 /** The four editable settings, with the seeded defaults for anything missing. */
 export async function getPreferences(user: { role: Role }): Promise<Preferences> {
   assertCan(user, "settings.manage");
@@ -81,7 +89,7 @@ export async function getPreferences(user: { role: Role }): Promise<Preferences>
     ),
     needsAttentionDays: number(SETTING_KEYS.needsAttentionDays, DEFAULT_PREFERENCES.needsAttentionDays),
     audioRetentionDays: number(SETTING_KEYS.audioRetentionDays, DEFAULT_PREFERENCES.audioRetentionDays),
-    cycleRule: "half_month",
+    cycleRule: cycleRuleOf(value(SETTING_KEYS.cycleRule)),
   };
 }
 
