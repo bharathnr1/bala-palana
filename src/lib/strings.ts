@@ -179,6 +179,22 @@ export const strings = {
     },
   },
 
+  entries: {
+    errors: {
+      notFound: "That entry does not exist.",
+      categoryUnknown: "Choose a category.",
+      details: "Some details for this category are not valid.",
+      childMissing: "One of the children does not exist.",
+      followUpParent: "A corrective action must belong to a concern for the same child.",
+      singleChild: "A corrective action is recorded for one child at a time.",
+      forbidden: "You cannot change this entry.",
+      deleteTooLate: "You can only delete your own entry within 24 hours.",
+      alreadyClosed: "That follow-up is already closed.",
+      alreadyOpen: "That follow-up is already open.",
+      unknownLookup: (kind: string, key: string) => `Unknown ${kind} "${key}".`,
+    },
+  },
+
   duties: {
     lookup: "Who was on duty",
   },

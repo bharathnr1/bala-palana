@@ -56,7 +56,7 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | M1-02 | Record feedback | Feature A | M1-01, M0-07 | todo |
 | M1-03 | Feedback list | Feature A | M1-02 | todo |
 | **M2** | **Observations and follow-ups** ([M2.md](M2.md)) | | | |
-| M2-01 | Entries domain | Feature B | M0-06 | todo |
+| M2-01 | Entries domain | Feature B | M0-06 | in-progress (Integrator) |
 | M2-02 | Quick observation screen | Feature A | M2-01, M0-08 | todo |
 | M2-03 | Journey tab + timeline view | Feature B | M2-01 | todo |
 | M2-04 | Entry sheet and threads | Feature B | M2-03 | todo |
