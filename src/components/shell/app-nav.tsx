@@ -70,7 +70,7 @@ export function MobileNav({ items }: { items: NavItem[] }) {
       {moreOpen && more.length > 0 ? (
         <div
           id="more-nav"
-          className="fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 mx-3 max-h-[60dvh] overflow-y-auto rounded-2xl border border-border bg-popover p-2 shadow-xl md:hidden"
+          className="fixed inset-x-0 bottom-[calc(5.75rem+env(safe-area-inset-bottom))] z-30 mx-3 max-h-[60dvh] overflow-y-auto rounded-2xl border border-border bg-popover p-2 shadow-xl md:hidden"
         >
           <div className="flex items-center justify-between px-2 py-1">
             <span className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
@@ -135,7 +135,7 @@ export function MobileNav({ items }: { items: NavItem[] }) {
                     className={cn(
                       "flex items-center justify-center rounded-full",
                       isObserve
-                        ? "-mt-6 size-14 bg-primary text-primary-foreground shadow-lg"
+                        ? "-mt-9 size-14 bg-primary text-primary-foreground shadow-lg"
                         : "size-5",
                     )}
                   >
