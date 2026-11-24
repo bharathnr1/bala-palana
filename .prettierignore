@@ -1,0 +1,9 @@
+docs/
+tasks/
+AGENTS.md
+CLAUDE.md
+pnpm-lock.yaml
+.next/
+coverage/
+test-results/
+playwright-report/
