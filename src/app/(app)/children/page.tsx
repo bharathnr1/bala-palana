@@ -60,11 +60,18 @@ export default async function ChildrenPage({
       <PageHeader
         title={strings.nav.children}
         actions={
-          can(user, "child.write") ? (
-            <Button asChild className="h-11">
-              <Link href="/children/new">{strings.children.add}</Link>
-            </Button>
-          ) : undefined
+          <div className="flex flex-wrap gap-2">
+            {can(user, "child.import") ? (
+              <Button asChild variant="outline" className="h-11">
+                <Link href="/children/import">{strings.children.import.title}</Link>
+              </Button>
+            ) : null}
+            {can(user, "child.write") ? (
+              <Button asChild className="h-11">
+                <Link href="/children/new">{strings.children.add}</Link>
+              </Button>
+            ) : null}
+          </div>
         }
       />
 

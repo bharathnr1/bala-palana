@@ -223,7 +223,7 @@ export function ChildForm({
               defaultValue={values.relationKey}
               className={INPUT}
             >
-              <option value="">—</option>
+              <option value="">{strings.children.fields.none}</option>
               {options.relations.map((option) => (
                 <option key={option.id} value={option.key}>
                   {option.label}
@@ -255,7 +255,7 @@ export function ChildForm({
 
           <Field id="gradeKey" label={strings.children.fields.grade} error={errors.gradeKey?.[0]}>
             <select id="gradeKey" name="gradeKey" defaultValue={values.gradeKey} className={INPUT}>
-              <option value="">—</option>
+              <option value="">{strings.children.fields.none}</option>
               {options.grades.map((option) => (
                 <option key={option.id} value={option.key}>
                   {option.label}
@@ -266,7 +266,7 @@ export function ChildForm({
 
           <Field id="groupKey" label={strings.children.fields.group} error={errors.groupKey?.[0]}>
             <select id="groupKey" name="groupKey" defaultValue={values.groupKey} className={INPUT}>
-              <option value="">—</option>
+              <option value="">{strings.children.fields.none}</option>
               {options.groups.map((option) => (
                 <option key={option.id} value={option.key}>
                   {option.label}
