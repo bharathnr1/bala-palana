@@ -4,7 +4,7 @@ _Bāla_ (child) + _Pālana_ (care, upbringing).
 
 A child-journey tracking system for a gurukula. It keeps one lifelong record per child, from admission enquiry through her Gurukula years to alumni life. That record covers academics, health, skills, achievements, responsibilities and duty rotation, observations and follow-ups, and fees. Teachers use it from their phones; coordinators and trustees use it for reports.
 
-**Status:** Planning complete; ready for build. See the [task board](tasks/README.md).
+**Status:** v0.1 (M0) released — sign-in and permissions, the full schema, children, settings, CSV import and the quick observation screen. Live at <https://bala-palana.vercel.app>. See the [task board](tasks/README.md) for what is next.
 
 ## Docs
 
@@ -15,6 +15,7 @@ A child-journey tracking system for a gurukula. It keeps one lifelong record per
 | [docs/design-doc.md](docs/design-doc.md)         | Architecture, domain model, privacy, reports, **decisions D1–D30**, free-tier budget                                                                                                                                                                                                          |
 | [docs/architecture/](docs/architecture/)         | Detailed specs: [conventions](docs/architecture/01-conventions.md), [schema](docs/architecture/02-schema.md), [auth & access](docs/architecture/03-auth-and-access.md), [UI](docs/architecture/04-ui-spec.md), [ops](docs/architecture/05-ops.md), [testing](docs/architecture/06-testing.md) |
 | [docs/roadmap.md](docs/roadmap.md)               | Milestones M0–M9 and the real-data gate                                                                                                                                                                                                                                                       |
+| [docs/releases.md](docs/releases.md)             | Released versions, the tag convention and the release procedure                                                                                                                                                                                                                               |
 | [tasks/](tasks/README.md)                        | Task board and per-milestone task specs                                                                                                                                                                                                                                                       |
 | [docs/open-questions.md](docs/open-questions.md) | What's still open for the gurukula                                                                                                                                                                                                                                                            |
 | `docs/inputs/`                                   | Kick-off call transcript and the gurukula's requirements. **Kept locally, not in git** (D29); agents get them from the owner if needed                                                                                                                                                        |

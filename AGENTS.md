@@ -156,5 +156,5 @@ Layout, patterns and data conventions are in [01-conventions](docs/architecture/
 When every task in a milestone is `done`:
 1. Smoke-test the production deploy with demo data.
 2. Update [docs/roadmap.md](docs/roadmap.md) if scope moved.
-3. Tag `main` as `m<N>` (e.g. `m0`).
+3. Tag `main` with the next release tag from [docs/releases.md](docs/releases.md) (e.g. `bala-palana-0.1`) and create a GitHub Release from it.
 4. Write a short summary for the human: what shipped, what to try, anything that needs their action.
