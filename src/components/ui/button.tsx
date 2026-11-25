@@ -70,8 +70,15 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     >
-      {busy ? <Spinner /> : null}
-      {children}
+      {asChild ? (
+        // Slot requires exactly one child, so the link passes through untouched.
+        children
+      ) : (
+        <>
+          {busy ? <Spinner /> : null}
+          {children}
+        </>
+      )}
     </Comp>
   );
 }
