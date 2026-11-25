@@ -1,0 +1,956 @@
+{
+  "$schema": "https://stacklit.dev/schema/v1.json",
+  "version": "1",
+  "schema_version": 1,
+  "stacklit_version": "dev",
+  "merkle_hash": "1b1733c4222ad170cc76009a9ee954577772707177012dbc135f133b1a5f2c48",
+  "project": {
+    "name": "bala-palana",
+    "root": ".",
+    "type": "single"
+  },
+  "tech": {
+    "primary_language": "typescript",
+    "languages": {
+      "javascript": {
+        "files": 3,
+        "lines": 41
+      },
+      "json": {
+        "files": 11,
+        "lines": 12125
+      },
+      "sql": {
+        "files": 7,
+        "lines": 753
+      },
+      "tsx": {
+        "files": 48,
+        "lines": 3204
+      },
+      "typescript": {
+        "files": 88,
+        "lines": 6905
+      },
+      "yaml": {
+        "files": 2,
+        "lines": 115
+      }
+    },
+    "frameworks": [
+      "Drizzle",
+      "ESLint",
+      "GitHub Actions",
+      "Next.js",
+      "Playwright",
+      "React",
+      "Tailwind CSS",
+      "Vitest"
+    ],
+    "framework_patterns": [
+      {
+        "name": "Next.js",
+        "config_files": [
+          "next.config.ts"
+        ]
+      }
+    ]
+  },
+  "structure": {
+    "entrypoints": null,
+    "total_files": 159,
+    "total_lines": 23143
+  },
+  "modules": {
+    ".github/workflows": {
+      "purpose": "Workflows",
+      "language": "yaml",
+      "files": 1,
+      "lines": 110,
+      "file_list": [
+        "ci.yml"
+      ],
+      "exports": [
+        "name",
+        "on",
+        "concurrency",
+        "permissions",
+        "env",
+        "jobs"
+      ],
+      "activity": "low"
+    },
+    "drizzle": {
+      "purpose": "Drizzle",
+      "language": "sql",
+      "files": 7,
+      "lines": 753,
+      "file_list": [
+        "0003_domain_tables.sql",
+        "0001_foundation_tables.sql",
+        "0000_foundation_functions.sql",
+        "0005_seed_defaults.sql",
+        "0006_audit_row_row_key.sql",
+        "0002_foundation_triggers.sql",
+        "0004_domain_constraints_triggers_rls.sql"
+      ],
+      "exports": [
+        "table \"assessment\"",
+        "table \"admission\"",
+        "table \"admission_event\"",
+        "table \"child\"",
+        "table \"education_history\"",
+        "table \"enrolment\"",
+        "table \"document\"",
+        "table \"cycle\"",
+        "table \"team\"",
+        "table \"team_member\""
+      ],
+      "type_defs": {
+        "\"admission\"": "\"id\" uuid; \"child_id\" uuid; \"enquiry_on\" date; \"interview_on\" date; \"source_id\" uuid; \"status_id\" uuid; \"next_action\" text; \"follow_up_on\" date; \"assigned_to\" uuid; \"created_at\" timestamp; \"updated_at\" timestamp",
+        "\"admission_event\"": "\"id\" uuid; \"admission_id\" uuid; \"kind\" \"admission_event_kind\"; \"occurred_on\" date; \"status_id\" uuid; \"note\" text; \"author_id\" uuid; \"created_at\" timestamp; \"updated_at\" timestamp",
+        "\"app_user\"": "\"id\" uuid; \"auth_user_id\" uuid; \"email\" \"citext\"; \"name\" text; \"role\" \"user_role\"; \"active\" boolean; \"last_seen_at\" timestamp; \"created_at\" timestamp; \"updated_at\" timestamp",
+        "\"assessment\"": "\"id\" uuid; \"child_id\" uuid; \"academic_year\" text; \"grade_id\" uuid; \"term_id\" uuid; \"subject_id\" uuid; \"marks\" numeric(6,; \"max_marks\" numeric(6,; \"grade_letter\" text; \"remark\" text; \"recorded_by\" uuid; \"created_at\" timestamp; \"updated_at\" timestamp",
+        "\"audit_log\"": "\"id\" bigserial; \"at\" timestamp; \"actor_id\" uuid; \"table_name\" text; \"row_id\" text; \"op\" text; \"before\" jsonb; \"after\" jsonb",
+        "\"child\"": "\"id\" uuid; \"full_name\" text; \"preferred_name\" text; \"dob\" date; \"photo_document_id\" uuid; \"stage\" \"child_stage\"; \"joined_on\" date; \"left_on\" date; \"left_reason\" text; \"own_phone\" text; \"own_email\" text; \"consent_given_at\" timestamp; \"notes\" text; \"anonymised_at\" timestamp; \"created_at\" timestamp; \"updated_at\" timestamp",
+        "\"child_guardian\"": "\"child_id\" uuid; \"guardian_id\" uuid; \"relation_id\" uuid; \"is_primary\" boolean; \"created_at\" timestamp; \"updated_at\" timestamp",
+        "\"cycle\"": "\"id\" uuid; \"start_on\" date; \"end_on\" date; \"status\" \"cycle_status\"; \"note\" text; \"created_at\" timestamp; \"updated_at\" timestamp",
+        "\"document\"": "\"id\" uuid; \"child_id\" uuid; \"kind_id\" uuid; \"title\" text; \"file_path\" text; \"mime\" text; \"size_bytes\" integer; \"issued_on\" date; \"restricted\" boolean; \"uploaded_by\" uuid; \"deleted_at\" timestamp; \"created_at\" timestamp; \"updated_at\" timestamp",
+        "\"education_history\"": "\"id\" uuid; \"child_id\" uuid; \"school\" text; \"from_year\" integer; \"to_year\" integer; \"grade_reached\" text; \"note\" text; \"created_at\" timestamp; \"updated_at\" timestamp"
+      },
+      "activity": "low"
+    },
+    "drizzle/meta": {
+      "purpose": "Meta",
+      "language": "json",
+      "files": 8,
+      "lines": 11999,
+      "file_list": [
+        "0000_snapshot.json",
+        "0001_snapshot.json",
+        "0002_snapshot.json",
+        "0003_snapshot.json",
+        "0004_snapshot.json",
+        "0005_snapshot.json",
+        "0006_snapshot.json",
+        "_journal.json"
+      ],
+      "exports": [
+        "id",
+        "prevId",
+        "version",
+        "dialect",
+        "tables",
+        "enums",
+        "schemas",
+        "views",
+        "sequences",
+        "roles"
+      ],
+      "activity": "low"
+    },
+    "public": {
+      "purpose": "Public",
+      "language": "javascript",
+      "files": 1,
+      "lines": 16,
+      "file_list": [
+        "sw.js"
+      ],
+      "activity": "low"
+    },
+    "root": {
+      "purpose": "Root package",
+      "language": "typescript",
+      "files": 10,
+      "lines": 235,
+      "file_list": [
+        "components.json",
+        "package.json",
+        "tsconfig.json",
+        "pnpm-workspace.yaml",
+        "drizzle.config.ts",
+        "eslint.config.mjs",
+        "next-env.d.ts",
+        "next.config.ts",
+        "playwright.config.ts",
+        "prettier.config.mjs"
+      ],
+      "exports": [
+        "$schema",
+        "style",
+        "rsc",
+        "tsx",
+        "tailwind",
+        "iconLibrary",
+        "rtl",
+        "aliases",
+        "menuColor",
+        "menuAccent"
+      ],
+      "activity": "low"
+    },
+    "scripts": {
+      "purpose": "Scripts",
+      "language": "typescript",
+      "files": 5,
+      "lines": 766,
+      "file_list": [
+        "seed-demo.ts",
+        "db.ts",
+        "generate-icons.ts",
+        "seed.ts",
+        "vercel-build.ts"
+      ],
+      "exports": [
+        "type SeedSummary",
+        "seedDemo() Promise\u003cSeedSummary\u003e",
+        "scriptDb()"
+      ],
+      "type_defs": {
+        "SeedSummary": "skipped, users, children, guardians, enrolments, entries, cycles"
+      },
+      "depends_on": [
+        "src/lib",
+        "src/server/db/schema"
+      ],
+      "depended_by": [
+        "src/server/db"
+      ],
+      "activity": "low"
+    },
+    "src": {
+      "purpose": "Src",
+      "language": "typescript",
+      "files": 1,
+      "lines": 59,
+      "file_list": [
+        "middleware.ts"
+      ],
+      "exports": [
+        "middleware(request: NextRequest) Promise\u003cNextResponse\u003e",
+        "config"
+      ],
+      "activity": "low"
+    },
+    "src/app": {
+      "purpose": "App",
+      "language": "tsx",
+      "files": 2,
+      "lines": 65,
+      "file_list": [
+        "layout.tsx",
+        "manifest.ts"
+      ],
+      "exports": [
+        "metadata",
+        "viewport",
+        "RootLayout({ children }: { children: React.ReactNode })",
+        "manifest() MetadataRoute.Manifest"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)": {
+      "purpose": "(app)",
+      "language": "tsx",
+      "files": 3,
+      "lines": 102,
+      "file_list": [
+        "error.tsx",
+        "layout.tsx",
+        "page.tsx"
+      ],
+      "exports": [
+        "AppError({ reset }: { error: Error \u0026 { digest?: string }; reset: () =\u003e void })",
+        "AppLayout({ children }: { children: React.ReactNode })",
+        "HomePage()"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/academics": {
+      "purpose": "Academics",
+      "language": "tsx",
+      "files": 1,
+      "lines": 9,
+      "file_list": [
+        "page.tsx"
+      ],
+      "exports": [
+        "AcademicsPage()"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/account": {
+      "purpose": "Account",
+      "language": "tsx",
+      "files": 1,
+      "lines": 67,
+      "file_list": [
+        "page.tsx"
+      ],
+      "exports": [
+        "PasswordPage({ searchParams, }: { searchParams: Promise\u003c{ error?: string; cha..."
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/admissions": {
+      "purpose": "Admissions",
+      "language": "tsx",
+      "files": 1,
+      "lines": 9,
+      "file_list": [
+        "page.tsx"
+      ],
+      "exports": [
+        "AdmissionsPage()"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/alumni": {
+      "purpose": "Alumni",
+      "language": "tsx",
+      "files": 1,
+      "lines": 9,
+      "file_list": [
+        "page.tsx"
+      ],
+      "exports": [
+        "AlumniPage()"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/attention": {
+      "purpose": "Attention",
+      "language": "tsx",
+      "files": 1,
+      "lines": 9,
+      "file_list": [
+        "page.tsx"
+      ],
+      "exports": [
+        "AttentionPage()"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/children": {
+      "purpose": "Children",
+      "language": "tsx",
+      "files": 5,
+      "lines": 444,
+      "file_list": [
+        "page.tsx",
+        "page.tsx",
+        "page.tsx",
+        "page.tsx",
+        "page.tsx"
+      ],
+      "exports": [
+        "EditChildPage({ params }: { params: Promise\u003c{ id: string }\u003e })",
+        "ChildProfilePage({ params, searchParams, }: { params: Promise\u003c{ id: string }\u003e...",
+        "ImportChildrenPage()",
+        "NewChildPage()",
+        "ChildrenPage({ searchParams, }: { searchParams: Promise\u003cSearchParams\u003e; })"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/duties": {
+      "purpose": "Duties",
+      "language": "tsx",
+      "files": 2,
+      "lines": 18,
+      "file_list": [
+        "page.tsx",
+        "page.tsx"
+      ],
+      "exports": [
+        "DutyLookupPage()",
+        "DutiesPage()"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/feedback": {
+      "purpose": "Feedback",
+      "language": "tsx",
+      "files": 1,
+      "lines": 9,
+      "file_list": [
+        "page.tsx"
+      ],
+      "exports": [
+        "FeedbackPage()"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/fees": {
+      "purpose": "Fees",
+      "language": "tsx",
+      "files": 2,
+      "lines": 15,
+      "file_list": [
+        "page.tsx",
+        "page.tsx"
+      ],
+      "exports": [
+        "FeesPage()",
+        "PendingFeesPage()"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/follow-ups": {
+      "purpose": "Follow-ups",
+      "language": "tsx",
+      "files": 1,
+      "lines": 9,
+      "file_list": [
+        "page.tsx"
+      ],
+      "exports": [
+        "FollowUpsPage()"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/observe": {
+      "purpose": "Observe",
+      "language": "tsx",
+      "files": 1,
+      "lines": 33,
+      "file_list": [
+        "page.tsx"
+      ],
+      "exports": [
+        "ObservePage({ searchParams, }: { searchParams: Promise\u003cRecord\u003cstring, string ..."
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/reports": {
+      "purpose": "Reports",
+      "language": "tsx",
+      "files": 1,
+      "lines": 9,
+      "file_list": [
+        "page.tsx"
+      ],
+      "exports": [
+        "ReportsPage()"
+      ],
+      "activity": "low"
+    },
+    "src/app/(app)/settings": {
+      "purpose": "Settings",
+      "language": "tsx",
+      "files": 1,
+      "lines": 104,
+      "file_list": [
+        "page.tsx"
+      ],
+      "exports": [
+        "SettingsPage({ searchParams, }: { searchParams: Promise\u003cRecord\u003cstring, string..."
+      ],
+      "activity": "low"
+    },
+    "src/app/(auth)/login": {
+      "purpose": "Login",
+      "language": "tsx",
+      "files": 1,
+      "lines": 100,
+      "file_list": [
+        "page.tsx"
+      ],
+      "exports": [
+        "LoginPage({ searchParams, }: { searchParams: Promise\u003c{ error?: string }\u003e; })"
+      ],
+      "activity": "low"
+    },
+    "src/app/auth/clear": {
+      "purpose": "Clear",
+      "language": "typescript",
+      "files": 1,
+      "lines": 15,
+      "file_list": [
+        "route.ts"
+      ],
+      "exports": [
+        "GET(request: NextRequest) NextResponse"
+      ],
+      "activity": "low"
+    },
+    "src/components": {
+      "purpose": "UI components",
+      "language": "tsx",
+      "files": 9,
+      "lines": 405,
+      "file_list": [
+        "child-picker.tsx",
+        "chip-group.tsx",
+        "child-avatar.tsx",
+        "empty-state.tsx",
+        "error-state.tsx",
+        "follow-up-chips.tsx",
+        "list-skeleton.tsx",
+        "page-header.tsx",
+        "placeholder-page.tsx"
+      ],
+      "exports": [
+        "type PickerChild",
+        "ChildPicker({ childList, selected, onToggle, }: { childList: readonly PickerC...",
+        "type ChipOption",
+        "ChipGroup({ id, label, options, selected, onToggle, }: { id: string; label: s...",
+        "ChildAvatar({ name, className }: { name: string; className?: string })",
+        "EmptyState({ title, description, icon, action, }: { title: string; descriptio...",
+        "ErrorState({ title = strings.states.errorTitle, description = strings.states....",
+        "FollowUpChips({ value, onChange, }: { value: string; onChange: (iso: string) ...",
+        "ListSkeleton({ rows = 5 }: { rows?: number })",
+        "PageHeader({ title, description, actions, }: { title: string; description?: s..."
+      ],
+      "type_defs": {
+        "ChipOption": "key, label",
+        "PickerChild": "id, fullName, gradeLabel, groupLabel"
+      },
+      "activity": "low"
+    },
+    "src/components/shell": {
+      "purpose": "Shell",
+      "language": "tsx",
+      "files": 6,
+      "lines": 340,
+      "file_list": [
+        "app-nav.tsx",
+        "app-header.tsx",
+        "feedback-link.tsx",
+        "install-hint.tsx",
+        "nav-icon.tsx",
+        "service-worker-register.tsx"
+      ],
+      "exports": [
+        "SidebarNav({ items }: { items: NavItem[] })",
+        "MobileNav({ items }: { items: NavItem[] })",
+        "AppHeader({ user }: { user: SessionUser })",
+        "FeedbackLink()",
+        "InstallHint()",
+        "NAV_ICONS",
+        "ServiceWorkerRegister()"
+      ],
+      "activity": "low"
+    },
+    "src/components/ui": {
+      "purpose": "Ui",
+      "language": "tsx",
+      "files": 1,
+      "lines": 66,
+      "file_list": [
+        "button.tsx"
+      ],
+      "exports": [
+        "Button",
+        "buttonVariants"
+      ],
+      "activity": "low"
+    },
+    "src/features/children": {
+      "purpose": "Children",
+      "language": "tsx",
+      "files": 4,
+      "lines": 574,
+      "file_list": [
+        "child-form.tsx",
+        "import-panel.tsx",
+        "recently-viewed.tsx",
+        "remember-view.tsx"
+      ],
+      "exports": [
+        "type ChildFormValues",
+        "ChildForm({ action, values, options, cancelHref, }: { action: (formData: Form...",
+        "ImportPanel()",
+        "RecentlyViewed()",
+        "RememberView({ id, name }: { id: string; name: string })"
+      ],
+      "type_defs": {
+        "ChildFormValues": "id, fullName, preferredName, dob, stage, joinedOn, notes, consentGivenAt, guardianName, guardianPhone, relationKey, academicYear, gradeKey, groupKey, outsideSchool"
+      },
+      "activity": "low"
+    },
+    "src/features/entries": {
+      "purpose": "Entries",
+      "language": "tsx",
+      "files": 1,
+      "lines": 369,
+      "file_list": [
+        "observe-form.tsx"
+      ],
+      "exports": [
+        "ObserveForm({ childList, lookups, initialChildIds, }: { childList: readonly P..."
+      ],
+      "activity": "low"
+    },
+    "src/features/settings": {
+      "purpose": "Settings",
+      "language": "tsx",
+      "files": 3,
+      "lines": 466,
+      "file_list": [
+        "users-panel.tsx",
+        "lists-panel.tsx",
+        "preferences-form.tsx"
+      ],
+      "exports": [
+        "type SettingsUserRow",
+        "UsersPanel({ users }: { users: SettingsUserRow[] })",
+        "ListsPanel({ kinds, activeKind, rows, }: { kinds: string[]; activeKind: strin...",
+        "PreferencesForm({ values }: { values: Preferences })"
+      ],
+      "type_defs": {
+        "SettingsUserRow": "id, name, email, role, active, lastSeenLabel"
+      },
+      "activity": "low"
+    },
+    "src/lib": {
+      "purpose": "Shared library code",
+      "language": "typescript",
+      "files": 23,
+      "lines": 1601,
+      "file_list": [
+        "dates.ts",
+        "csv.ts",
+        "settings.ts",
+        "permissions.ts",
+        "recent-children.ts",
+        "nav.ts",
+        "children.ts",
+        "env.ts",
+        "academic-year.ts",
+        "money.ts",
+        "strings.ts",
+        "test-auth.ts",
+        "utils.ts",
+        "academic-year.test.ts",
+        "children.test.ts",
+        "csv.test.ts",
+        "dates.test.ts",
+        "env.test.ts",
+        "money.test.ts",
+        "nav.test.ts",
+        "permissions.test.ts",
+        "recent-children.test.ts",
+        "settings.test.ts"
+      ],
+      "exports": [
+        "TIME_ZONE",
+        "nowIST() TZDate",
+        "todayISO() string",
+        "parseISODate(iso: string) TZDate",
+        "addDaysISO(iso: string, days: number) string",
+        "formatDate(iso: string) string",
+        "formatDateTimeIST(value: Date) string",
+        "daysBetween(fromISO: string, toISO: string) number",
+        "relativeDueLabel(dueISO: string, todayISODate: string = todayISO()) string",
+        "formatDateOrDash(iso: string | null | undefined) string"
+      ],
+      "type_defs": {
+        "EnvError": "constructor",
+        "ImportSummary": "imported, skipped, lines",
+        "NavItem": "href, label, icon, requires",
+        "ParsedImport": "header, rows, error",
+        "Preferences": "academicYearStartMonth, needsAttentionDays, audioRetentionDays, cycleRule",
+        "RecentChild": "id, name, viewedAt"
+      },
+      "depended_by": [
+        "scripts"
+      ],
+      "activity": "low"
+    },
+    "src/server/auth": {
+      "purpose": "Authentication and authorization",
+      "language": "typescript",
+      "files": 9,
+      "lines": 381,
+      "file_list": [
+        "actions.ts",
+        "permissions.ts",
+        "action.ts",
+        "errors.ts",
+        "invite.ts",
+        "session.ts",
+        "guards.ts",
+        "supabase.ts",
+        "invite.test.ts"
+      ],
+      "exports": [
+        "signIn(formData: FormData) Promise\u003cvoid\u003e",
+        "signInAs(formData: FormData) Promise\u003cvoid\u003e",
+        "signOut() Promise\u003cvoid\u003e",
+        "changePassword(formData: FormData) Promise\u003cvoid\u003e",
+        "Action",
+        "Role",
+        "can",
+        "assertCan(user: { role: Role }, action: Action) void",
+        "type ActionResult",
+        "action(schema: S, fn: (input: z.infer\u003cS\u003e, user: SessionUser) =\u003e Promise\u003cT\u003e,) ..."
+      ],
+      "type_defs": {
+        "AppError": "constructor",
+        "SessionUser": "id, name, email, role"
+      },
+      "activity": "low"
+    },
+    "src/server/children": {
+      "purpose": "Children",
+      "language": "typescript",
+      "files": 6,
+      "lines": 881,
+      "file_list": [
+        "queries.ts",
+        "actions.ts",
+        "import-actions.ts",
+        "import.ts",
+        "children.db.test.ts",
+        "import.db.test.ts"
+      ],
+      "exports": [
+        "CHILDREN_PAGE_SIZE",
+        "type ChildListFilters",
+        "type ChildListItem",
+        "type ChildProfile",
+        "type LookupOption",
+        "currentAcademicYear() Promise\u003cstring\u003e",
+        "childLookups() Promise\u003c{ grades: LookupOption[]; groups: LookupOption[]; rela...",
+        "listChildren(user: { role: Role }, filters: ChildListFilters,) Promise\u003c{ rows...",
+        "type PickerChild",
+        "listChildrenForPicker(user: { role: Role }) Promise\u003cPickerChild[]\u003e"
+      ],
+      "type_defs": {
+        "ChildListFilters": "search, stage, gradeKey, groupKey, page",
+        "ChildListItem": "id, fullName, preferredName, stage, gradeLabel, groupLabel",
+        "ChildProfile": "id, fullName, preferredName, dob, stage, joinedOn, leftOn, leftReason, notes, consentGivenAt, enrolment, primaryGuardian",
+        "LookupOption": "id, key, label",
+        "PickerChild": "id, fullName, gradeLabel, groupLabel"
+      },
+      "activity": "low"
+    },
+    "src/server/db": {
+      "purpose": "Database access layer",
+      "language": "typescript",
+      "files": 5,
+      "lines": 415,
+      "file_list": [
+        "mutate.ts",
+        "client.ts",
+        "constraints.db.test.ts",
+        "mutate.db.test.ts",
+        "seed.db.test.ts"
+      ],
+      "exports": [
+        "type Actor",
+        "type Tx",
+        "mutate(actor: Actor, fn: (tx: Tx) =\u003e Promise\u003cT\u003e) Promise\u003cT\u003e",
+        "type Db",
+        "getDb() Db"
+      ],
+      "type_defs": {
+        "Actor": "id"
+      },
+      "depends_on": [
+        "scripts",
+        "src/server/db/schema"
+      ],
+      "activity": "low"
+    },
+    "src/server/db/schema": {
+      "purpose": "Data schema definitions",
+      "language": "typescript",
+      "files": 17,
+      "lines": 687,
+      "file_list": [
+        "enums.ts",
+        "children.ts",
+        "duties.ts",
+        "admissions.ts",
+        "entries.ts",
+        "family.ts",
+        "fees.ts",
+        "academics.ts",
+        "app-user.ts",
+        "audit.ts",
+        "documents.ts",
+        "feedback.ts",
+        "health.ts",
+        "lookup.ts",
+        "setting.ts",
+        "types.ts",
+        "index.ts"
+      ],
+      "exports": [
+        "userRole",
+        "childStage",
+        "visibility",
+        "entryStatus",
+        "admissionEventKind",
+        "cycleStatus",
+        "teamRole",
+        "feedbackStatus",
+        "child",
+        "enrolment"
+      ],
+      "depended_by": [
+        "scripts",
+        "src/server/db"
+      ],
+      "activity": "low"
+    },
+    "src/server/entries": {
+      "purpose": "Entries",
+      "language": "typescript",
+      "files": 7,
+      "lines": 1247,
+      "file_list": [
+        "mutations.ts",
+        "categories.ts",
+        "queries.ts",
+        "actions.ts",
+        "lookups.ts",
+        "categories.test.ts",
+        "entries.db.test.ts"
+      ],
+      "exports": [
+        "SELF_DELETE_WINDOW_MS",
+        "createEntrySchema",
+        "updateEntrySchema",
+        "deleteEntrySchema",
+        "setEntryStatusSchema",
+        "addFollowUpSchema",
+        "type CreateEntryInput",
+        "type UpdateEntryInput",
+        "type SetEntryStatusInput",
+        "type AddFollowUpInput"
+      ],
+      "type_defs": {
+        "CategoryFlags": "restricted, opensFollowUp",
+        "ChildEntries": "rows, hasMore",
+        "EntryCategoryDefinition": "details",
+        "EntryListItem": "id, childId, categoryKey, categoryLabel, note, occurredAt, authorId, authorName, subjectLabel, visibility, status, followUpOn, parentId, tags",
+        "EntryTag": "key, label",
+        "EntryThread": "entry, parent, replies",
+        "LookupOption": "id, key, label",
+        "ObserveLookups": "categories, tags, subjects, skillAreas, achievementLevels, achievementResults"
+      },
+      "activity": "low"
+    },
+    "src/server/settings": {
+      "purpose": "Settings",
+      "language": "typescript",
+      "files": 4,
+      "lines": 574,
+      "file_list": [
+        "actions.ts",
+        "queries.ts",
+        "supabase-admin.ts",
+        "settings.db.test.ts"
+      ],
+      "exports": [
+        "addUserAction(formData: FormData) Promise\u003cActionResult\u003c{ id: string; tempPass...",
+        "changeRoleAction(formData: FormData) Promise\u003cActionResult\u003cstring\u003e\u003e",
+        "setUserActiveAction(formData: FormData) Promise\u003cActionResult\u003cstring\u003e\u003e",
+        "resetPasswordAction(formData: FormData) Promise\u003cActionResult\u003c{ tempPassword: ...",
+        "addLookupAction(formData: FormData) Promise\u003cActionResult\u003cstring\u003e\u003e",
+        "renameLookupAction(formData: FormData) Promise\u003cActionResult\u003cstring\u003e\u003e",
+        "setLookupActiveAction(formData: FormData) Promise\u003cActionResult\u003cstring\u003e\u003e",
+        "moveLookupAction(formData: FormData) Promise\u003cActionResult\u003cstring\u003e\u003e",
+        "savePreferencesAction(formData: FormData) Promise\u003cActionResult\u003cPreferences\u003e\u003e",
+        "addLookupForm(formData: FormData) Promise\u003cvoid\u003e"
+      ],
+      "type_defs": {
+        "LookupRow": "id, kind, key, label, sort, active",
+        "SettingsUser": "id, name, email, role, active, lastSeenAt"
+      },
+      "activity": "low"
+    }
+  },
+  "dependencies": {
+    "edges": [
+      [
+        "scripts",
+        "src/lib"
+      ],
+      [
+        "scripts",
+        "src/server/db/schema"
+      ],
+      [
+        "src/server/db",
+        "scripts"
+      ],
+      [
+        "src/server/db",
+        "src/server/db/schema"
+      ]
+    ],
+    "entrypoints": null,
+    "most_depended": [
+      "src/server/db/schema",
+      "scripts",
+      "src/lib",
+      ".github/workflows",
+      "drizzle",
+      "drizzle/meta",
+      "public",
+      "root",
+      "src",
+      "src/app"
+    ],
+    "isolated": [
+      ".github/workflows",
+      "drizzle",
+      "drizzle/meta",
+      "public",
+      "root",
+      "src",
+      "src/app",
+      "src/app/(app)",
+      "src/app/(app)/academics",
+      "src/app/(app)/account",
+      "src/app/(app)/admissions",
+      "src/app/(app)/alumni",
+      "src/app/(app)/attention",
+      "src/app/(app)/children",
+      "src/app/(app)/duties",
+      "src/app/(app)/feedback",
+      "src/app/(app)/fees",
+      "src/app/(app)/follow-ups",
+      "src/app/(app)/observe",
+      "src/app/(app)/reports",
+      "src/app/(app)/settings",
+      "src/app/(auth)/login",
+      "src/app/auth/clear",
+      "src/components",
+      "src/components/shell",
+      "src/components/ui",
+      "src/features/children",
+      "src/features/entries",
+      "src/features/settings",
+      "src/server/auth",
+      "src/server/children",
+      "src/server/entries",
+      "src/server/settings"
+    ]
+  },
+  "git": {},
+  "hints": {
+    "test_command": "npm test",
+    "env_vars": [
+      "APP_URL",
+      "AUTH_MODE",
+      "BOOTSTRAP_ADMIN_EMAIL",
+      "CI",
+      "DATABASE_URL",
+      "DIRECT_URL",
+      "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "NODE_ENV",
+      "SUPABASE_SERVICE_ROLE_KEY",
+      "VERCEL_ENV"
+    ],
+    "do_not_touch": [
+      ".github/"
+    ]
+  },
+  "architecture": {}
+}
