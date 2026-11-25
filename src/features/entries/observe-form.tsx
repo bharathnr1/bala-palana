@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useState, useTransition } from "react";
 
+import { Alert } from "@/components/alert";
 import { ChildPicker, type PickerChild } from "@/components/child-picker";
 import { ChipGroup } from "@/components/chip-group";
 import { FollowUpChips } from "@/components/follow-up-chips";
@@ -168,6 +169,7 @@ export function ObserveForm({
   return (
     <form
       action={formAction}
+      aria-busy={pending}
       onSubmit={() => {
         setDismissed(false);
         setUndone(false);
@@ -321,7 +323,7 @@ export function ObserveForm({
 
       <FollowUpChips value={followUpOn} onChange={setFollowUpOn} />
 
-      <div className="fixed inset-x-0 bottom-14 z-10 border-t border-border bg-background/95 p-3 backdrop-blur md:bottom-0 md:left-64">
+      <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-10 border-t border-border bg-background/95 p-3 backdrop-blur md:bottom-0 md:left-64">
         <div className="mx-auto flex max-w-2xl items-center gap-3 pr-16 md:pr-0">
           <p className="min-w-0 flex-1 text-sm text-muted-foreground">
             {selected.length === 0
@@ -331,36 +333,35 @@ export function ObserveForm({
           <Button
             type="submit"
             className="h-11 min-w-28"
-            disabled={pending || selected.length === 0 || !detailsReady}
+            loading={pending}
+            disabled={selected.length === 0 || !detailsReady}
           >
             {pending ? strings.entries.observe.saving : strings.entries.observe.save}
           </Button>
         </div>
       </div>
 
-      {state && !state.ok ? (
-        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {state.error.message}
-        </p>
-      ) : null}
+      {state && !state.ok ? <Alert tone="error">{state.error.message}</Alert> : null}
 
       {state?.ok && !dismissed ? (
         <div
           role="status"
-          className="fixed inset-x-4 bottom-36 z-20 flex items-center gap-3 rounded-lg bg-secondary px-4 py-3 text-sm shadow-lg md:bottom-24 md:left-auto md:w-96"
+          className="animate-in fade-in slide-in-from-bottom-2 fixed inset-x-4 bottom-[calc(9rem+env(safe-area-inset-bottom))] z-20 flex items-center gap-3 rounded-lg bg-secondary px-4 py-3 text-sm shadow-lg duration-200 md:bottom-24 md:left-auto md:w-96"
         >
           <p className="flex-1">
             {undone ? strings.entries.observe.undone : strings.entries.observe.saved(state.data.ids.length)}
           </p>
           {!undone ? (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
+              loading={isUndoing}
               onClick={undo}
-              disabled={isUndoing}
-              className="min-h-11 rounded-lg px-3 font-medium text-primary underline-offset-4 hover:underline"
+              className="min-h-11 px-3 font-medium"
             >
               {strings.entries.observe.undo}
-            </button>
+            </Button>
           ) : null}
         </div>
       ) : null}

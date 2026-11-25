@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/page-header";
@@ -11,6 +12,8 @@ import { getPreferences, listLookups, listUsers } from "@/server/settings/querie
 
 const TABS = ["users", "lists", "preferences"] as const;
 type Tab = (typeof TABS)[number];
+
+export const metadata: Metadata = { title: strings.nav.settings };
 
 function isTab(value: string | undefined): value is Tab {
   return value !== undefined && (TABS as readonly string[]).includes(value);

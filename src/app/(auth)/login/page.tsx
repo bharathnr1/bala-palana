@@ -1,6 +1,9 @@
+import type { Metadata } from "next";
 import { asc, eq } from "drizzle-orm";
 
-import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/alert";
+import { PasswordInput } from "@/components/password-input";
+import { SubmitButton } from "@/components/submit-button";
 import { env } from "@/lib/env";
 import { strings } from "@/lib/strings";
 import { signIn, signInAs } from "@/server/auth/actions";
@@ -13,6 +16,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   invalid_credentials: strings.auth.invalidCredentials,
   invalid: strings.errors.invalidForm,
 };
+
+export const metadata: Metadata = { title: strings.auth.title };
 
 export default async function LoginPage({
   searchParams,
@@ -38,9 +43,7 @@ export default async function LoginPage({
       </div>
 
       {error ? (
-        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {ERROR_MESSAGES[error] ?? strings.errors.unexpected}
-        </p>
+        <Alert tone="error">{ERROR_MESSAGES[error] ?? strings.errors.unexpected}</Alert>
       ) : null}
 
       <form action={signIn} className="space-y-4">
@@ -62,19 +65,12 @@ export default async function LoginPage({
           <label htmlFor="password" className="text-sm font-medium">
             {strings.auth.password}
           </label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            className="h-11 w-full rounded-lg border border-input bg-background px-3"
-          />
+          <PasswordInput id="password" name="password" autoComplete="current-password" />
         </div>
 
-        <Button type="submit" className="h-11 w-full">
+        <SubmitButton className="h-11 w-full" pendingChildren={strings.auth.signingIn}>
           {strings.auth.submit}
-        </Button>
+        </SubmitButton>
       </form>
 
       {testMode ? (
@@ -86,9 +82,13 @@ export default async function LoginPage({
               <li key={user.id}>
                 <form action={signInAs}>
                   <input type="hidden" name="userId" value={user.id} />
-                  <Button type="submit" variant="outline" className="h-11 w-full justify-start">
+                  <SubmitButton
+                    variant="outline"
+                    className="h-11 w-full justify-start"
+                    pendingChildren={`${user.name} · ${strings.auth.signingIn}`}
+                  >
                     {user.name} · {user.role}
-                  </Button>
+                  </SubmitButton>
                 </form>
               </li>
             ))}

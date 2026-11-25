@@ -1,11 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ChildAvatar } from "@/components/child-avatar";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { ChildrenFilters } from "@/features/children/children-filters";
 import { RecentlyViewed } from "@/features/children/recently-viewed";
-import { CHILD_STAGES, isChildStage, type ChildStage } from "@/lib/children";
+import { isChildStage, type ChildStage } from "@/lib/children";
 import { can } from "@/lib/permissions";
 import { strings } from "@/lib/strings";
 import { requireScreen } from "@/server/auth/guards";
@@ -13,7 +15,7 @@ import { childLookups, listChildren } from "@/server/children/queries";
 
 type SearchParams = Record<string, string | string[] | undefined>;
 
-const SELECT = "h-11 rounded-lg border border-input bg-background px-2";
+export const metadata: Metadata = { title: strings.nav.children };
 
 function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
@@ -75,78 +77,15 @@ export default async function ChildrenPage({
         }
       />
 
-      <form method="get" action="/children" className="mb-4 space-y-2">
-        <div className="flex gap-2">
-          <label htmlFor="child-search" className="sr-only">
-            {strings.children.search}
-          </label>
-          <input
-            id="child-search"
-            name="q"
-            type="search"
-            defaultValue={search}
-            placeholder={strings.children.searchPlaceholder}
-            className="h-11 min-w-0 flex-1 rounded-lg border border-input bg-background px-3"
-          />
-          <Button type="submit" className="h-11">
-            {strings.children.search}
-          </Button>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <select
-            name="grade"
-            aria-label={strings.children.filterGrade}
-            defaultValue={gradeKey}
-            className={SELECT}
-          >
-            <option value="">
-              {strings.children.filterGrade}: {strings.children.all}
-            </option>
-            {options.grades.map((option) => (
-              <option key={option.id} value={option.key}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-
-          <select
-            name="group"
-            aria-label={strings.children.filterGroup}
-            defaultValue={groupKey}
-            className={SELECT}
-          >
-            <option value="">
-              {strings.children.filterGroup}: {strings.children.all}
-            </option>
-            {options.groups.map((option) => (
-              <option key={option.id} value={option.key}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-
-          <select
-            name="stage"
-            aria-label={strings.children.filterStage}
-            defaultValue={stageParam}
-            className={SELECT}
-          >
-            <option value="all">{strings.children.all}</option>
-            {CHILD_STAGES.map((option) => (
-              <option key={option} value={option}>
-                {strings.children.stage[option]}
-              </option>
-            ))}
-          </select>
-
-          {hasFilter ? (
-            <Link href="/children" className="text-sm underline">
-              {strings.children.clear}
-            </Link>
-          ) : null}
-        </div>
-      </form>
+      <ChildrenFilters
+        key={`${search}|${gradeKey}|${groupKey}|${stageParam}`}
+        search={search}
+        gradeKey={gradeKey}
+        groupKey={groupKey}
+        stageParam={stage ?? "all"}
+        grades={options.grades}
+        groups={options.groups}
+      />
 
       <RecentlyViewed />
 
@@ -155,7 +94,11 @@ export default async function ChildrenPage({
           title={strings.children.emptyTitle}
           description={strings.children.emptyBody}
           action={
-            can(user, "child.write") && !hasFilter ? (
+            hasFilter ? (
+              <Button asChild variant="outline" className="mt-2 h-11">
+                <Link href="/children">{strings.children.clearFilters}</Link>
+              </Button>
+            ) : can(user, "child.write") ? (
               <Button asChild className="mt-2 h-11">
                 <Link href="/children/new">{strings.children.addFirst}</Link>
               </Button>

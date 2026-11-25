@@ -1,7 +1,13 @@
-import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
+
+import { Alert } from "@/components/alert";
+import { PasswordInput } from "@/components/password-input";
+import { SubmitButton } from "@/components/submit-button";
 import { strings } from "@/lib/strings";
 import { changePassword } from "@/server/auth/actions";
 import { requireUser } from "@/server/auth/session";
+
+export const metadata: Metadata = { title: strings.auth.changePassword };
 
 const MESSAGES: Record<string, string> = {
   test_mode: strings.auth.passwordChangeTestMode,
@@ -26,41 +32,30 @@ export default async function PasswordPage({
         </p>
       </div>
 
-      {changed ? (
-        <p role="status" className="rounded-lg bg-muted px-3 py-2 text-sm">
-          {strings.auth.passwordChanged}
-        </p>
-      ) : null}
+      {changed ? <Alert tone="success">{strings.auth.passwordChanged}</Alert> : null}
 
-      {error ? (
-        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {MESSAGES[error] ?? strings.errors.unexpected}
-        </p>
-      ) : null}
+      {error ? <Alert tone="error">{MESSAGES[error] ?? strings.errors.unexpected}</Alert> : null}
 
       <form action={changePassword} className="space-y-4">
         <div className="space-y-1">
           <label htmlFor="password" className="text-sm font-medium">
             {strings.auth.newPassword}
           </label>
-          <input
+          <PasswordInput
             id="password"
             name="password"
-            type="password"
-            required
-            minLength={8}
             autoComplete="new-password"
-            aria-describedby="password-hint"
-            className="h-11 w-full rounded-lg border border-input bg-background px-3"
+            minLength={8}
+            describedBy="password-hint"
           />
           <p id="password-hint" className="text-xs text-muted-foreground">
             {strings.auth.newPasswordHint}
           </p>
         </div>
 
-        <Button type="submit" className="h-11 w-full">
+        <SubmitButton className="h-11 w-full" pendingChildren={strings.auth.changingPassword}>
           {strings.auth.changePassword}
-        </Button>
+        </SubmitButton>
       </form>
     </div>
   );

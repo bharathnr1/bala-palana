@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SubmitButton } from "@/components/submit-button";
 import { Button } from "@/components/ui/button";
 import { strings } from "@/lib/strings";
 import { signOut } from "@/server/auth/actions";
@@ -20,9 +21,14 @@ export function AppHeader({ user }: { user: SessionUser }) {
           <Link href="/account/password">{strings.auth.account}</Link>
         </Button>
         <form action={signOut}>
-          <Button type="submit" variant="ghost" size="sm" className="h-11">
+          <SubmitButton
+            variant="ghost"
+            size="sm"
+            className="h-11"
+            pendingChildren={strings.auth.signingOut}
+          >
             {strings.auth.signOut}
-          </Button>
+          </SubmitButton>
         </form>
       </div>
     </header>

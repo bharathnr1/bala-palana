@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/page-header";
@@ -6,6 +7,8 @@ import { strings } from "@/lib/strings";
 import { requireScreen } from "@/server/auth/guards";
 import { updateChild } from "@/server/children/actions";
 import { childLookups, currentAcademicYear, getChild } from "@/server/children/queries";
+
+export const metadata: Metadata = { title: strings.children.edit };
 
 /** Edit the basic fields, the primary guardian and the current enrolment (M0-08). */
 export default async function EditChildPage({ params }: { params: Promise<{ id: string }> }) {

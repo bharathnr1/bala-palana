@@ -1,9 +1,13 @@
+import type { Metadata } from "next";
+
 import { PageHeader } from "@/components/page-header";
 import { ObserveForm } from "@/features/entries/observe-form";
 import { strings } from "@/lib/strings";
 import { requireScreen } from "@/server/auth/guards";
 import { listChildrenForPicker } from "@/server/children/queries";
 import { observeLookups } from "@/server/entries/lookups";
+
+export const metadata: Metadata = { title: strings.entries.observe.title };
 
 /** Quick observation (M2-02, 04-ui-spec § Quick observation; target ≤ 15 s). */
 export default async function ObservePage({
