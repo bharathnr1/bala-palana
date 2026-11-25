@@ -1,18 +1,31 @@
 "use client";
 
 import { Ellipsis, X } from "lucide-react";
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
-import { MOBILE_PRIMARY_HREFS, type NavItem } from "@/lib/nav";
+import { MOBILE_PRIMARY_HREFS, type NavIcon, type NavItem } from "@/lib/nav";
 import { strings } from "@/lib/strings";
 
 import { NAV_ICONS } from "./nav-icon";
 
 function isActive(pathname: string, href: string): boolean {
   return href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/**
+ * The nav item's icon, or a spinner while that link's navigation is pending.
+ * `useLinkStatus` only works inside a `Link`, which is where it is used.
+ */
+function LinkIcon({ name, className }: { name: NavIcon; className?: string }) {
+  const { pending } = useLinkStatus();
+  const Icon = NAV_ICONS[name];
+
+  if (pending) return <Spinner className={className} />;
+  return <Icon className={className} aria-hidden />;
 }
 
 /** Desktop: the always-visible left sidebar (04-ui-spec § Navigation). */
@@ -28,7 +41,6 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
       </div>
       <nav aria-label={strings.nav.mainNav} className="flex-1 space-y-1 overflow-y-auto px-2 pb-4">
         {items.map((item) => {
-          const Icon = NAV_ICONS[item.icon];
           const active = isActive(pathname, item.href);
           return (
             <Link
@@ -42,7 +54,7 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
-              <Icon className="size-5 shrink-0" aria-hidden />
+              <LinkIcon name={item.icon} className="size-5 shrink-0" />
               {item.label}
             </Link>
           );
@@ -59,6 +71,21 @@ export function SidebarNav({ items }: { items: NavItem[] }) {
 export function MobileNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
+  const moreButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Escape closes the sheet and returns focus to the control that opened it.
+  useEffect(() => {
+    if (!moreOpen) return;
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      setMoreOpen(false);
+      moreButtonRef.current?.focus();
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [moreOpen]);
 
   const primary = MOBILE_PRIMARY_HREFS.map((href) =>
     items.find((item) => item.href === href),
@@ -67,6 +94,15 @@ export function MobileNav({ items }: { items: NavItem[] }) {
 
   return (
     <>
+      {moreOpen ? (
+        // Tapping anywhere outside the panel closes it, as on a native sheet.
+        <div
+          aria-hidden="true"
+          onClick={() => setMoreOpen(false)}
+          className="fixed inset-0 z-20 bg-foreground/10 md:hidden"
+        />
+      ) : null}
+
       {moreOpen && more.length > 0 ? (
         <div
           id="more-nav"
@@ -87,7 +123,6 @@ export function MobileNav({ items }: { items: NavItem[] }) {
           </div>
           <nav aria-label={strings.nav.mainNav} className="space-y-1">
             {more.map((item) => {
-              const Icon = NAV_ICONS[item.icon];
               const active = isActive(pathname, item.href);
               return (
                 <Link
@@ -102,7 +137,7 @@ export function MobileNav({ items }: { items: NavItem[] }) {
                       : "hover:bg-muted",
                   )}
                 >
-                  <Icon className="size-5 shrink-0" aria-hidden />
+                  <LinkIcon name={item.icon} className="size-5 shrink-0" />
                   {item.label}
                 </Link>
               );
@@ -118,7 +153,6 @@ export function MobileNav({ items }: { items: NavItem[] }) {
         {/* auto-cols-fr keeps the bar even when a role has fewer primary items. */}
         <ul className="grid grid-flow-col auto-cols-fr">
           {primary.map((item) => {
-            const Icon = NAV_ICONS[item.icon];
             const active = isActive(pathname, item.href);
             const isObserve = item.href === "/observe";
             return (
@@ -139,7 +173,10 @@ export function MobileNav({ items }: { items: NavItem[] }) {
                         : "size-5",
                     )}
                   >
-                    <Icon className={isObserve ? "size-6" : "size-5"} aria-hidden />
+                    <LinkIcon
+                      name={item.icon}
+                      className={isObserve ? "size-6" : "size-5"}
+                    />
                   </span>
                   {item.label}
                 </Link>
@@ -149,6 +186,7 @@ export function MobileNav({ items }: { items: NavItem[] }) {
           {more.length > 0 ? (
             <li className="flex justify-center">
               <button
+                ref={moreButtonRef}
                 type="button"
                 onClick={() => setMoreOpen((open) => !open)}
                 aria-expanded={moreOpen}

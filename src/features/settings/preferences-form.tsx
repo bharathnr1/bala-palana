@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 
+import { Alert } from "@/components/alert";
 import { Button } from "@/components/ui/button";
 import type { Preferences } from "@/lib/settings";
 import { strings } from "@/lib/strings";
@@ -21,18 +22,10 @@ export function PreferencesForm({ values }: { values: Preferences }) {
   const errors = state && !state.ok ? (state.error.fieldErrors ?? {}) : {};
 
   return (
-    <form action={formAction} className="max-w-xl space-y-4">
-      {state && !state.ok ? (
-        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {state.error.message}
-        </p>
-      ) : null}
+    <form action={formAction} aria-busy={pending} className="max-w-xl space-y-4">
+      {state && !state.ok ? <Alert tone="error">{state.error.message}</Alert> : null}
 
-      {state?.ok ? (
-        <p role="status" className="rounded-lg bg-secondary px-3 py-2 text-sm">
-          {strings.settings.preferences.saved}
-        </p>
-      ) : null}
+      {state?.ok ? <Alert tone="success">{strings.settings.preferences.saved}</Alert> : null}
 
       <div className="space-y-1">
         <label htmlFor="academicYearStartMonth" className="text-sm font-medium">
@@ -109,8 +102,8 @@ export function PreferencesForm({ values }: { values: Preferences }) {
         ) : null}
       </div>
 
-      <Button type="submit" className="h-11" disabled={pending}>
-        {strings.settings.preferences.save}
+      <Button type="submit" className="h-11" loading={pending}>
+        {pending ? strings.settings.preferences.saving : strings.settings.preferences.save}
       </Button>
     </form>
   );

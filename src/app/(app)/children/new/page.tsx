@@ -1,9 +1,13 @@
+import type { Metadata } from "next";
+
 import { PageHeader } from "@/components/page-header";
 import { ChildForm } from "@/features/children/child-form";
 import { strings } from "@/lib/strings";
 import { requireScreen } from "@/server/auth/guards";
 import { createChild } from "@/server/children/actions";
 import { childLookups, currentAcademicYear } from "@/server/children/queries";
+
+export const metadata: Metadata = { title: strings.children.add };
 
 /** Add a child: basic fields, primary guardian and the current enrolment (M0-08). */
 export default async function NewChildPage() {

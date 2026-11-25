@@ -12,6 +12,25 @@ type InstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
+// "Not now" is a decision, not a request to be asked again next visit.
+const DISMISSED_KEY = "bala-palana:install-hint-dismissed";
+
+function isDismissed(): boolean {
+  try {
+    return window.localStorage.getItem(DISMISSED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function rememberDismissal(): void {
+  try {
+    window.localStorage.setItem(DISMISSED_KEY, "1");
+  } catch {
+    // Storage can be unavailable (private mode); the hint simply shows again.
+  }
+}
+
 /**
  * "Install app" hint on Home (04-ui-spec § PWA). Android Chrome fires
  * `beforeinstallprompt` when the app is installable; a user already running it
@@ -25,6 +44,7 @@ export function InstallHint() {
 
     const onPrompt = (event: Event) => {
       event.preventDefault();
+      if (isDismissed()) return;
       setPrompt(event as InstallPromptEvent);
     };
     window.addEventListener("beforeinstallprompt", onPrompt);
@@ -44,6 +64,7 @@ export function InstallHint() {
         className="h-11"
         onClick={async () => {
           await prompt.prompt();
+          rememberDismissal();
           setPrompt(null);
         }}
       >
@@ -51,7 +72,10 @@ export function InstallHint() {
       </Button>
       <button
         type="button"
-        onClick={() => setPrompt(null)}
+        onClick={() => {
+          rememberDismissal();
+          setPrompt(null);
+        }}
         className="flex size-11 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
       >
         <X className="size-5" aria-hidden />

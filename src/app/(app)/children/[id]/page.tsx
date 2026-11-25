@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -11,6 +12,8 @@ import { requireScreen } from "@/server/auth/guards";
 import { getChild } from "@/server/children/queries";
 
 type TabKey = keyof typeof strings.children.tabs;
+
+export const metadata: Metadata = { title: strings.children.profile };
 
 /** Tabs the role can't open are hidden (04-ui-spec § Child profile). */
 const TABS: readonly { key: TabKey; action: Parameters<typeof can>[1] }[] = [

@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import { humaniseKey } from "@/lib/settings";
 import { strings } from "@/lib/strings";
 import {
@@ -62,9 +62,9 @@ export function ListsPanel({
           aria-label={strings.settings.lists.addPlaceholder}
           className={INPUT}
         />
-        <Button type="submit" className="h-11">
+        <SubmitButton className="h-11" pendingChildren={strings.settings.lists.adding}>
           {strings.settings.lists.add}
-        </Button>
+        </SubmitButton>
       </form>
 
       {rows.length === 0 ? (
@@ -85,9 +85,13 @@ export function ListsPanel({
                   maxLength={120}
                   className={INPUT}
                 />
-                <Button type="submit" variant="outline" className="h-11">
+                <SubmitButton
+                  variant="outline"
+                  className="h-11"
+                  pendingChildren={strings.settings.lists.saving}
+                >
                   {strings.settings.lists.save}
-                </Button>
+                </SubmitButton>
               </form>
 
               {row.active ? null : (
@@ -100,37 +104,37 @@ export function ListsPanel({
                 <form action={moveLookupForm}>
                   <input type="hidden" name="id" value={row.id} />
                   <input type="hidden" name="direction" value="up" />
-                  <Button
-                    type="submit"
+                  <SubmitButton
                     variant="ghost"
                     className="h-11 w-11"
                     disabled={index === 0}
                     aria-label={strings.settings.lists.moveUp}
+                    iconOnly
                   >
                     <ChevronUp className="size-5" aria-hidden />
-                  </Button>
+                  </SubmitButton>
                 </form>
                 <form action={moveLookupForm}>
                   <input type="hidden" name="id" value={row.id} />
                   <input type="hidden" name="direction" value="down" />
-                  <Button
-                    type="submit"
+                  <SubmitButton
                     variant="ghost"
                     className="h-11 w-11"
                     disabled={index === rows.length - 1}
                     aria-label={strings.settings.lists.moveDown}
+                    iconOnly
                   >
                     <ChevronDown className="size-5" aria-hidden />
-                  </Button>
+                  </SubmitButton>
                 </form>
               </div>
 
               <form action={setLookupActiveForm}>
                 <input type="hidden" name="id" value={row.id} />
                 {row.active ? null : <input type="hidden" name="active" value="on" />}
-                <Button type="submit" variant="ghost" className="h-11">
+                <SubmitButton variant="ghost" className="h-11">
                   {row.active ? strings.settings.lists.deactivate : strings.settings.lists.reactivate}
-                </Button>
+                </SubmitButton>
               </form>
             </li>
           ))}

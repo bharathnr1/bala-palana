@@ -28,7 +28,23 @@ Mobile-first (360 px), Android Chrome as the primary target; desktop gets wider 
 | `EntrySheet` | Bottom sheet with the full entry, its thread (follow-ups, corrective actions), and actions: add follow-up, close, edit, delete |
 | `AlertBanner` | Profile header strip for medical alerts and open-concern count |
 | `EmptyState`, `ListSkeleton`, `ErrorState` | Standard states |
+| `Spinner`, `Skeleton` | Pending and placeholder building blocks |
+| `SubmitButton` | Submit control that shows a spinner, swaps to its pending label and blocks double submits |
 | `RecordButton` | Feedback mic: hold or tap to record, timer, up to 3 min, re-record, send |
+
+## Feedback and loading
+
+Every action acknowledges the tap at once.
+
+- **Route changes**: a thin indeterminate bar at the top of the screen, shown after a 120 ms delay so prefetched screens do not flash it; it completes when the URL settles.
+- **Links**: the tapped nav item's icon becomes a spinner while its route loads.
+- **Forms**: submit buttons disable, show a spinner and swap to a pending label (`Saving…`, `Signing in…`). Buttons whose only content is an icon show just the spinner.
+- **Messages**: one `Alert` style for errors and successes; errors interrupt a screen reader, successes are announced politely.
+- **Password fields**: a show/hide control, and the field keeps its autocomplete hint.
+- **Empty results**: a filtered list whose search finds nothing offers "Clear filters" instead of a dead end.
+- **Skeletons**: each route group has a `loading.tsx` that mirrors the screen, and each screen fades in briefly. Skeletons announce themselves through `role="status"`.
+- **Longer reads**: the CSV preview says "Reading file…" while the browser parses the chosen file.
+- **Filters and search**: they navigate through the router inside a transition, so a filter change applies immediately rather than waiting for a second tap.
 
 ## Screens
 

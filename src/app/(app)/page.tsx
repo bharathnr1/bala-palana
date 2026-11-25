@@ -1,9 +1,13 @@
+import type { Metadata } from "next";
+
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { InstallHint } from "@/components/shell/install-hint";
 import { formatDate, todayISO } from "@/lib/dates";
 import { strings } from "@/lib/strings";
 import { requireUser } from "@/server/auth/session";
+
+export const metadata: Metadata = { title: strings.nav.home };
 
 /**
  * Home (04-ui-spec § Home). The follow-up, attention and recent lists fill in

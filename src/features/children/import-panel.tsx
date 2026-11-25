@@ -2,7 +2,9 @@
 
 import { useActionState, useState } from "react";
 
+import { Alert } from "@/components/alert";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { IMPORT_TEMPLATE, parseImport, type ImportSummary, type ParsedImport } from "@/lib/csv";
 import { strings } from "@/lib/strings";
 import type { ActionResult } from "@/server/auth/action";
@@ -25,6 +27,7 @@ export function ImportPanel() {
   const [parsed, setParsed] = useState<ParsedImport | null>(null);
   const [included, setIncluded] = useState<Set<number>>(new Set());
   const [fileError, setFileError] = useState<string | null>(null);
+  const [reading, setReading] = useState(false);
 
   const [state, formAction, pending] = useActionState(
     (_previous: ActionResult<ImportSummary> | null, formData: FormData) =>
@@ -48,12 +51,15 @@ export function ImportPanel() {
     }
 
     try {
+      setReading(true);
       const text = await file.text();
       const result = parseImport(text);
       setParsed(result);
       setIncluded(new Set(result.rows.filter((row) => row.errors.length === 0).map((row) => row.line)));
     } catch {
       setFileError(strings.children.import.readError);
+    } finally {
+      setReading(false);
     }
   }
 
@@ -88,8 +94,15 @@ export function ImportPanel() {
           type="file"
           accept=".csv,text/csv"
           onChange={onFile}
+          aria-busy={reading}
           className="block w-full rounded-lg border border-input bg-background p-2 text-sm"
         />
+        {reading ? (
+          <p role="status" className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Spinner className="size-3.5" />
+            {strings.children.import.reading}
+          </p>
+        ) : null}
         {fileError ? (
           <p role="alert" className="text-xs text-destructive">
             {fileError}
@@ -97,11 +110,7 @@ export function ImportPanel() {
         ) : null}
       </div>
 
-      {parsed?.error ? (
-        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {parseErrorText(parsed.error)}
-        </p>
-      ) : null}
+      {parsed?.error ? <Alert tone="error">{parseErrorText(parsed.error)}</Alert> : null}
 
       {parsed && !parsed.error && parsed.rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">{strings.children.import.empty}</p>
@@ -181,8 +190,13 @@ export function ImportPanel() {
 
           <form action={formAction} className="space-y-3">
             <input type="hidden" name="rows" value={JSON.stringify(selected)} />
-            <Button type="submit" className="h-11" disabled={pending || selected.length === 0}>
-              {strings.children.import.submit}
+            <Button
+              type="submit"
+              className="h-11"
+              loading={pending}
+              disabled={selected.length === 0 || reading}
+            >
+              {pending ? strings.children.import.importing : strings.children.import.submit}
             </Button>
 
             {selected.length === 0 ? (
@@ -190,15 +204,13 @@ export function ImportPanel() {
             ) : null}
 
             {state && !state.ok ? (
-              <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                {state.error.message}
-              </p>
+              <Alert tone="error">{state.error.message}</Alert>
             ) : null}
 
             {state?.ok ? (
-              <p role="status" className="rounded-lg bg-secondary px-3 py-2 text-sm">
+              <Alert tone="success">
                 {strings.children.import.summary(state.data.imported, state.data.skipped)}
-              </p>
+              </Alert>
             ) : null}
           </form>
         </>

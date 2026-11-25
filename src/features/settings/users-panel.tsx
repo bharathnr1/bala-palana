@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 
+import { Alert } from "@/components/alert";
 import { Button } from "@/components/ui/button";
 import { ROLES, type Role } from "@/lib/permissions";
 import { strings } from "@/lib/strings";
@@ -90,7 +91,7 @@ function UserRow({ user }: { user: SettingsUserRow }) {
               </option>
             ))}
           </select>
-          <Button type="submit" variant="outline" className="h-11" disabled={rolePending}>
+          <Button type="submit" variant="outline" className="h-11" loading={rolePending}>
             {strings.settings.users.save}
           </Button>
         </form>
@@ -102,7 +103,7 @@ function UserRow({ user }: { user: SettingsUserRow }) {
             type="submit"
             variant={user.active ? "destructive" : "outline"}
             className="h-11"
-            disabled={activePending}
+            loading={activePending}
           >
             {user.active ? strings.settings.users.deactivate : strings.settings.users.reactivate}
           </Button>
@@ -110,8 +111,8 @@ function UserRow({ user }: { user: SettingsUserRow }) {
 
         <form action={passwordAction}>
           <input type="hidden" name="userId" value={user.id} />
-          <Button type="submit" variant="ghost" className="h-11" disabled={passwordPending}>
-            {strings.settings.users.resetPassword}
+          <Button type="submit" variant="ghost" className="h-11" loading={passwordPending}>
+            {passwordPending ? strings.settings.users.resetting : strings.settings.users.resetPassword}
           </Button>
         </form>
       </div>
@@ -120,9 +121,9 @@ function UserRow({ user }: { user: SettingsUserRow }) {
       <ErrorText state={activeState} />
       <ErrorText state={passwordState} />
       {passwordState?.ok ? (
-        <p className="rounded-lg bg-secondary px-3 py-2 text-sm">
+        <Alert tone="success">
           {strings.settings.users.tempPasswordTitle}: <strong>{passwordState.data.tempPassword}</strong>
-        </p>
+        </Alert>
       ) : null}
     </li>
   );
@@ -141,17 +142,13 @@ export function UsersPanel({ users }: { users: SettingsUserRow[] }) {
       <form action={formAction} className="space-y-3 rounded-xl border border-border p-4">
         <h2 className="text-sm font-semibold">{strings.settings.users.addTitle}</h2>
 
-        {state && !state.ok ? (
-          <p role="alert" className="text-sm text-destructive">
-            {state.error.message}
-          </p>
-        ) : null}
+        {state && !state.ok ? <Alert tone="error">{state.error.message}</Alert> : null}
 
         {state?.ok && state.data.tempPassword ? (
-          <p className="rounded-lg bg-secondary px-3 py-2 text-sm">
+          <Alert tone="success">
             {strings.settings.users.tempPasswordTitle}:{" "}
             <strong>{state.data.tempPassword}</strong>
-          </p>
+          </Alert>
         ) : null}
 
         <div className="grid gap-3 sm:grid-cols-3">
@@ -189,8 +186,8 @@ export function UsersPanel({ users }: { users: SettingsUserRow[] }) {
           </div>
         </div>
 
-        <Button type="submit" className="h-11" disabled={pending}>
-          {strings.settings.users.add}
+        <Button type="submit" className="h-11" loading={pending}>
+          {pending ? strings.settings.users.adding : strings.settings.users.add}
         </Button>
       </form>
 

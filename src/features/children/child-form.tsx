@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState, useState } from "react";
 
+import { Alert } from "@/components/alert";
 import { Button } from "@/components/ui/button";
 import { CHILD_STAGES, type ChildStage } from "@/lib/children";
 import { strings } from "@/lib/strings";
@@ -85,14 +86,10 @@ export function ChildForm({
   const message = state && !state.ok ? state.error.message : null;
 
   return (
-    <form action={formAction} className="max-w-2xl space-y-6">
+    <form action={formAction} aria-busy={pending} className="max-w-2xl space-y-6">
       {values.id ? <input type="hidden" name="id" value={values.id} /> : null}
 
-      {message ? (
-        <p role="alert" className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {message}
-        </p>
-      ) : null}
+      {message ? <Alert tone="error">{message}</Alert> : null}
 
       <fieldset className="space-y-4 rounded-xl border border-border p-4">
         <legend className="px-1 text-sm font-semibold">{strings.children.basicSection}</legend>
@@ -292,7 +289,7 @@ export function ChildForm({
       </fieldset>
 
       <div className="flex flex-wrap gap-3">
-        <Button type="submit" className="h-11" disabled={pending}>
+        <Button type="submit" className="h-11" loading={pending}>
           {pending ? strings.children.saving : strings.children.save}
         </Button>
         <Button asChild variant="ghost" className="h-11">

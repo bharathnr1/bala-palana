@@ -147,6 +147,25 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Route-change feedback (04-ui-spec § Look and feel). */
+@keyframes nav-progress-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(350%);
+  }
+}
+
+@keyframes nav-progress-complete {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
