@@ -1,6 +1,8 @@
 # Bāla Pālana — Roadmap
 
-Milestones are **release order**: each ends with a production deploy and a round of voice-note feedback from the gurukula. Task-level detail, dependencies and status live in [tasks/](../tasks/README.md). Agents may work ahead on any task whose dependencies are done.
+Milestones are **release order**: each ends with a production deploy, a release tag ([releases.md](releases.md)) and a round of voice-note feedback from the gurukula. Task-level detail, dependencies and status live in [tasks/](../tasks/README.md). Agents may work ahead on any task whose dependencies are done.
+
+Released so far: **M0** as [`bala-palana-0.1`](releases.md#releases) on 2026-11-25.
 
 | # | Milestone | Goal / exit criteria | Target |
 |---|---|---|---|
