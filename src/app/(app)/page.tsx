@@ -4,20 +4,32 @@ import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { InstallHint } from "@/components/shell/install-hint";
+import { FollowUpList } from "@/features/follow-ups/follow-up-list";
+import { RecentlyViewed } from "@/features/children/recently-viewed";
 import { formatDate, todayISO } from "@/lib/dates";
+import { withinDays } from "@/lib/follow-ups";
 import { strings } from "@/lib/strings";
 import { attentionCount } from "@/server/attention/queries";
 import { requireUser } from "@/server/auth/session";
+import { listOpenFollowUps } from "@/server/follow-ups/queries";
 
 export const metadata: Metadata = { title: strings.nav.home };
 
 /**
- * Home (04-ui-spec § Home). The follow-up list fills in with M2-05; the
- * attention count and recently viewed are live.
+ * Home (04-ui-spec § Home): my follow-ups due in the next week, the needs
+ * attention count, and recently viewed children.
  */
 export default async function HomePage() {
   const user = await requireUser();
-  const attention = await attentionCount(user);
+  const [attention, followUps] = await Promise.all([
+    attentionCount(user),
+    listOpenFollowUps(user, { mine: true }),
+  ]);
+
+  // Overdue and today always show; upcoming stops at seven days on Home.
+  const homeRows = followUps.rows.filter(
+    (row) => row.followUpOn < todayISO() || withinDays(row.followUpOn, 7),
+  );
 
   return (
     <>
@@ -31,7 +43,7 @@ export default async function HomePage() {
 
         <section className="space-y-2">
           <h2 className="text-sm font-semibold">{strings.home.followUpsTitle}</h2>
-          <EmptyState title={strings.home.followUpsEmpty} />
+          <FollowUpList rows={homeRows} emptyLabel={strings.home.followUpsEmpty} />
         </section>
 
         <section className="space-y-2">
@@ -51,10 +63,13 @@ export default async function HomePage() {
           )}
         </section>
 
-        <section className="space-y-2">
-          <h2 className="text-sm font-semibold">{strings.home.recentTitle}</h2>
-          <EmptyState title={strings.home.recentEmpty} />
-        </section>
+        <RecentlyViewed
+          empty={
+            <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+              {strings.home.recentEmpty}
+            </p>
+          }
+        />
       </div>
     </>
   );
