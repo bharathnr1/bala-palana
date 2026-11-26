@@ -99,6 +99,24 @@ describe("createUploadUrl", () => {
       expect.objectContaining({ public: false }),
     );
   });
+
+  it("accepts a concurrent creation when a re-read finds the bucket", async () => {
+    vi.resetModules();
+    supabase.getBucket
+      .mockResolvedValueOnce({ data: null, error: { message: "not found" } })
+      .mockResolvedValueOnce({ data: { name: "feedback-audio" }, error: null });
+    supabase.createBucket.mockResolvedValueOnce({
+      data: null,
+      error: { message: "already exists" },
+    });
+
+    const fresh = await import("./storage");
+    const url = await fresh.createUploadUrl(fresh.STORAGE_BUCKETS.feedbackAudio, "feedback/b.webm");
+
+    expect(url).toContain("/object/upload/sign/");
+    expect(supabase.createBucket).toHaveBeenCalledTimes(1);
+    expect(supabase.getBucket).toHaveBeenCalledTimes(2);
+  });
 });
 
 describe("removeObject", () => {

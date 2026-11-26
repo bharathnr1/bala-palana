@@ -56,7 +56,10 @@ async function ensureBucket(bucket: StorageBucket): Promise<void> {
     ...BUCKET_OPTIONS[bucket],
   });
   if (created.error) {
-    throw new AppError("INVALID", strings.storage.unavailable);
+    // Another cold process may have created it between our check and this
+    // call, so re-read before treating it as a failure.
+    const retry = await storageClient().storage.getBucket(bucket);
+    if (retry.error) throw new AppError("INVALID", strings.storage.unavailable);
   }
   bucketsReady.add(bucket);
 }
