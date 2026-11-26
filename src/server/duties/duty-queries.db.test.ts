@@ -1,9 +1,12 @@
 import { sql } from "drizzle-orm";
 import { beforeEach, describe, expect, it } from "vitest";
 
+import type { SessionUser } from "@/server/auth/session";
 import { getDb } from "@/server/db/client";
-import { child, cycle, lookup, team, teamMember } from "@/server/db/schema";
+import { appUser, child, cycle, lookup, team, teamMember } from "@/server/db/schema";
 import { resetDatabase } from "../../../tests/db/helpers";
+
+import { onDutyRoster } from "./queries";
 
 beforeEach(async () => {
   await resetDatabase();
@@ -95,6 +98,37 @@ describe("fn_on_duty", () => {
     await getDb().insert(teamMember).values({ teamId, childId });
 
     expect(await onDuty(pooja, "2026-11-03")).toEqual([]);
+  });
+});
+
+async function makeUser(role: SessionUser["role"]): Promise<SessionUser> {
+  const email = `${role}-lookup@example.com`;
+  const [row] = await getDb()
+    .insert(appUser)
+    .values({ email, name: `TEST ${role}`, role })
+    .returning({ id: appUser.id });
+  if (!row) throw new Error("insert failed");
+  return { id: row.id, name: `TEST ${role}`, email, role };
+}
+
+describe("onDutyRoster", () => {
+  it("answers with names and roles, leads first, for a teacher as well", async () => {
+    const pooja = await dutyId("pooja");
+    const cycleId = await makeCycle("2026-11-01", "2026-11-15");
+    const teamId = await makeTeam(cycleId, pooja);
+    const lead = await makeChild("LEAD Child");
+    const member = await makeChild("MEMBER Child");
+    await getDb().insert(teamMember).values([
+      { teamId, childId: member },
+      { teamId, childId: lead, role: "lead" },
+    ]);
+
+    const teacher = await makeUser("teacher");
+    const roster = await onDutyRoster(teacher, pooja, "2026-11-03");
+
+    expect(roster.map((row) => row.role)).toEqual(["lead", "member"]);
+    expect(roster[0]?.childName).toBe("LEAD Child");
+    expect(roster[0]?.childId).toBe(lead);
   });
 });
 
