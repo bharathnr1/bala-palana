@@ -37,4 +37,4 @@ Mocks: don't mock the database. DB tests run against Postgres with all migration
 - [ ] All strings in `src/lib/strings.ts`
 - [ ] Docs updated if behaviour or schema changed (`02-schema.md`, the design doc's decisions table)
 - [ ] No new paid service; any new dependency justified in the PR
-- [ ] Reviewed and approved by a different agent
+- [ ] Review per [AGENTS.md §4](../../AGENTS.md#4-task-workflow): `/code-review` findings fixed or justified, and the risk-surface read done
