@@ -59,7 +59,9 @@ export async function listNeedsAttention(
   assertCan(user, "report.attention");
   const academicYear = await currentAcademicYear();
 
-  const conditions = [eq(enrolment.academicYear, academicYear)];
+  // The academic year lives in the join so a child without an enrolment for
+  // this year still appears; only a grade filter narrows the list.
+  const conditions = [];
   if (filters.gradeId) conditions.push(eq(enrolment.gradeId, filters.gradeId));
   if (filters.authorId) conditions.push(eq(vNeedsAttention.lastAuthorId, filters.authorId));
 
@@ -81,7 +83,7 @@ export async function listNeedsAttention(
     .leftJoin(enrolment, and(eq(enrolment.childId, child.id), eq(enrolment.academicYear, academicYear)))
     .leftJoin(grade, eq(enrolment.gradeId, grade.id))
     .leftJoin(lastAuthor, eq(vNeedsAttention.lastAuthorId, lastAuthor.id))
-    .where(and(...conditions))
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
     // Severity: an overdue follow-up outranks an open concern, then neglect.
     .orderBy(
       desc(vNeedsAttention.overdueFollowUps),

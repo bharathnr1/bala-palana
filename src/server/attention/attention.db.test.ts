@@ -218,6 +218,16 @@ describe("listNeedsAttention", () => {
     expect(await listNeedsAttention(coordinator, { gradeId: grade6 })).toHaveLength(0);
   });
 
+  it("includes a child who has no enrolment for the current year yet", async () => {
+    const coordinator = await makeUser("coordinator");
+    const childId = await makeChild();
+
+    await createEntries(coordinator, { childIds: [childId], categoryKey: "concern", note: "Help." });
+
+    const rows = await listNeedsAttention(coordinator);
+    expect(rows.some((row) => row.childId === childId)).toBe(true);
+  });
+
   it("counts the flagged children for the Home card", async () => {
     const coordinator = await makeUser("coordinator");
     const childId = await makeChild();
