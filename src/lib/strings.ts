@@ -390,6 +390,12 @@ export const strings = {
 
   duties: {
     lookup: "Who was on duty",
+    lookupHint: "Pick a duty and a day to see the children who held it.",
+    lookupDuty: "Duty",
+    lookupOn: "Day",
+    lookupAsk: "Show",
+    lookupEmpty: "Nobody was on duty that day.",
+    backToBoard: "Back to the board",
     team: "Team",
     unassigned: "Unassigned",
     addTeam: "＋ Team",

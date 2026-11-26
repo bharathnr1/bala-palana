@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import { assertCan } from "@/server/auth/permissions";
@@ -139,6 +139,47 @@ export async function dutyBoard(user: SessionUser, cycleId: string): Promise<Boa
     label: row.label ?? "Team",
     sort: row.sort,
     members: byTeam.get(row.id) ?? [],
+  }));
+}
+
+export type OnDutyMember = {
+  childId: string;
+  childName: string;
+  gradeLabel: string | null;
+  role: "lead" | "member";
+};
+
+/**
+ * Who held `dutyId` on `on` (M3-04): `fn_on_duty` joined to the child's name
+ * and this year's grade, leads first. One query, so the answer is a tap away.
+ */
+export async function onDutyRoster(
+  user: SessionUser,
+  dutyId: string,
+  on: string,
+): Promise<OnDutyMember[]> {
+  assertCan(user, "duty.read");
+  const academicYear = await currentAcademicYear();
+
+  const rows = await getDb().execute<{
+    child_id: string;
+    child_name: string;
+    grade_label: string | null;
+    role: string;
+  }>(sql`
+    select r.child_id, c.full_name as child_name, g.label as grade_label, r.role::text as role
+    from fn_on_duty(${dutyId}, ${on}) r
+    join child c on c.id = r.child_id
+    left join enrolment e on e.child_id = c.id and e.academic_year = ${academicYear}
+    left join lookup g on g.id = e.grade_id
+    order by r.role, c.full_name
+  `);
+
+  return rows.map((row) => ({
+    childId: row.child_id,
+    childName: row.child_name,
+    gradeLabel: row.grade_label,
+    role: row.role === "lead" ? "lead" : "member",
   }));
 }
 
