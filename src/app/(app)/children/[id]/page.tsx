@@ -5,11 +5,15 @@ import { notFound } from "next/navigation";
 import { ChildAvatar } from "@/components/child-avatar";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
+import { JourneyTimeline } from "@/features/entries/journey-timeline";
 import { RememberView } from "@/features/children/remember-view";
 import { can } from "@/lib/permissions";
 import { strings } from "@/lib/strings";
 import { requireScreen } from "@/server/auth/guards";
 import { getChild } from "@/server/children/queries";
+import { entryCategories } from "@/server/entries/lookups";
+import { listChildTimeline } from "@/server/entries/timeline";
+import { preferences } from "@/server/settings/queries";
 
 type TabKey = keyof typeof strings.children.tabs;
 
@@ -32,6 +36,13 @@ function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
+/** The journey filter chips share the ChipGroup look without being buttons. */
+function chipClass(isActive: boolean): string {
+  return isActive
+    ? "inline-flex min-h-11 items-center rounded-full border border-primary bg-primary px-3 text-sm text-primary-foreground"
+    : "inline-flex min-h-11 items-center rounded-full border border-border px-3 text-sm hover:bg-muted";
+}
+
 /** Child profile shell (04-ui-spec § Child profile). The tabs fill in later. */
 export default async function ChildProfilePage({
   params,
@@ -42,7 +53,7 @@ export default async function ChildProfilePage({
 }) {
   const user = await requireScreen("child.read");
   const { id } = await params;
-  const { tab } = await searchParams;
+  const { tab, category } = await searchParams;
 
   const profile = await getChild(user, id);
   if (!profile) notFound();
@@ -50,6 +61,20 @@ export default async function ChildProfilePage({
   const tabs = TABS.filter((entry) => can(user, entry.action));
   const requested = first(tab);
   const active = tabs.find((entry) => entry.key === requested) ?? tabs[0];
+
+  const isJourney = active?.key === "journey";
+  const journeyData = isJourney
+    ? await Promise.all([
+        entryCategories(user),
+        preferences(),
+        listChildTimeline(user, id, { categoryKey: first(category) }),
+      ])
+    : null;
+  const categories = journeyData?.[0] ?? [];
+  const settings = journeyData?.[1] ?? null;
+  const timeline = journeyData?.[2] ?? null;
+
+  const activeCategory = categories.find((row) => row.key === first(category));
 
   const subtitle = profile.enrolment
     ? [profile.enrolment.gradeLabel, profile.enrolment.groupLabel].filter(Boolean).join(" · ")
@@ -107,7 +132,57 @@ export default async function ChildProfilePage({
       </nav>
 
       <section className="pt-4">
-        {active ? <EmptyState title={strings.children.tabEmpty[active.key]} /> : null}
+        {isJourney && settings && timeline ? (
+          <div className="space-y-4">
+            <nav aria-label={strings.entries.timeline.filterLabel}>
+              <ul className="flex gap-2 overflow-x-auto pb-1">
+                <li className="shrink-0">
+                  <Link
+                    href={`/children/${profile.id}?tab=journey`}
+                    aria-current={activeCategory ? undefined : "page"}
+                    className={chipClass(!activeCategory)}
+                  >
+                    {strings.entries.timeline.all}
+                  </Link>
+                </li>
+                {categories.map((row) => {
+                  const isActive = activeCategory?.key === row.key;
+                  return (
+                    <li key={row.id} className="shrink-0">
+                      <Link
+                        href={`/children/${profile.id}?tab=journey&category=${row.key}`}
+                        aria-current={isActive ? "page" : undefined}
+                        className={chipClass(isActive)}
+                      >
+                        {row.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
+
+            {timeline.events.length === 0 ? (
+              <EmptyState
+                title={
+                  activeCategory
+                    ? strings.entries.timeline.emptyFiltered
+                    : strings.entries.timeline.empty
+                }
+              />
+            ) : (
+              <JourneyTimeline
+                childId={profile.id}
+                events={timeline.events}
+                hasMore={timeline.hasMore}
+                categoryKey={activeCategory?.key}
+                startMonth={settings.academicYearStartMonth}
+              />
+            )}
+          </div>
+        ) : active ? (
+          <EmptyState title={strings.children.tabEmpty[active.key]} />
+        ) : null}
       </section>
     </>
   );

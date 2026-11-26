@@ -168,7 +168,7 @@ Each is created in the milestone that needs it (see [tasks](../../tasks/README.m
 | `v_duty_counts` | child_id, duty_id, academic_year, cycles_served | M3 |
 | `v_open_follow_ups` | open entries and admissions with follow_up_on, owner, child | M2 (admissions added in M5) |
 | `v_needs_attention` | child_id, open_concerns, overdue_follow_ups, concern_subjects, days_since_last_entry, reasons[] | M2 |
-| `v_child_timeline` | child_id, at, kind, title, ref_table, ref_id, visibility (union of entries, admission events, enrolments, assessments, duty stints) | M2 (sources added by later milestones) |
+| `v_child_timeline` | child_id, at, kind, title, ref_table, ref_id, visibility, category_key (union of entries, admission events, enrolments, assessments, duty stints); the reading query applies the visibility filter (D13) | M2 (sources added by later milestones) |
 | `v_fee_balance` | fee_id, child_id, due, paid, balance | M7 |
 | `v_grade_subject_summary` | academic_year, grade, term, subject, avg_pct, n | M4 |
 | `v_achievements` | child_id, academic_year, area, level, result | M6 |

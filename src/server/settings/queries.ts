@@ -67,10 +67,12 @@ function cycleRuleOf(raw: unknown): Preferences["cycleRule"] {
   return DEFAULT_PREFERENCES.cycleRule;
 }
 
-/** The four editable settings, with the seeded defaults for anything missing. */
-export async function getPreferences(user: { role: Role }): Promise<Preferences> {
-  assertCan(user, "settings.manage");
-
+/**
+ * The four settings, with the seeded defaults for anything missing. Read-only
+ * and not secret, so screens that need one value (the journey's academic
+ * year, the needs-attention threshold) may read them without `settings.manage`.
+ */
+export async function preferences(): Promise<Preferences> {
   const rows = await getDb()
     .select({ key: setting.key, value: setting.value })
     .from(setting)
@@ -91,6 +93,12 @@ export async function getPreferences(user: { role: Role }): Promise<Preferences>
     audioRetentionDays: number(SETTING_KEYS.audioRetentionDays, DEFAULT_PREFERENCES.audioRetentionDays),
     cycleRule: cycleRuleOf(value(SETTING_KEYS.cycleRule)),
   };
+}
+
+/** The settings screen's read. Same data as `preferences()`, behind the permission. */
+export async function getPreferences(user: { role: Role }): Promise<Preferences> {
+  assertCan(user, "settings.manage");
+  return preferences();
 }
 
 /** Active admins, the number the "last admin" rules need. */
