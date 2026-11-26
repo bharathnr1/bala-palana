@@ -26,6 +26,7 @@ export type EntryListItem = {
   categoryLabel: string;
   note: string | null;
   occurredAt: Date;
+  createdAt: Date;
   authorId: string;
   authorName: string;
   subjectLabel: string | null;
@@ -56,6 +57,7 @@ const entryColumns = {
   categoryLabel: category.label,
   note: entry.note,
   occurredAt: entry.occurredAt,
+  createdAt: entry.createdAt,
   authorId: entry.authorId,
   authorName: author.name,
   subjectLabel: subject.label,

@@ -4,6 +4,7 @@ import { and, eq, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
 
 import { strings } from "@/lib/strings";
+import { SELF_DELETE_WINDOW_MS, withinSelfDeleteWindow } from "@/lib/entry-rules";
 import { AppError } from "@/server/auth/errors";
 import { assertCan, can } from "@/server/auth/permissions";
 import type { SessionUser } from "@/server/auth/session";
@@ -12,8 +13,7 @@ import { child, entry, entryTag, lookup } from "@/server/db/schema";
 
 import { categoryFlags, parseEntryDetails } from "./categories";
 
-/** Authors may soft-delete their own entry for 24 hours (03 § Rules beyond the matrix). */
-export const SELF_DELETE_WINDOW_MS = 24 * 60 * 60 * 1000;
+export { SELF_DELETE_WINDOW_MS };
 
 const blankToUndefined = (value: unknown) =>
   typeof value === "string" && value.trim() === "" ? undefined : value;
@@ -315,9 +315,10 @@ export async function deleteEntry(
 
     if (!can(user, "entry.delete_any")) {
       const isOwn = row.authorId === user.id && can(user, "entry.edit_own");
-      const isRecent = Date.now() - row.createdAt.getTime() <= SELF_DELETE_WINDOW_MS;
       if (!isOwn) throw new AppError("FORBIDDEN", strings.entries.errors.forbidden);
-      if (!isRecent) throw new AppError("FORBIDDEN", strings.entries.errors.deleteTooLate);
+      if (!withinSelfDeleteWindow(row.createdAt)) {
+        throw new AppError("FORBIDDEN", strings.entries.errors.deleteTooLate);
+      }
     }
 
     await tx.update(entry).set({ deletedAt: new Date(), updatedAt: new Date() }).where(eq(entry.id, input.id));

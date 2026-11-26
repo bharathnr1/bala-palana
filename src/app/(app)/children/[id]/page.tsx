@@ -5,13 +5,16 @@ import { notFound } from "next/navigation";
 import { ChildAvatar } from "@/components/child-avatar";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
+import { EntrySheet } from "@/features/entries/entry-sheet";
 import { JourneyTimeline } from "@/features/entries/journey-timeline";
 import { RememberView } from "@/features/children/remember-view";
 import { can } from "@/lib/permissions";
+import { withinSelfDeleteWindow } from "@/lib/entry-rules";
 import { strings } from "@/lib/strings";
 import { requireScreen } from "@/server/auth/guards";
 import { getChild } from "@/server/children/queries";
 import { entryCategories } from "@/server/entries/lookups";
+import { getEntryWithThread } from "@/server/entries/queries";
 import { listChildTimeline } from "@/server/entries/timeline";
 import { preferences } from "@/server/settings/queries";
 
@@ -53,7 +56,7 @@ export default async function ChildProfilePage({
 }) {
   const user = await requireScreen("child.read");
   const { id } = await params;
-  const { tab, category } = await searchParams;
+  const { tab, category, entry: entryParam } = await searchParams;
 
   const profile = await getChild(user, id);
   if (!profile) notFound();
@@ -61,6 +64,11 @@ export default async function ChildProfilePage({
   const tabs = TABS.filter((entry) => can(user, entry.action));
   const requested = first(tab);
   const active = tabs.find((entry) => entry.key === requested) ?? tabs[0];
+
+  // `?entry=<id>` opens the sheet over whichever tab is showing (M2-04).
+  const entryId = first(entryParam);
+  const thread = entryId ? await getEntryWithThread(user, entryId).catch(() => null) : null;
+  if (thread && thread.entry.childId !== profile.id) notFound();
 
   const isJourney = active?.key === "journey";
   // Resolve the chip before the query: a category the reader cannot see falls
@@ -76,6 +84,20 @@ export default async function ChildProfilePage({
     : null;
   const settings = journeyData?.[0] ?? null;
   const timeline = journeyData?.[1] ?? null;
+
+  const backHref = `/children/${profile.id}?tab=journey${
+    activeCategory ? `&category=${activeCategory.key}` : ""
+  }`;
+  const isAuthor = thread?.entry.authorId === user.id;
+  const canEditEntry = thread
+    ? can(user, "entry.edit_any") || (can(user, "entry.edit_own") && isAuthor)
+    : false;
+  const canDeleteEntry = thread
+    ? can(user, "entry.delete_any") ||
+      (can(user, "entry.edit_own") &&
+        isAuthor &&
+        withinSelfDeleteWindow(thread.entry.createdAt))
+    : false;
 
   const subtitle = profile.enrolment
     ? [profile.enrolment.gradeLabel, profile.enrolment.groupLabel].filter(Boolean).join(" · ")
@@ -187,6 +209,17 @@ export default async function ChildProfilePage({
           <EmptyState title={strings.children.tabEmpty[active.key]} />
         ) : null}
       </section>
+
+      {thread ? (
+        <EntrySheet
+          thread={thread}
+          backHref={backHref}
+          canEdit={canEditEntry}
+          canDelete={canDeleteEntry}
+          canClose={can(user, "entry.close_follow_up")}
+          canCreate={can(user, "entry.create")}
+        />
+      ) : null}
     </>
   );
 }
