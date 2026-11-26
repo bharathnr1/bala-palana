@@ -1,4 +1,4 @@
-import { todayISO } from "./dates";
+import { formatDate, todayISO } from "./dates";
 
 /**
  * Cycle rules the app knows (D8). `half_month` is the practice the gurukula
@@ -84,6 +84,14 @@ export function ensureWindow(todayIso: string = todayISO()): CyclePeriod {
     startOn: dayISO(year, month, 1),
     endOn: dayISO(endYear, endMonth, daysInMonth(endYear, endMonth)),
   };
+}
+
+/** How the switcher names a cycle: `1–15 Nov 2026`, or both ends across months. */
+export function cycleLabel(period: CyclePeriod): string {
+  const sameMonth = period.startOn.slice(0, 7) === period.endOn.slice(0, 7);
+  return sameMonth
+    ? `${Number(period.startOn.slice(8, 10))}–${formatDate(period.endOn)}`
+    : `${formatDate(period.startOn)} – ${formatDate(period.endOn)}`;
 }
 
 /** Why an edited cycle's dates cannot be saved; `null` when they can. */
