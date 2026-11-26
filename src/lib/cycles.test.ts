@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { canSplitAt, cyclePeriods, daysInMonth, ensureWindow, periodsOverlap } from "./cycles";
+import {
+  canSplitAt,
+  cycleLabel,
+  cyclePeriods,
+  daysInMonth,
+  ensureWindow,
+  periodsOverlap,
+} from "./cycles";
 
 describe("cyclePeriods (half_month)", () => {
   it("splits February in a common year", () => {
@@ -69,6 +76,15 @@ describe("ensureWindow", () => {
 
   it("crosses the year boundary", () => {
     expect(ensureWindow("2026-12-05")).toEqual({ startOn: "2026-12-01", endOn: "2027-02-28" });
+  });
+});
+
+describe("cycleLabel", () => {
+  it("shortens a cycle inside one month and spells out a span across two", () => {
+    expect(cycleLabel({ startOn: "2026-11-01", endOn: "2026-11-15" })).toBe("1–15 Nov 2026");
+    expect(cycleLabel({ startOn: "2026-11-28", endOn: "2026-12-04" })).toBe(
+      "28 Nov 2026 – 4 Dec 2026",
+    );
   });
 });
 

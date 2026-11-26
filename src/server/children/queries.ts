@@ -151,6 +151,7 @@ export type PickerChild = {
   fullName: string;
   gradeLabel: string | null;
   groupLabel: string | null;
+  stage: ChildStage;
 };
 
 /**
@@ -171,6 +172,7 @@ export async function listChildrenForPicker(user: { role: Role }): Promise<Picke
       fullName: child.fullName,
       gradeLabel: grade.label,
       groupLabel: group.label,
+      stage: child.stage,
     })
     .from(child)
     .leftJoin(

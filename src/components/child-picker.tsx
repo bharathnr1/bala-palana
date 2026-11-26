@@ -4,6 +4,7 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 import { cn } from "cn";
 
 import { ChildAvatar } from "@/components/child-avatar";
+import type { ChildStage } from "@/lib/children";
 import {
   recentChildrenServerSnapshot,
   recentChildrenSnapshot,
@@ -16,6 +17,8 @@ export type PickerChild = {
   fullName: string;
   gradeLabel: string | null;
   groupLabel: string | null;
+  /** Duties take students only; the board filters on this (M3-03). */
+  stage: ChildStage;
 };
 
 const MAX_RESULTS = 50;
