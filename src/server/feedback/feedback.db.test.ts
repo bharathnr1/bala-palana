@@ -8,7 +8,8 @@ import { getDb } from "@/server/db/client";
 import { appUser, feedback } from "@/server/db/schema";
 import { resetDatabase } from "../../../tests/db/helpers";
 
-import { saveFeedback } from "./mutations";
+import { saveFeedback, triageFeedback } from "./mutations";
+import { getFeedbackAudioUrl, listFeedback } from "./queries";
 
 const storage = vi.hoisted(() => ({ removeObject: vi.fn(async () => undefined) }));
 
@@ -31,6 +32,20 @@ async function makeUser(role: SessionUser["role"]): Promise<SessionUser> {
     .returning({ id: appUser.id });
   if (!row) throw new Error("insert failed");
   return { id: row.id, name: `TEST ${role} ${userCount}`, email, role };
+}
+
+async function makeFeedback(authorId: string): Promise<string> {
+  const id = randomUUID();
+  await getDb()
+    .insert(feedback)
+    .values({
+      id,
+      authorId,
+      audioPath: `feedback/${id}.webm`,
+      durationS: 12,
+      pageContext: JSON.stringify({ route: "/children/abc" }),
+    });
+  return id;
 }
 
 describe("saveFeedback", () => {
@@ -69,5 +84,63 @@ describe("saveFeedback", () => {
     expect(storage.removeObject).not.toHaveBeenCalled();
     const rows = await getDb().select().from(feedback).where(eq(feedback.id, id));
     expect(rows).toHaveLength(1);
+  });
+});
+
+describe("listFeedback", () => {
+  it("returns only the teacher's own notes", async () => {
+    const teacher = await makeUser("teacher");
+    const other = await makeUser("coordinator");
+    await makeFeedback(teacher.id);
+    await makeFeedback(other.id);
+
+    const result = await listFeedback(teacher);
+
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0]?.authorId).toBe(teacher.id);
+  });
+
+  it("returns every note to an admin", async () => {
+    const admin = await makeUser("admin");
+    const teacher = await makeUser("teacher");
+    await makeFeedback(teacher.id);
+    await makeFeedback(admin.id);
+
+    const result = await listFeedback(admin);
+
+    expect(result.rows).toHaveLength(2);
+    expect(result.rows.every((row) => row.authorName !== null)).toBe(true);
+  });
+});
+
+describe("getFeedbackAudioUrl", () => {
+  it("refuses another person's recording for a non-admin", async () => {
+    const teacher = await makeUser("teacher");
+    const other = await makeUser("coordinator");
+    const id = await makeFeedback(other.id);
+
+    await expect(getFeedbackAudioUrl(teacher, id)).rejects.toMatchObject({ code: "FORBIDDEN" });
+  });
+});
+
+describe("triageFeedback", () => {
+  it("lets an admin set the status and the triage note", async () => {
+    const admin = await makeUser("admin");
+    const teacher = await makeUser("teacher");
+    const id = await makeFeedback(teacher.id);
+
+    await triageFeedback(admin, { id, status: "done", triageNote: "Fixed in class." });
+
+    const [row] = await getDb().select().from(feedback).where(eq(feedback.id, id));
+    expect(row).toMatchObject({ status: "done", triageNote: "Fixed in class." });
+  });
+
+  it("refuses triage from a teacher", async () => {
+    const teacher = await makeUser("teacher");
+    const id = await makeFeedback(teacher.id);
+
+    await expect(
+      triageFeedback(teacher, { id, status: "triaged", triageNote: "x" }),
+    ).rejects.toMatchObject({ code: "FORBIDDEN" });
   });
 });

@@ -2,9 +2,10 @@ import "server-only";
 
 import { randomUUID } from "node:crypto";
 
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
-import { MAX_FEEDBACK_SECONDS } from "@/lib/feedback";
+import { FEEDBACK_STATUSES, MAX_FEEDBACK_SECONDS } from "@/lib/feedback";
 import { strings } from "@/lib/strings";
 import { AppError } from "@/server/auth/errors";
 import { assertCan } from "@/server/auth/permissions";
@@ -25,6 +26,13 @@ export const saveFeedbackSchema = z.object({
   childId: z.uuid().optional(),
 });
 export type SaveFeedbackInput = z.infer<typeof saveFeedbackSchema>;
+
+export const triageFeedbackSchema = z.object({
+  id: z.uuid(),
+  status: z.enum(FEEDBACK_STATUSES),
+  triageNote: z.string().trim().max(2000).optional(),
+});
+export type TriageFeedbackInput = z.infer<typeof triageFeedbackSchema>;
 
 /**
  * Two-phase upload (M1-02): the server mints the row's id and a signed upload
@@ -73,6 +81,25 @@ export async function saveFeedback(
   }
 
   return { id: input.id };
+}
+
+/** Admin triage: set the status and the note (M1-03). */
+export async function triageFeedback(
+  user: SessionUser,
+  input: TriageFeedbackInput,
+): Promise<{ id: string }> {
+  assertCan(user, "feedback.triage");
+
+  const [row] = await mutate(user, (tx) =>
+    tx
+      .update(feedback)
+      .set({ status: input.status, triageNote: input.triageNote || null })
+      .where(eq(feedback.id, input.id))
+      .returning({ id: feedback.id }),
+  );
+  if (!row) throw new AppError("NOT_FOUND", strings.feedback.errors.notFound);
+
+  return row;
 }
 
 function isUniqueViolation(error: unknown): boolean {
