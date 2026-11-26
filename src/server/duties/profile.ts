@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, ne } from "drizzle-orm";
 
 import { todayISO } from "@/lib/dates";
 import { strings } from "@/lib/strings";
@@ -122,7 +122,7 @@ export async function childDutyHistory(
     .innerJoin(team, eq(team.id, teamMember.teamId))
     .innerJoin(cycle, eq(cycle.id, team.cycleId))
     .leftJoin(lookup, eq(lookup.id, team.dutyId))
-    .where(eq(teamMember.childId, childId))
+    .where(and(eq(teamMember.childId, childId), ne(cycle.status, "skipped")))
     .orderBy(desc(cycle.startOn), asc(lookup.label))
     .limit(100);
 
