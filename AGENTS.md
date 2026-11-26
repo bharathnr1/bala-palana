@@ -44,10 +44,10 @@ Don't re-explore what the docs already answer. If a doc answers the question, tr
 
 | Role | Responsibilities |
 |---|---|
-| **Integrator** (exactly one) | Owns `tasks/README.md` (the only agent who edits the board); assigns tasks so parallel work doesn't touch the same files; reviews or delegates review; merges; keeps `main` green; writes the milestone summary for the human |
+| **Integrator** (exactly one) | Owns `tasks/README.md` (the only agent who edits the board); assigns tasks so parallel work doesn't touch the same files; runs the risk-surface review; merges; keeps `main` green; writes the milestone summary for the human |
 | **Platform** | M0 foundations, CI, nightly job, deploys, storage, cycles, exports |
 | **Feature agents** (2–3) | Module tasks in parallel lanes |
-| **QA** | End-to-end specs, permission tests, the accessibility and performance pass, reviews with a tester's eye |
+| **QA** | End-to-end specs, permission tests, the accessibility and performance pass, and the fresh-eyes review on risky PRs |
 
 One agent may hold several roles in a small team; the Integrator is always exactly one agent.
 
@@ -56,9 +56,13 @@ One agent may hold several roles in a small team; the Integrator is always exact
 1. **Pick**: a `todo` task whose dependencies are all `done`; lowest milestone first. The Integrator marks it `in-progress (<you>)`.
 2. **Branch** from the latest `main` (see §5).
 3. **Build** to the spec, the acceptance criteria and the [Definition of Done](docs/architecture/06-testing.md#definition-of-done-every-task).
-4. **Open a PR** (template in §5). Draft PRs are fine for early feedback.
-5. **Review**: a different agent checks the spec, the DoD and every rule in this file. Review comments are specific and actionable; the author fixes them or replies with a reason.
-6. **Merge**: the Integrator squash-merges when CI is green and a different agent has commented `APPROVED`, then deletes the branch and marks the task `done`.
+4. **Open a PR** using [.github/pull_request_template.md](.github/pull_request_template.md). Draft PRs are fine for early feedback.
+5. **Review** (risk-based; no reviewer panel):
+   - The author runs `/code-review` on the diff at medium effort, then fixes or justifies every finding in the PR.
+   - The Integrator reads the risk surface: auth guards, restricted filtering in queries, `mutate()` writes, migrations, storage, fees and dates. Time-box 10 minutes; post one comment naming what was checked.
+   - On a PR touching schema, auth, storage or fees, spawn **one** fresh-context reviewer in the background with a brief of ≤ 3 files and 3 yes/no questions. Cap it at 10 minutes; if it returns no verdict, proceed on the other gates and note it in the PR.
+   - Never spawn a panel and never block a merge on a reviewer that has not answered.
+6. **Merge**: the Integrator squash-merges when CI is green, the DoD checklist is ticked, the mechanical rules in §6 are clean and step 5 is done; then deletes the branch and marks the task `done`.
 7. **Blocked**: say why in the PR or issue; the Integrator sets `blocked (<reason>)`. Human-only blockers reference an `H` task.
 
 ## 5. Git rules
@@ -81,8 +85,8 @@ Check with `git config user.email` before committing. Commits with any other ide
 - The remote must be `git@github-personal:bharathnr1/bala-palana.git` (an SSH alias with the personal key) or HTTPS authenticated as `bharathnr1`. Never change the remote or the credentials.
 
 ### Branches
-- `main` is protected by GitHub: PRs only, CI required, linear history, no force-push. Required approvals is set to 0 because all agents share one account, so **the Integrator enforces review**: it merges only after a different agent's `APPROVED` comment, and it is the only agent that merges.
-- All agents push under the owner's single GitHub account, so GitHub's *Approve* button can't be used. Reviews are PR comments that start with `APPROVED` or `CHANGES REQUESTED`, followed by the reviewer agent's role name.
+- `main` is protected by GitHub: PRs only, CI required, linear history, no force-push. Required approvals is set to 0 because all agents share one account; **the Integrator enforces the review gates in §4** and is the only agent that merges.
+- All agents push under the owner's single GitHub account, so GitHub's *Approve* button can't be used. Review comments state what was checked and what must change. `APPROVED` / `CHANGES REQUESTED` are optional labels, not a merge gate.
 - Branch name: `task/<ID>-<short-slug>`, e.g. `task/M2-02-quick-observation`. Hotfixes use `fix/<short-slug>`.
 - Keep up to date by **rebasing** on `main`, not merging. Force-push only your own branch, and only with `--force-with-lease`.
 - Never push directly to `main`, never force-push `main`, and never rewrite merged history.
@@ -94,7 +98,7 @@ Check with `git config user.email` before committing. Commits with any other ide
 
 ### PRs
 - Title: `<ID> <task title>`. One task per PR.
-- Body: a short summary of what changed; the task's acceptance checklist (ticked); tests run; screenshots at 360 px for UI work (demo data only); *Follow-ups* if any. Issue references go here, not in commits.
+- Body: use [.github/pull_request_template.md](.github/pull_request_template.md) — a short summary of what changed; the task's acceptance checklist (ticked); tests run; review evidence; screenshots at 360 px for UI work (demo data only); *Follow-ups* if any. Issue references go here, not in commits.
 
 ### Never commit
 Secrets or `.env` files (other than `.env.example`), real data, database dumps, `node_modules`, build output, or binaries over 1 MB (test fixtures excepted, with a reason in the PR). Do commit the lockfile and all generated migrations.
@@ -111,6 +115,8 @@ D24 keeps this rare: the full schema lands in M0, and later tasks add only views
 ## 6. Coding rules
 
 Layout, patterns and data conventions are in [01-conventions](docs/architecture/01-conventions.md). On top of those:
+
+**Mechanical rules** (check these before every PR; they are what review used to spend its time on): no `any`, no non-null `!`, no `@ts-ignore`/`@ts-expect-error` without a reason and task ID, no `console.log` in `src/`, no SQL built by concatenation, `import 'server-only'` in every `src/server/**` file, no hard-coded colours, no strings outside `strings.ts`.
 
 ### TypeScript
 - `strict` everywhere. No `any`: use `unknown` + Zod. No `@ts-ignore` / `@ts-expect-error` without a comment that names the reason and a task ID. No `!` non-null assertions outside tests.
