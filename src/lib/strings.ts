@@ -66,6 +66,30 @@ export const strings = {
     followUpsEmpty: "No follow-ups are due. Anything you schedule will show up here.",
     attentionEmpty: "No children need attention right now.",
     recentEmpty: "Children you open will appear here.",
+    attentionCount: (count: number) =>
+      count === 1 ? "1 child needs attention" : `${count} children need attention`,
+  },
+
+  attention: {
+    description: "Open concerns, overdue follow-ups and children who have not been seen recently.",
+    emptyTitle: "No children need attention",
+    emptyBody: "Concerns and follow-ups appear here when they open or fall due.",
+    filterGrade: "Grade",
+    filterTeacher: "Last entry by",
+    allGrades: "All grades",
+    allTeachers: "Everyone",
+    apply: "Apply filters",
+    clear: "Clear filters",
+    reasons: {
+      overdue_follow_ups: (count: number) =>
+        count === 1 ? "1 follow-up overdue" : `${count} follow-ups overdue`,
+      open_concerns: (count: number) =>
+        count === 1 ? "1 open concern" : `${count} open concerns`,
+      concern_subjects: (count: number) => `Concerns in ${count} subjects`,
+      stale: (days: number) => `No entry in ${days} days`,
+    },
+    lastAction: (name: string) => `Last entry by ${name}`,
+    lastActionNone: "No entry yet",
   },
 
   install: {
