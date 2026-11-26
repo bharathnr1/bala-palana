@@ -172,6 +172,8 @@ export default async function ChildProfilePage({
               />
             ) : (
               <JourneyTimeline
+                // A filter change is a new list; the key reseeds its state.
+                key={activeCategory?.key ?? "all"}
                 childId={profile.id}
                 events={timeline.events}
                 hasMore={timeline.hasMore}
