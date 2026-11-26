@@ -11,6 +11,7 @@ No `v` prefix. `package.json#version` carries the same number without the name (
 
 | Tag | Date | Milestone | What shipped |
 |---|---|---|---|
+| `bala-palana-0.3` | 2026-11-26 | M2 | Observations and follow-ups: a child's profile has a Journey tab that lists their history under academic-year headings with a category filter, and tapping a row opens the entry with its thread, where a follow-up or corrective action can be added and the item closed or reopened. Home shows the follow-ups due in the next week for the signed-in person and how many children need attention; a new Needs attention screen says who needs a look and why. |
 | `bala-palana-0.2` | 2026-11-26 | M1 | Voice-note feedback: a floating mic on every page records up to three minutes with preview and re-record; the admin plays notes back, sees the page context and transcript state, and triages them. |
 | `bala-palana-0.1` | 2026-11-25 | M0 | Skeleton: sign-in and permissions, the full domain schema, children list/profile/add/edit, settings (users, lists, preferences), CSV import, and the end-to-end smoke. Shipped together with the entries domain and the quick observation screen (M2-01, M2-02). Live at <https://bala-palana.vercel.app>. |
 
