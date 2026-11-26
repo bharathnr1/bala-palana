@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 
 import { Alert } from "@/components/alert";
 import { ChildAvatar } from "@/components/child-avatar";
@@ -97,9 +97,7 @@ export function DutiesScreen({
     ...duty,
     teams: board.filter((team) => team.dutyId === duty.id),
   }));
-  const strayTeams = board.filter(
-    (team) => !duties.some((duty) => duty.id === team.dutyId),
-  );
+  const strayTeams = board.filter((team) => !duties.some((duty) => duty.id === team.dutyId));
 
   function moveToTeam(memberId: string, toTeamId: string): void {
     run(() => moveMember(form({ id: memberId, toTeamId })));
@@ -110,7 +108,7 @@ export function DutiesScreen({
       <PageHeader title={strings.nav.duties} />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <Button asChild variant="outline" className="size-11" disabled={!previous}>
+        <Button asChild variant="outline" className="size-11">
           <Link
             href={previous ? `/duties?cycle=${previous.id}` : "#"}
             aria-label={strings.duties.previousCycle}
@@ -121,7 +119,7 @@ export function DutiesScreen({
           </Link>
         </Button>
         <p className="min-w-0 flex-1 text-center text-sm font-medium">{cycleLabel(selected)}</p>
-        <Button asChild variant="outline" className="size-11" disabled={!next}>
+        <Button asChild variant="outline" className="size-11">
           <Link
             href={next ? `/duties?cycle=${next.id}` : "#"}
             aria-label={strings.duties.nextCycle}
@@ -131,7 +129,7 @@ export function DutiesScreen({
             <ChevronRight className="size-5" aria-hidden />
           </Link>
         </Button>
-        <span className="rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
+        <span className="bg-secondary text-secondary-foreground rounded-full px-2 py-0.5 text-xs">
           {strings.duties.status[selected.status]}
         </span>
       </div>
@@ -143,7 +141,10 @@ export function DutiesScreen({
             variant="outline"
             className="h-11"
             onClick={() =>
-              run(() => copyLastCycle(form({ cycleId: selected.id })), () => setPanel(null))
+              run(
+                () => copyLastCycle(form({ cycleId: selected.id })),
+                () => setPanel(null),
+              )
             }
             disabled={isPending}
           >
@@ -172,9 +173,7 @@ export function DutiesScreen({
             variant="outline"
             className="h-11"
             disabled={isPending || selected.status === "skipped"}
-            onClick={() =>
-              run(() => setCycleStatus(form({ id: selected.id, status: "skipped" })))
-            }
+            onClick={() => run(() => setCycleStatus(form({ id: selected.id, status: "skipped" })))}
           >
             {strings.duties.skip}
           </Button>
@@ -215,7 +214,7 @@ export function DutiesScreen({
 
       {panel === "dates" ? (
         <form
-          className="mb-4 flex flex-wrap items-end gap-2 rounded-xl border border-border p-3"
+          className="border-border mb-4 flex flex-wrap items-end gap-2 rounded-xl border p-3"
           onSubmit={(event) => {
             event.preventDefault();
             const data = new FormData(event.currentTarget);
@@ -238,7 +237,7 @@ export function DutiesScreen({
               type="date"
               name="startOn"
               defaultValue={selected.startOn}
-              className="h-11 rounded-lg border border-input bg-background px-3"
+              className="border-input bg-background h-11 rounded-lg border px-3"
             />
           </label>
           <label className="text-sm">
@@ -247,7 +246,7 @@ export function DutiesScreen({
               type="date"
               name="endOn"
               defaultValue={selected.endOn}
-              className="h-11 rounded-lg border border-input bg-background px-3"
+              className="border-input bg-background h-11 rounded-lg border px-3"
             />
           </label>
           <Button type="submit" className="h-11" loading={isPending}>
@@ -258,7 +257,7 @@ export function DutiesScreen({
 
       {panel === "split" ? (
         <form
-          className="mb-4 flex flex-wrap items-end gap-2 rounded-xl border border-border p-3"
+          className="border-border mb-4 flex flex-wrap items-end gap-2 rounded-xl border p-3"
           onSubmit={(event) => {
             event.preventDefault();
             const data = new FormData(event.currentTarget);
@@ -274,7 +273,7 @@ export function DutiesScreen({
               type="date"
               name="on"
               defaultValue={selected.endOn}
-              className="h-11 rounded-lg border border-input bg-background px-3"
+              className="border-input bg-background h-11 rounded-lg border px-3"
             />
           </label>
           <Button type="submit" className="h-11" loading={isPending}>
@@ -284,9 +283,12 @@ export function DutiesScreen({
       ) : null}
 
       <div className="space-y-6">
-        {[...knownDuties, ...(strayTeams.length > 0
-          ? [{ id: "unassigned", label: strings.duties.unassigned, teams: strayTeams }]
-          : [])].map((duty) => (
+        {[
+          ...knownDuties,
+          ...(strayTeams.length > 0
+            ? [{ id: "unassigned", label: strings.duties.unassigned, teams: strayTeams }]
+            : []),
+        ].map((duty) => (
           <section key={duty.id} aria-labelledby={`duty-${duty.id}`} className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <h2 id={`duty-${duty.id}`} className="text-sm font-semibold">
@@ -308,7 +310,7 @@ export function DutiesScreen({
             </div>
 
             {duty.teams.length === 0 ? (
-              <p className="rounded-xl border border-dashed border-border px-4 py-4 text-sm text-muted-foreground">
+              <p className="border-border text-muted-foreground rounded-xl border border-dashed px-4 py-4 text-sm">
                 {strings.duties.noTeams}
               </p>
             ) : (
@@ -318,7 +320,7 @@ export function DutiesScreen({
                     key={team.id}
                     aria-label={team.label}
                     className={cn(
-                      "space-y-2 rounded-xl border border-border p-3",
+                      "border-border space-y-2 rounded-xl border p-3",
                       dragId ? "border-primary/40" : undefined,
                     )}
                     onDragOver={(event) => {
@@ -345,7 +347,7 @@ export function DutiesScreen({
                     </header>
 
                     {team.members.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">{strings.duties.emptyTeam}</p>
+                      <p className="text-muted-foreground text-sm">{strings.duties.emptyTeam}</p>
                     ) : (
                       <ul className="space-y-1">
                         {team.members.map((member) => (
@@ -356,21 +358,18 @@ export function DutiesScreen({
                               onDragStart={() => setDragId(member.memberId)}
                               onDragEnd={() => setDragId(null)}
                               onClick={() => (canWrite ? setMenu(member) : undefined)}
-                              className="flex min-h-11 w-full items-center gap-2 rounded-lg px-2 text-left text-sm hover:bg-muted"
+                              className="hover:bg-muted flex min-h-11 w-full items-center gap-2 rounded-lg px-2 text-left text-sm"
                             >
-                              <ChildAvatar
-                                name={member.childName}
-                                className="size-6 text-[10px]"
-                              />
+                              <ChildAvatar name={member.childName} className="size-6 text-[10px]" />
                               <span className="min-w-0 flex-1 truncate">{member.childName}</span>
                               {member.role === "lead" ? (
                                 <Star
-                                  className="size-4 text-primary"
+                                  className="text-primary size-4"
                                   aria-label={strings.duties.lead}
                                 />
                               ) : null}
                               {member.fromOn || member.toOn ? (
-                                <span className="shrink-0 text-xs text-muted-foreground">
+                                <span className="text-muted-foreground shrink-0 text-xs">
                                   {member.fromOn ? formatDate(member.fromOn) : "…"} –{" "}
                                   {member.toOn ? formatDate(member.toOn) : "…"}
                                 </span>
@@ -395,7 +394,10 @@ export function DutiesScreen({
           pending={isPending}
           onClose={() => setMenu(null)}
           onRole={(role) =>
-            run(() => setMemberRoleAction(form({ id: menu.memberId, role })), () => setMenu(null))
+            run(
+              () => setMemberRoleAction(form({ id: menu.memberId, role })),
+              () => setMenu(null),
+            )
           }
           onDates={(fromOn, toOn) =>
             run(
@@ -411,11 +413,17 @@ export function DutiesScreen({
             )
           }
           onMove={(toTeamId) =>
-            run(() => moveMember(form({ id: menu.memberId, toTeamId })), () => setMenu(null))
+            run(
+              () => moveMember(form({ id: menu.memberId, toTeamId })),
+              () => setMenu(null),
+            )
           }
           onRemove={() => {
             if (!window.confirm(strings.duties.confirmRemove)) return;
-            run(() => removeMember(form({ id: menu.memberId })), () => setMenu(null));
+            run(
+              () => removeMember(form({ id: menu.memberId })),
+              () => setMenu(null),
+            );
           }}
         />
       ) : null}
@@ -427,8 +435,9 @@ export function DutiesScreen({
           pending={isPending}
           onClose={() => setAddingTo(null)}
           onAdd={(ids) =>
-            run(() => addTeamChildren(form({ teamId: addingTo.id, childIds: ids.join(",") })), () =>
-              setAddingTo(null),
+            run(
+              () => addTeamChildren(form({ teamId: addingTo.id, childIds: ids.join(",") })),
+              () => setAddingTo(null),
             )
           }
         />
@@ -464,91 +473,84 @@ function MemberSheet({
   const [toOn, setToOn] = useState(member.toOn ?? "");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-foreground/30 sm:items-center sm:justify-center">
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={member.childName}
-        className="w-full max-w-md space-y-3 rounded-t-2xl border border-border bg-background p-4 sm:rounded-2xl"
-      >
-        <div className="flex items-center justify-between gap-2">
-          <p className="font-medium">{member.childName}</p>
-          <Button type="button" variant="ghost" className="h-11" onClick={onClose}>
-            {strings.duties.close}
-          </Button>
-        </div>
+    <Modal label={member.childName} onClose={onClose}>
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-medium">{member.childName}</p>
+        <Button type="button" variant="ghost" className="h-11" onClick={onClose}>
+          {strings.duties.close}
+        </Button>
+      </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            className="h-11"
-            disabled={pending}
-            onClick={() => onRole(member.role === "lead" ? "member" : "lead")}
-          >
-            {member.role === "lead" ? strings.duties.makeMember : strings.duties.makeLead}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="h-11 text-destructive"
-            disabled={pending}
-            onClick={onRemove}
-          >
-            {strings.duties.remove}
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <label className="text-sm">
-            <span className="mb-1 block font-medium">{strings.duties.from}</span>
-            <input
-              type="date"
-              value={fromOn}
-              onChange={(event) => setFromOn(event.target.value)}
-              className="h-11 w-full rounded-lg border border-input bg-background px-2"
-            />
-          </label>
-          <label className="text-sm">
-            <span className="mb-1 block font-medium">{strings.duties.to}</span>
-            <input
-              type="date"
-              value={toOn}
-              onChange={(event) => setToOn(event.target.value)}
-              className="h-11 w-full rounded-lg border border-input bg-background px-2"
-            />
-          </label>
-        </div>
+      <div className="flex flex-wrap gap-2">
         <Button
           type="button"
-          className="h-11 w-full"
+          variant="outline"
+          className="h-11"
           disabled={pending}
-          onClick={() => onDates(fromOn, toOn)}
+          onClick={() => onRole(member.role === "lead" ? "member" : "lead")}
         >
-          {strings.duties.setDates}
+          {member.role === "lead" ? strings.duties.makeMember : strings.duties.makeLead}
         </Button>
-
-        {teams.length > 0 ? (
-          <div className="space-y-1">
-            <p className="text-sm font-medium">{strings.duties.moveTo}</p>
-            <div className="flex flex-wrap gap-2">
-              {teams.map((team) => (
-                <Button
-                  key={team.id}
-                  type="button"
-                  variant="outline"
-                  className="h-11"
-                  disabled={pending}
-                  onClick={() => onMove(team.id)}
-                >
-                  {team.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-        ) : null}
+        <Button
+          type="button"
+          variant="outline"
+          className="text-destructive h-11"
+          disabled={pending}
+          onClick={onRemove}
+        >
+          {strings.duties.remove}
+        </Button>
       </div>
-    </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <label className="text-sm">
+          <span className="mb-1 block font-medium">{strings.duties.from}</span>
+          <input
+            type="date"
+            value={fromOn}
+            onChange={(event) => setFromOn(event.target.value)}
+            className="border-input bg-background h-11 w-full rounded-lg border px-2"
+          />
+        </label>
+        <label className="text-sm">
+          <span className="mb-1 block font-medium">{strings.duties.to}</span>
+          <input
+            type="date"
+            value={toOn}
+            onChange={(event) => setToOn(event.target.value)}
+            className="border-input bg-background h-11 w-full rounded-lg border px-2"
+          />
+        </label>
+      </div>
+      <Button
+        type="button"
+        className="h-11 w-full"
+        disabled={pending}
+        onClick={() => onDates(fromOn, toOn)}
+      >
+        {strings.duties.setDates}
+      </Button>
+
+      {teams.length > 0 ? (
+        <div className="space-y-1">
+          <p className="text-sm font-medium">{strings.duties.moveTo}</p>
+          <div className="flex flex-wrap gap-2">
+            {teams.map((team) => (
+              <Button
+                key={team.id}
+                type="button"
+                variant="outline"
+                className="h-11"
+                disabled={pending}
+                onClick={() => onMove(team.id)}
+              >
+                {team.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </Modal>
   );
 }
 
@@ -568,41 +570,66 @@ function AddChildrenSheet({
   const [selected, setSelected] = useState<string[]>([]);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end bg-foreground/30 sm:items-center sm:justify-center">
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={`${strings.duties.addChildren} — ${team.label}`}
-        className="flex max-h-[85vh] w-full max-w-md flex-col gap-3 overflow-y-auto rounded-t-2xl border border-border bg-background p-4 sm:rounded-2xl"
-      >
-        <div className="flex items-center justify-between gap-2">
-          <p className="font-medium">
-            {strings.duties.addChildren} · {team.label}
-          </p>
-          <Button type="button" variant="ghost" className="h-11" onClick={onClose}>
-            {strings.duties.close}
-          </Button>
-        </div>
-
-        <ChildPicker
-          childList={pickerChildren}
-          selected={selected}
-          onToggle={(id) =>
-            setSelected((current) =>
-              current.includes(id) ? current.filter((row) => row !== id) : [...current, id],
-            )
-          }
-        />
-
-        <Button
-          type="button"
-          className="h-11"
-          disabled={pending || selected.length === 0}
-          onClick={() => onAdd(selected)}
-        >
-          {pending ? strings.duties.saving : strings.duties.save}
+    <Modal label={`${strings.duties.addChildren} — ${team.label}`} onClose={onClose}>
+      <div className="flex items-center justify-between gap-2">
+        <p className="font-medium">
+          {strings.duties.addChildren} · {team.label}
+        </p>
+        <Button type="button" variant="ghost" className="h-11" onClick={onClose}>
+          {strings.duties.close}
         </Button>
       </div>
-    </div>
+
+      <ChildPicker
+        childList={pickerChildren}
+        selected={selected}
+        onToggle={(id) =>
+          setSelected((current) =>
+            current.includes(id) ? current.filter((row) => row !== id) : [...current, id],
+          )
+        }
+      />
+
+      <Button
+        type="button"
+        className="h-11"
+        disabled={pending || selected.length === 0}
+        onClick={() => onAdd(selected)}
+      >
+        {pending ? strings.duties.saving : strings.duties.save}
+      </Button>
+    </Modal>
+  );
+}
+
+/** A native dialog, so the focus trap, Escape and backdrop click come for free. */
+function Modal({
+  label,
+  onClose,
+  children,
+}: {
+  label: string;
+  onClose: () => void;
+  children: ReactNode;
+}) {
+  const ref = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const dialog = ref.current;
+    if (dialog && !dialog.open) dialog.showModal();
+  }, []);
+
+  return (
+    <dialog
+      ref={ref}
+      aria-label={label}
+      onClose={onClose}
+      onClick={(event) => {
+        if (event.target === ref.current) onClose();
+      }}
+      className="border-border bg-background backdrop:bg-foreground/30 m-0 mt-auto max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-2xl border p-4 sm:m-auto sm:rounded-2xl"
+    >
+      <div className="space-y-3">{children}</div>
+    </dialog>
   );
 }
