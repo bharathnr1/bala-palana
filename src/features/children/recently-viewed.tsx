@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
+import type { ReactNode } from "react";
 
 import { ChildAvatar } from "@/components/child-avatar";
 import {
@@ -16,14 +17,25 @@ import { strings } from "@/lib/strings";
  * `useSyncExternalStore` keeps the server render empty and the client in step
  * with localStorage without an effect that sets state.
  */
-export function RecentlyViewed() {
+export function RecentlyViewed({ empty }: { empty?: ReactNode }) {
   const rows = useSyncExternalStore(
     subscribeRecentChildren,
     recentChildrenSnapshot,
     recentChildrenServerSnapshot,
   );
 
-  if (rows.length === 0) return null;
+  if (rows.length === 0) {
+    // The children list hides the empty row entirely; Home asks for a hint.
+    if (!empty) return null;
+    return (
+      <section aria-labelledby="recent-children-heading" className="mb-6">
+        <h2 id="recent-children-heading" className="mb-2 text-sm font-semibold">
+          {strings.children.recentlyViewed}
+        </h2>
+        {empty}
+      </section>
+    );
+  }
 
   return (
     <section aria-labelledby="recent-children-heading" className="mb-6">

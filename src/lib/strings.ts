@@ -296,6 +296,19 @@ export const strings = {
     },
   },
 
+  followUps: {
+    mine: "Mine",
+    all: "All",
+    tabsLabel: "Follow-up owner",
+    overdue: "Overdue",
+    today: "Today",
+    upcoming: "Upcoming",
+    empty: "No follow-ups are due.",
+    close: "Close",
+    closeLabel: (child: string) => `Close the follow-up for ${child}`,
+    showingFirst: (limit: number) => `Showing the ${limit} soonest follow-ups.`,
+  },
+
   feedback: {
     title: "Feedback",
     allTitle: "All feedback",
