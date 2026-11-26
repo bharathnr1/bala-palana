@@ -4,7 +4,7 @@ _Bāla_ (child) + _Pālana_ (care, upbringing).
 
 A child-journey tracking system for a gurukula. It keeps one lifelong record per child, from admission enquiry through her Gurukula years to alumni life. That record covers academics, health, skills, achievements, responsibilities and duty rotation, observations and follow-ups, and fees. Teachers use it from their phones; coordinators and trustees use it for reports.
 
-**Status:** v0.1 (M0) released — sign-in and permissions, the full schema, children, settings, CSV import and the quick observation screen. Live at <https://bala-palana.vercel.app>. See the [task board](tasks/README.md) for what is next.
+**Status:** v0.2 (M1) released — sign-in and permissions, the full schema, children, settings, CSV import, the quick observation screen, and voice-note feedback with admin triage. Live at <https://bala-palana.vercel.app>. See the [task board](tasks/README.md) for what is next.
 
 ## Docs
 
@@ -36,17 +36,17 @@ cp .env.example .env          # fill in the values below
 pnpm dev                      # http://localhost:3000
 ```
 
-| Command                                | What it does                                                  |
-| -------------------------------------- | ------------------------------------------------------------- |
-| `pnpm dev`                             | Local dev server                                              |
-| `pnpm build`                           | Production build                                              |
-| `pnpm check`                           | Lint, typecheck and unit tests — run before every push        |
-| `pnpm test` / `pnpm test:db`           | Unit tests / database tests (needs `DATABASE_URL`)            |
-| `pnpm e2e`                             | Playwright end-to-end tests                                   |
-| `pnpm db:generate` / `pnpm db:migrate` | Create a migration from the Drizzle schema / apply migrations |
-| `pnpm seed:demo`                       | Load deterministic demo data (never real child data)          |
+| Command                                | What it does                                                                   |
+| -------------------------------------- | ------------------------------------------------------------------------------ |
+| `pnpm dev`                             | Local dev server                                                               |
+| `pnpm build`                           | Production build                                                               |
+| `pnpm check`                           | Lint, typecheck and unit tests — run before every push                         |
+| `pnpm test` / `pnpm test:db`           | Unit tests / database tests (needs `DATABASE_URL`)                             |
+| `pnpm e2e`                             | Playwright end-to-end tests                                                    |
+| `pnpm db:generate` / `pnpm db:migrate` | Create a migration from the Drizzle schema / apply migrations                  |
+| `pnpm seed:demo`                       | Load deterministic demo data (never real child data)                           |
 | `pnpm seed:bootstrap`                  | Create the first admin from `BOOTSTRAP_ADMIN_EMAIL` (no-op if set/unset twice) |
-| `pnpm format`                          | Prettier                                                      |
+| `pnpm format`                          | Prettier                                                                       |
 
 Configuration is read from `.env`, validated at startup by `src/lib/env.ts`; the full list of variables is in [docs/architecture/05-ops.md](docs/architecture/05-ops.md#environment-variables). Never commit `.env` or any secret.
 
