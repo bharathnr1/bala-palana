@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { eq } from "drizzle-orm";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SessionUser } from "@/server/auth/session";
 import { getDb } from "@/server/db/client";
@@ -9,6 +9,14 @@ import { appUser, feedback } from "@/server/db/schema";
 import { resetDatabase } from "../../../tests/db/helpers";
 
 import { saveFeedback } from "./mutations";
+
+const storage = vi.hoisted(() => ({ removeObject: vi.fn(async () => undefined) }));
+
+vi.mock("@/server/storage", () => ({
+  STORAGE_BUCKETS: { childFiles: "child-files", feedbackAudio: "feedback-audio" },
+  createUploadUrl: vi.fn(),
+  removeObject: storage.removeObject,
+}));
 
 beforeEach(resetDatabase);
 
@@ -47,5 +55,19 @@ describe("saveFeedback", () => {
     expect(JSON.parse(row?.pageContext ?? "")).toMatchObject({
       route: expect.stringMatching(/^\/children\//),
     });
+  });
+
+  it("keeps the audio when a retry hits the unique violation", async () => {
+    const teacher = await makeUser("teacher");
+    const id = randomUUID();
+    const input = { id, durationS: 12, route: "/observe" };
+    await saveFeedback(teacher, input);
+    storage.removeObject.mockClear();
+
+    await expect(saveFeedback(teacher, input)).rejects.toMatchObject({ code: "CONFLICT" });
+
+    expect(storage.removeObject).not.toHaveBeenCalled();
+    const rows = await getDb().select().from(feedback).where(eq(feedback.id, id));
+    expect(rows).toHaveLength(1);
   });
 });

@@ -161,6 +161,14 @@ export function FeedbackRecorder() {
         setDuration(seconds);
         setState("ready");
       };
+      recorder.onerror = () => {
+        // A fatal recorder error can also fire `onstop`; discard that take and
+        // return to a usable idle state with an explanation.
+        discardRef.current = true;
+        stopTracks();
+        setError(strings.feedback.record.recordingFailed);
+        setState("idle");
+      };
 
       discardRef.current = false;
       recorderRef.current = recorder;

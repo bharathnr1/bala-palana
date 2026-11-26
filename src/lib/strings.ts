@@ -257,7 +257,9 @@ export const strings = {
       permissionDenied:
         "Microphone access is blocked. Allow it in your browser settings, then try again.",
       micFailed: "The microphone could not be started.",
-      unsupported: "This browser cannot record audio. Use Chrome on a phone or desktop.",
+      recordingFailed: "The recording stopped unexpectedly. Please try again.",
+      unsupported:
+        "This browser cannot record the required webm audio. Use Chrome on a phone or desktop.",
       failed: "The feedback could not be sent. Please try again.",
       empty: "The recording was empty. Please try again.",
     },

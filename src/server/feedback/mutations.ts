@@ -62,11 +62,13 @@ export async function saveFeedback(
       });
     });
   } catch (error) {
-    // The object is useless without its row, so clean it up rather than orphan it.
-    await removeObject(STORAGE_BUCKETS.feedbackAudio, path).catch(() => undefined);
     if (isUniqueViolation(error)) {
+      // The first attempt already saved the row (and its audio); a retry must
+      // never delete the object that row points at.
       throw new AppError("CONFLICT", strings.feedback.errors.alreadySaved);
     }
+    // The object is useless without its row, so clean it up rather than orphan it.
+    await removeObject(STORAGE_BUCKETS.feedbackAudio, path).catch(() => undefined);
     throw error;
   }
 
@@ -74,7 +76,20 @@ export async function saveFeedback(
 }
 
 function isUniqueViolation(error: unknown): boolean {
-  return (
-    typeof error === "object" && error !== null && (error as { code?: string }).code === "23505"
-  );
+  return postgresErrorCode(error) === "23505";
+}
+
+/** Drizzle wraps driver errors, so the Postgres code can sit on `cause`. */
+function postgresErrorCode(error: unknown): string | undefined {
+  if (typeof error !== "object" || error === null) return undefined;
+
+  const code = (error as { code?: unknown }).code;
+  if (typeof code === "string") return code;
+
+  const cause = (error as { cause?: unknown }).cause;
+  if (typeof cause === "object" && cause !== null) {
+    const causeCode = (cause as { code?: unknown }).code;
+    if (typeof causeCode === "string") return causeCode;
+  }
+  return undefined;
 }
