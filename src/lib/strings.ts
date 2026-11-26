@@ -58,6 +58,11 @@ export const strings = {
     closeMore: "Close menu",
   },
 
+  theme: {
+    switchToDark: "Switch to dark theme",
+    switchToLight: "Switch to light theme",
+  },
+
   home: {
     greeting: "Hello",
     followUpsTitle: "My follow-ups",
