@@ -62,7 +62,7 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | M2-04 | Entry sheet and threads | Feature B | M2-03 | review |
 | M2-05 | Home and follow-ups | Feature A | M2-04 | review |
 | M2-06 | Needs attention | Feature B | M2-01 | review |
-| M2-07 | E2E and role checks | QA | M2-02, M2-05, M2-06 | todo |
+| M2-07 | E2E and role checks | QA | M2-02, M2-05, M2-06 | review |
 | **M3** | **Duties and responsibilities** ([M3.md](M3.md)) | | | |
 | M3-01 | Cycle engine | Platform | M0-04 | todo |
 | M3-02 | Duty queries | Platform | M3-01 | todo |
