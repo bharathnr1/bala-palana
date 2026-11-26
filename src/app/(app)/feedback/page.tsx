@@ -70,7 +70,7 @@ export default async function FeedbackPage({
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className="truncate font-medium">
-                      {strings.feedback.list.author}: {row.authorName ?? "—"}
+                      {strings.feedback.list.author}: {row.authorName ?? strings.feedback.list.none}
                     </p>
                     <p className="text-muted-foreground text-sm">
                       {strings.feedback.list.recordedAt}: {formatDateTimeIST(row.createdAt)}
@@ -86,7 +86,7 @@ export default async function FeedbackPage({
                 <dl className="grid gap-1 text-sm sm:grid-cols-2">
                   <div>
                     <dt className="text-muted-foreground">{strings.feedback.list.page}</dt>
-                    <dd className="break-all">{context || "—"}</dd>
+                    <dd className="break-all">{context || strings.feedback.list.none}</dd>
                   </div>
                   <div>
                     <dt className="text-muted-foreground">{strings.feedback.list.duration}</dt>

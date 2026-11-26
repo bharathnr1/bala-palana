@@ -269,6 +269,7 @@ export const strings = {
       empty: "The recording was empty. Please try again.",
     },
     list: {
+      none: "—",
       author: "From",
       recordedAt: "Recorded",
       page: "Page",
