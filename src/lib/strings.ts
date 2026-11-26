@@ -208,7 +208,8 @@ export const strings = {
       followUpOn: (date: string) => `Follow up on ${date}`,
       save: "Save",
       saving: "Saving…",
-      saved: (count: number) => (count === 1 ? "Saved for 1 child." : `Saved for ${count} children.`),
+      saved: (count: number) =>
+        count === 1 ? "Saved for 1 child." : `Saved for ${count} children.`,
       undo: "Undo",
       undone: "Undone.",
       needChild: "Choose at least one child.",
@@ -235,6 +236,11 @@ export const strings = {
       alreadyOpen: "That follow-up is already open.",
       unknownLookup: (kind: string, key: string) => `Unknown ${kind} "${key}".`,
     },
+  },
+
+  storage: {
+    unavailable: "Storage is not available right now.",
+    invalidTtl: "A link lifetime must be a whole number of seconds between 1 and 3600.",
   },
 
   duties: {

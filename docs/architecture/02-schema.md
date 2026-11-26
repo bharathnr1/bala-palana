@@ -126,6 +126,8 @@ Storage buckets (private, no storage policies, so only the service role can acce
 - `child-files`: path `children/{child_id}/{document_id}.{ext}`
 - `feedback-audio`: path `feedback/{feedback_id}.webm`
 
+The app creates both buckets on first use with the service role, so setup needs no manual Storage step. Uploads go straight to Storage through a short-lived signed upload URL; reads use a five-minute signed download URL minted when the player is pressed.
+
 ### Duties
 
 **`cycle`**: id, `start_on date not null`, `end_on date not null` (check `end_on >= start_on`), `status cycle_status not null default 'planned'`, note.
