@@ -53,7 +53,7 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | M0-13 | E2E smoke | QA | M0-08, M0-09 | done |
 | **M1** | **Voice-note feedback** ([M1.md](M1.md)) | | | |
 | M1-01 | Storage helper | Platform | M0-06 | done |
-| M1-02 | Record feedback | Feature A | M1-01, M0-07 | todo |
+| M1-02 | Record feedback | Feature A | M1-01, M0-07 | done |
 | M1-03 | Feedback list | Feature A | M1-02 | todo |
 | **M2** | **Observations and follow-ups** ([M2.md](M2.md)) | | | |
 | M2-01 | Entries domain | Feature B | M0-06 | done |

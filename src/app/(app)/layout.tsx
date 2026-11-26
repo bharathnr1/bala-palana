@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { NavigationProgress } from "@/components/navigation-progress";
 import { MobileNav, SidebarNav } from "@/components/shell/app-nav";
 import { AppHeader } from "@/components/shell/app-header";
-import { FeedbackLink } from "@/components/shell/feedback-link";
+import { FeedbackRecorder } from "@/components/shell/feedback-link";
 import { navFor } from "@/lib/nav";
 import { strings } from "@/lib/strings";
 import { requireUser } from "@/server/auth/session";
@@ -25,7 +25,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
       <a
         href="#main-content"
-        className="sr-only rounded-lg bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50"
+        className="bg-primary text-primary-foreground sr-only rounded-lg px-4 py-2 focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50"
       >
         {strings.nav.skipToContent}
       </a>
@@ -42,7 +42,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </main>
       </div>
 
-      <FeedbackLink />
+      <FeedbackRecorder />
       <MobileNav items={items} />
     </div>
   );

@@ -238,6 +238,34 @@ export const strings = {
     },
   },
 
+  feedback: {
+    record: {
+      open: "Record feedback",
+      title: "Record feedback",
+      hint: "Up to 3 minutes. Tap record, then send.",
+      start: "Record",
+      starting: "Starting…",
+      stop: "Stop",
+      recording: "Recording",
+      reRecord: "Re-record",
+      send: "Send",
+      sending: "Sending…",
+      close: "Close",
+      saved: "Feedback sent. Thank you.",
+      duration: "Length",
+      ofMax: (max: string) => `of ${max}`,
+      permissionDenied:
+        "Microphone access is blocked. Allow it in your browser settings, then try again.",
+      micFailed: "The microphone could not be started.",
+      unsupported: "This browser cannot record audio. Use Chrome on a phone or desktop.",
+      failed: "The feedback could not be sent. Please try again.",
+      empty: "The recording was empty. Please try again.",
+    },
+    errors: {
+      alreadySaved: "That feedback was already saved.",
+    },
+  },
+
   storage: {
     unavailable: "Storage is not available right now.",
     invalidTtl: "A link lifetime must be a whole number of seconds between 1 and 3600.",

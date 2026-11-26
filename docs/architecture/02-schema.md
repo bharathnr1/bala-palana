@@ -146,6 +146,7 @@ The app creates both buckets on first use with the service role, so setup needs 
 ### Feedback and audit
 
 **`feedback`**: id, `author_id → app_user`, audio_path, duration_s int, page_context text, transcript text, transcribed_at, `status feedback_status default 'new'`, triage_note text, audio_deleted_at.
+- `audio_path` is `feedback/{feedback_id}.webm`. `page_context` is JSON `{ "route": "/children/{id}", "childId": "{id}" }` written by the recorder; `childId` is present only on a child screen (M1-02).
 
 **`audit_log`** <a id="audit"></a>: `id bigserial pk`, `at timestamptz default now()`, `actor_id uuid` (from `current_setting('app.user_id', true)`), table_name, row_id text, op (`INSERT`/`UPDATE`/`DELETE`), `before jsonb`, `after jsonb`. Indexes `(table_name, row_id)`, `(at)`.
 
