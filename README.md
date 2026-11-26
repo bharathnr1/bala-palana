@@ -4,7 +4,7 @@ _Bāla_ (child) + _Pālana_ (care, upbringing).
 
 A child-journey tracking system for a gurukula. It keeps one lifelong record per child, from admission enquiry through her Gurukula years to alumni life. That record covers academics, health, skills, achievements, responsibilities and duty rotation, observations and follow-ups, and fees. Teachers use it from their phones; coordinators and trustees use it for reports.
 
-**Status:** v0.2 (M1) released — sign-in and permissions, the full schema, children, settings, CSV import, the quick observation screen, and voice-note feedback with admin triage. Live at <https://bala-palana.vercel.app>. See the [task board](tasks/README.md) for what is next.
+**Status:** v0.3 (M2) released — sign-in and permissions, the full schema, children, settings, CSV import, voice-note feedback, the quick observation screen, each child's journey timeline, the entry sheet with follow-ups and threads, home follow-ups, and needs attention. Live at <https://bala-palana.vercel.app>. See the [task board](tasks/README.md) for what is next.
 
 ## Docs
 
