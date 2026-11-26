@@ -66,6 +66,11 @@ export function relativeDueLabel(dueISO: string, todayISODate: string = todayISO
   return formatDate(dueISO);
 }
 
+/** True when a due date has already passed, by the same rule as the label. */
+export function isOverdue(dueISO: string, todayISODate: string = todayISO()): boolean {
+  return daysBetween(todayISODate, dueISO) < 0;
+}
+
 /** `null`/missing dates render as an em dash rather than "Invalid Date". */
 export function formatDateOrDash(iso: string | null | undefined): string {
   return iso ? formatDate(iso) : "—";

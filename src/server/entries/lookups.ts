@@ -30,6 +30,25 @@ export type ObserveLookups = {
 
 const TAG_CATEGORIES = "categories";
 
+/**
+ * The active categories, for the Journey tab's filter (M2-03). Unlike
+ * `observeLookups` this needs only `child.read`, because management reads the
+ * timeline but never records an entry.
+ */
+export async function entryCategories(user: SessionUser): Promise<ObserveCategory[]> {
+  assertCan(user, "child.read");
+
+  const rows = await getDb()
+    .select({ id: lookup.id, key: lookup.key, label: lookup.label, meta: lookup.meta })
+    .from(lookup)
+    .where(and(eq(lookup.kind, "entry_category"), eq(lookup.active, true)))
+    .orderBy(asc(lookup.sort), asc(lookup.label));
+
+  return rows
+    .map((row) => ({ id: row.id, key: row.key, label: row.label, ...categoryFlags(row.meta) }))
+    .filter((row) => !row.restricted || can(user, "restricted.read"));
+}
+
 function stringList(value: unknown): string[] | null {
   if (!Array.isArray(value)) return null;
   const list = value.filter((item): item is string => typeof item === "string");

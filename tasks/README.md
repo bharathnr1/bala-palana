@@ -58,7 +58,7 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | **M2** | **Observations and follow-ups** ([M2.md](M2.md)) | | | |
 | M2-01 | Entries domain | Feature B | M0-06 | done |
 | M2-02 | Quick observation screen | Feature A | M2-01, M0-08 | done |
-| M2-03 | Journey tab + timeline view | Feature B | M2-01 | todo |
+| M2-03 | Journey tab + timeline view | Feature B | M2-01 | review |
 | M2-04 | Entry sheet and threads | Feature B | M2-03 | todo |
 | M2-05 | Home and follow-ups | Feature A | M2-04 | todo |
 | M2-06 | Needs attention | Feature B | M2-01 | todo |

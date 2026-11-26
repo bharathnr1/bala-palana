@@ -236,6 +236,21 @@ export const strings = {
       alreadyOpen: "That follow-up is already open.",
       unknownLookup: (kind: string, key: string) => `Unknown ${kind} "${key}".`,
     },
+    timeline: {
+      filterLabel: "Category",
+      all: "All",
+      empty: "Nothing in the journey yet.",
+      emptyFiltered: "No entries in this category.",
+      showEarlier: "Show earlier",
+      loading: "Loading…",
+      loadError: "The timeline could not load. Try again.",
+      enrolment: "Enrolled",
+      followUp: (label: string) => `Follow-up ${label}`,
+      open: "Open",
+      closed: "Closed",
+      restricted: "Restricted",
+      openEntry: "Open entry",
+    },
   },
 
   feedback: {

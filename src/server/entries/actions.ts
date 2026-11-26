@@ -6,9 +6,12 @@
  * cache invalidation that only works inside a request.
  */
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
+import { strings } from "@/lib/strings";
 import type { ActionResult } from "@/server/auth/action";
 import { action } from "@/server/auth/action";
+import { requireUser } from "@/server/auth/session";
 
 import {
   addFollowUp,
@@ -22,6 +25,38 @@ import {
   updateEntry,
   updateEntrySchema,
 } from "./mutations";
+import { listChildTimeline, type TimelinePage } from "./timeline";
+
+export type TimelinePageResult =
+  | { ok: true; page: TimelinePage }
+  | { ok: false; message: string };
+
+const timelinePageSchema = z.object({
+  childId: z.uuid(),
+  before: z.iso.datetime().optional(),
+  categoryKey: z.string().trim().max(60).optional(),
+});
+
+/**
+ * The Journey tab's "show earlier" (M2-03). A read, so it is not a `mutate()`;
+ * the query keeps the visibility filter and the page size.
+ */
+export async function loadTimelinePage(input: unknown): Promise<TimelinePageResult> {
+  const user = await requireUser();
+  const parsed = timelinePageSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, message: strings.errors.invalidForm };
+
+  try {
+    const page = await listChildTimeline(user, parsed.data.childId, {
+      before: parsed.data.before ? new Date(parsed.data.before) : undefined,
+      categoryKey: parsed.data.categoryKey,
+    });
+    return { ok: true, page };
+  } catch (error) {
+    console.error("timeline page failed:", error instanceof Error ? error.message : error);
+    return { ok: false, message: strings.entries.timeline.loadError };
+  }
+}
 
 function revalidateEntryViews(childIds: string[]): void {
   for (const childId of childIds) revalidatePath(`/children/${childId}`);

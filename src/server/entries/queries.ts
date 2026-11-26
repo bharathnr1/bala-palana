@@ -94,6 +94,33 @@ async function withTags(rows: EntryRow[]): Promise<EntryListItem[]> {
 }
 
 /**
+ * Entries by id, used by the Journey timeline to enrich the view's rows in one
+ * query rather than one per row. The visibility filter is applied again here,
+ * so a hand-built id list cannot widen what a teacher reads.
+ */
+export async function listEntriesByIds(
+  user: SessionUser,
+  ids: readonly string[],
+): Promise<EntryListItem[]> {
+  assertCan(user, "child.read");
+  if (ids.length === 0) return [];
+
+  const conditions = [inArray(entry.id, [...ids]), isNull(entry.deletedAt)];
+  const visibility = visibleTo(user);
+  if (visibility) conditions.push(visibility);
+
+  const rows = await getDb()
+    .select(entryColumns)
+    .from(entry)
+    .innerJoin(category, eq(entry.categoryId, category.id))
+    .innerJoin(author, eq(entry.authorId, author.id))
+    .leftJoin(subject, eq(entry.subjectId, subject.id))
+    .where(and(...conditions));
+
+  return withTags(rows);
+}
+
+/**
  * One child's timeline, newest first. A teacher never receives a restricted
  * row because the filter is part of the query (D13).
  */
