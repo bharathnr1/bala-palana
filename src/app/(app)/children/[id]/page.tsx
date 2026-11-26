@@ -63,18 +63,19 @@ export default async function ChildProfilePage({
   const active = tabs.find((entry) => entry.key === requested) ?? tabs[0];
 
   const isJourney = active?.key === "journey";
+  // Resolve the chip before the query: a category the reader cannot see falls
+  // back to "All" in the list as well, so the chip and the rows never disagree.
+  const categories = isJourney ? await entryCategories(user) : [];
+  const activeCategory = categories.find((row) => row.key === first(category));
+
   const journeyData = isJourney
     ? await Promise.all([
-        entryCategories(user),
         preferences(),
-        listChildTimeline(user, id, { categoryKey: first(category) }),
+        listChildTimeline(user, id, { categoryKey: activeCategory?.key }),
       ])
     : null;
-  const categories = journeyData?.[0] ?? [];
-  const settings = journeyData?.[1] ?? null;
-  const timeline = journeyData?.[2] ?? null;
-
-  const activeCategory = categories.find((row) => row.key === first(category));
+  const settings = journeyData?.[0] ?? null;
+  const timeline = journeyData?.[1] ?? null;
 
   const subtitle = profile.enrolment
     ? [profile.enrolment.gradeLabel, profile.enrolment.groupLabel].filter(Boolean).join(" · ")

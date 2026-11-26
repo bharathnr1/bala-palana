@@ -5,6 +5,7 @@ import {
   daysBetween,
   formatDate,
   formatDateOrDash,
+  isOverdue,
   parseISODate,
   relativeDueLabel,
   todayISO,
@@ -42,6 +43,13 @@ describe("dates", () => {
     expect(relativeDueLabel("2026-11-23", today)).toBe("1 day overdue");
     expect(relativeDueLabel("2026-11-22", today)).toBe("2 days overdue");
     expect(relativeDueLabel("2027-03-01", today)).toBe("1 Mar 2027");
+  });
+
+  it("knows when a due date has passed", () => {
+    const today = "2026-11-24";
+    expect(isOverdue("2026-11-23", today)).toBe(true);
+    expect(isOverdue("2026-11-24", today)).toBe(false);
+    expect(isOverdue("2026-11-25", today)).toBe(false);
   });
 
   it("returns today as an ISO date in IST", () => {

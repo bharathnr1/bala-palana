@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-import { formatDate, formatDateTimeIST, relativeDueLabel } from "@/lib/dates";
+import { formatDate, formatDateTimeIST, isOverdue, relativeDueLabel } from "@/lib/dates";
 import { strings } from "@/lib/strings";
 import { cn } from "@/lib/utils";
 import type { EntryListItem } from "@/server/entries/queries";
@@ -90,7 +90,7 @@ export function EntryCard({ entry, href }: { entry: EntryListItem; href: string 
               <span
                 className={cn(
                   "rounded-full px-2 py-0.5",
-                  isOpen && relativeDueLabel(entry.followUpOn).includes("overdue")
+                  isOpen && isOverdue(entry.followUpOn)
                     ? "bg-destructive/10 text-destructive"
                     : "bg-muted",
                 )}

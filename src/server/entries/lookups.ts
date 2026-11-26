@@ -49,7 +49,6 @@ export async function entryCategories(user: SessionUser): Promise<ObserveCategor
     .filter((row) => !row.restricted || can(user, "restricted.read"));
 }
 
-
 function stringList(value: unknown): string[] | null {
   if (!Array.isArray(value)) return null;
   const list = value.filter((item): item is string => typeof item === "string");
