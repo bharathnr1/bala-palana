@@ -8,7 +8,7 @@
    neutral greys, status colours only for status. Components use these names
    only; never hard-code a colour. */
 :root {
-  /* The root layout starts dark; the theme switch removes `.dark` for light. */
+  /* The root layout starts light; the theme switch adds `.dark` for dark. */
   color-scheme: light;
   --background: oklch(0.978 0.008 73);
   --foreground: oklch(0.24 0.021 55);

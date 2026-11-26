@@ -3,15 +3,15 @@ import { describe, expect, it } from "vitest";
 import { flipTheme, parseTheme, THEME_COLORS, THEMES } from "./theme";
 
 describe("theme preference", () => {
-  it("defaults to dark when nothing is stored", () => {
-    expect(parseTheme(null)).toBe("dark");
+  it("defaults to light when nothing is stored", () => {
+    expect(parseTheme(null)).toBe("light");
   });
 
-  it("honours a stored light choice and treats anything else as dark", () => {
-    expect(parseTheme("light")).toBe("light");
+  it("honours a stored dark choice and treats anything else as light", () => {
     expect(parseTheme("dark")).toBe("dark");
-    expect(parseTheme("system")).toBe("dark");
-    expect(parseTheme("")).toBe("dark");
+    expect(parseTheme("light")).toBe("light");
+    expect(parseTheme("system")).toBe("light");
+    expect(parseTheme("")).toBe("light");
   });
 
   it("flips between the two themes", () => {

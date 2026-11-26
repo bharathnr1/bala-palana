@@ -173,7 +173,7 @@ Rule of thumb: **when the gurukula's practice varies or is unknown, pick a sensi
 | D28 | **Migrations run in the Vercel build**, and must be backward compatible | No separate deploy pipeline to maintain |
 | D29 | **Public code repo `bharathnr1/bala-palana`; private ops repo `bharathnr1/bala-palana-ops`** for the nightly job, backups and production secrets. Gurukula documents (`docs/inputs/`) are git-ignored | Public CI is free with no minute limits and allows branch protection, but logs and artifacts in a public repo are world-readable, so anything touching real data stays private |
 | D30 | **One Supabase project `bala-palana`** for previews and production. Previews never run migrations; test sign-in is blocked on every Vercel deployment; before go-live (M9-05), decide whether previews keep database access | Simpler to run, within the free limits; safe while only fake data exists |
-| D31 | **Dark theme by default; a light/dark switch remembered per device** (local choice, not an account setting) | Staff read the app in varied light; the choice adds no server state, and an inline head script applies it before the first paint so it never flashes |
+| D31 | **Light theme by default; a light/dark switch remembered per device** (local choice, not an account setting) | Light reads best in daytime classrooms; the choice adds no server state, and an inline head script applies it before the first paint so it never flashes |
 
 ## 11. Free-tier budget
 

@@ -5,7 +5,7 @@ Mobile-first (360 px), Android Chrome as the primary target; desktop gets wider 
 ## Look and feel
 
 - Calm and warm: off-white background, one accent colour (saffron/terracotta, e.g. `#C2571A`), neutral greys, and status colours only for status.
-- Tokens are defined as CSS variables in `globals.css` (shadcn theming), with light and dark themes. Dark is the default; the switch in the header and on sign-in remembers the choice per device in `localStorage`.
+- Tokens are defined as CSS variables in `globals.css` (shadcn theming), with light and dark themes. Light is the default; the switch in the header and on sign-in remembers the choice per device in `localStorage`.
 - Type: system font stack; base 16 px; names stand out (weight 600).
 - Child photos shown as round avatars, with an initials fallback.
 

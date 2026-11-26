@@ -25,12 +25,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    // Dark is the default; the script in <head> removes the class for a stored
-    // light choice before paint, so hydration must tolerate the difference.
-    <html lang="en" className="dark h-full antialiased" suppressHydrationWarning>
+    // Light is the default; the script in <head> adds the dark class for a
+    // stored dark choice before paint, so hydration must tolerate the difference.
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
         {/* Rendered here so the theme script can keep it in step with the choice. */}
-        <meta name="theme-color" content={THEME_COLORS.dark} />
+        <meta name="theme-color" content={THEME_COLORS.light} />
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
       </head>
       <body className="flex min-h-full flex-col">
