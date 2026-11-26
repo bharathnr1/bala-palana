@@ -389,6 +389,13 @@ export const strings = {
 
   duties: {
     lookup: "Who was on duty",
+    errors: {
+      datesOrder: "The end date must be on or after the start date.",
+      overlap: "That would overlap another cycle. Adjust the dates first.",
+      splitOutside: "Pick a split date inside the cycle, not its first day.",
+      mergeNotAdjacent: "Only two cycles that touch can be merged.",
+      notFound: "That cycle no longer exists.",
+    },
   },
 
   settings: {
