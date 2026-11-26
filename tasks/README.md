@@ -68,7 +68,7 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | M3-02 | Duty queries | Platform | M3-01 | review |
 | M3-03 | Duty board | Feature A | M3-01, M0-08 | review |
 | M3-04 | Who was on duty | Feature B | M3-02 | review |
-| M3-05 | Responsibilities and duties tab | Feature B | M3-02, M2-01 | todo |
+| M3-05 | Responsibilities and duties tab | Feature B | M3-02, M2-01 | review |
 | M3-06 | E2E | QA | M3-03, M3-04 | todo |
 | **M4** | **Academics** ([M4.md](M4.md)) | | | |
 | M4-01 | Assessments domain | Feature A | M0-04 | todo |

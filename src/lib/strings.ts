@@ -146,6 +146,23 @@ export const strings = {
       fees: "Fees",
       admission: "Admission",
     },
+    roles: {
+      current: "Current roles",
+      past: "Past roles",
+      none: "No roles recorded yet.",
+      since: (date: string) => `since ${date}`,
+      until: (date: string) => `until ${date}`,
+      range: (from: string, to: string) => `${from} – ${to}`,
+    },
+    duties: {
+      countsTitle: "Duties served",
+      yearLabel: "Academic year",
+      noCounts: "No duty cycles served in this year.",
+      historyTitle: "Duty history",
+      noHistory: "No duty history yet.",
+      cycles: (count: number) => (count === 1 ? "1 cycle" : `${count} cycles`),
+      range: (from: string, to: string) => `${from} – ${to}`,
+    },
     tabEmpty: {
       journey: "The journey timeline arrives with M2-03.",
       academics: "Assessments arrive with M4-03.",

@@ -7,12 +7,14 @@ import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { EntrySheet } from "@/features/entries/entry-sheet";
 import { JourneyTimeline } from "@/features/entries/journey-timeline";
+import { ResponsibilitiesPanel } from "@/features/duties/responsibilities-panel";
 import { RememberView } from "@/features/children/remember-view";
 import { can } from "@/lib/permissions";
 import { withinSelfDeleteWindow } from "@/lib/entry-rules";
 import { strings } from "@/lib/strings";
 import { requireScreen } from "@/server/auth/guards";
-import { getChild } from "@/server/children/queries";
+import { currentAcademicYear, getChild } from "@/server/children/queries";
+import { childDutyCounts, childDutyHistory, childResponsibilities } from "@/server/duties/profile";
 import { entryCategories } from "@/server/entries/lookups";
 import { getEntryWithThread } from "@/server/entries/queries";
 import { listChildTimeline } from "@/server/entries/timeline";
@@ -39,6 +41,12 @@ function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
+/** `2026-27` shifted by a year, for the duties year chips. */
+function shiftYear(label: string, by: number): string {
+  const startYear = Number(label.slice(0, 4)) + by;
+  return `${startYear}-${String((startYear + 1) % 100).padStart(2, "0")}`;
+}
+
 /** The journey filter chips share the ChipGroup look without being buttons. */
 function chipClass(isActive: boolean): string {
   return isActive
@@ -56,7 +64,7 @@ export default async function ChildProfilePage({
 }) {
   const user = await requireScreen("child.read");
   const { id } = await params;
-  const { tab, category, entry: entryParam } = await searchParams;
+  const { tab, category, year, entry: entryParam } = await searchParams;
 
   const profile = await getChild(user, id);
   if (!profile) notFound();
@@ -84,6 +92,26 @@ export default async function ChildProfilePage({
     : null;
   const settings = journeyData?.[0] ?? null;
   const timeline = journeyData?.[1] ?? null;
+
+  // The Responsibilities tab (M3-05): roles, duty totals for one academic
+  // year, and the cycle-by-cycle history.
+  const isResponsibilities = active?.key === "responsibilities";
+  const yearParam = first(year);
+  const requestedYear = yearParam && /^\d{4}-\d{2}$/.test(yearParam) ? yearParam : null;
+  const responsibilitiesData = isResponsibilities
+    ? await Promise.all([
+        childResponsibilities(user, id),
+        childDutyHistory(user, id),
+        childDutyCounts(user, id, requestedYear ?? undefined),
+        currentAcademicYear(),
+      ])
+    : null;
+  const roles = responsibilitiesData?.[0] ?? [];
+  const dutyHistory = responsibilitiesData?.[1] ?? [];
+  const dutyCounts = responsibilitiesData?.[2] ?? [];
+  const currentYear = responsibilitiesData?.[3] ?? null;
+  const countsYear = requestedYear ?? currentYear ?? "";
+  const yearOptions = currentYear ? [0, -1, -2].map((by) => shiftYear(currentYear, by)) : [];
 
   const backHref = `/children/${profile.id}?tab=journey${
     activeCategory ? `&category=${activeCategory.key}` : ""
@@ -155,7 +183,16 @@ export default async function ChildProfilePage({
       </nav>
 
       <section className="pt-4">
-        {isJourney && settings && timeline ? (
+        {isResponsibilities ? (
+          <ResponsibilitiesPanel
+            childId={profile.id}
+            roles={roles}
+            counts={dutyCounts}
+            history={dutyHistory}
+            year={countsYear}
+            years={yearOptions}
+          />
+        ) : isJourney && settings && timeline ? (
           <div className="space-y-4">
             <nav aria-label={strings.entries.timeline.filterLabel}>
               <ul className="flex gap-2 overflow-x-auto pb-1">
