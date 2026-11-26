@@ -65,7 +65,7 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | M2-07 | E2E and role checks | QA | M2-02, M2-05, M2-06 | done |
 | **M3** | **Duties and responsibilities** ([M3.md](M3.md)) | | | |
 | M3-01 | Cycle engine | Platform | M0-04 | review |
-| M3-02 | Duty queries | Platform | M3-01 | todo |
+| M3-02 | Duty queries | Platform | M3-01 | review |
 | M3-03 | Duty board | Feature A | M3-01, M0-08 | todo |
 | M3-04 | Who was on duty | Feature B | M3-02 | todo |
 | M3-05 | Responsibilities and duties tab | Feature B | M3-02, M2-01 | todo |

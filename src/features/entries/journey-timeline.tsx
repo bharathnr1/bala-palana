@@ -83,7 +83,10 @@ export function JourneyTimeline({
                 >
                   <CalendarClock className="size-4" aria-hidden />
                   <span className="min-w-0 flex-1 truncate">
-                    {strings.entries.timeline.enrolment} · {row.title}
+                    {row.kind === "duty"
+                      ? strings.entries.timeline.duty
+                      : strings.entries.timeline.enrolment}{" "}
+                    · {row.title}
                   </span>
                   <span className="shrink-0 text-xs">{formatDateTimeIST(row.at)}</span>
                 </li>
