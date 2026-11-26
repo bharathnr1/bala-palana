@@ -8,6 +8,7 @@ import { FollowUpList } from "@/features/follow-ups/follow-up-list";
 import { RecentlyViewed } from "@/features/children/recently-viewed";
 import { formatDate, todayISO } from "@/lib/dates";
 import { withinDays } from "@/lib/follow-ups";
+import { can } from "@/lib/permissions";
 import { strings } from "@/lib/strings";
 import { attentionCount } from "@/server/attention/queries";
 import { requireUser } from "@/server/auth/session";
@@ -21,13 +22,16 @@ export const metadata: Metadata = { title: strings.nav.home };
  */
 export default async function HomePage() {
   const user = await requireUser();
+  // Management reads the school but records nothing, and the follow-up list is
+  // the owner's own, so the query needs `entry.create` (M2-05).
+  const canFollowUp = can(user, "entry.create");
   const [attention, followUps] = await Promise.all([
     attentionCount(user),
-    listOpenFollowUps(user, { mine: true }),
+    canFollowUp ? listOpenFollowUps(user, { mine: true }) : null,
   ]);
 
   // Overdue and today always show; upcoming stops at seven days on Home.
-  const homeRows = followUps.rows.filter(
+  const homeRows = (followUps?.rows ?? []).filter(
     (row) => row.followUpOn < todayISO() || withinDays(row.followUpOn, 7),
   );
 
@@ -41,10 +45,12 @@ export default async function HomePage() {
       <div className="space-y-8">
         <InstallHint />
 
-        <section className="space-y-2">
-          <h2 className="text-sm font-semibold">{strings.home.followUpsTitle}</h2>
-          <FollowUpList rows={homeRows} emptyLabel={strings.home.followUpsEmpty} />
-        </section>
+        {canFollowUp ? (
+          <section className="space-y-2">
+            <h2 className="text-sm font-semibold">{strings.home.followUpsTitle}</h2>
+            <FollowUpList rows={homeRows} emptyLabel={strings.home.followUpsEmpty} />
+          </section>
+        ) : null}
 
         <section className="space-y-2">
           <h2 className="text-sm font-semibold">{strings.home.attentionTitle}</h2>
