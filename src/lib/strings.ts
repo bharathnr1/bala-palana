@@ -269,6 +269,7 @@ export const strings = {
       loading: "Loading…",
       loadError: "The timeline could not load. Try again.",
       enrolment: "Enrolled",
+      duty: "Duty",
       followUp: (label: string) => `Follow-up ${label}`,
       open: "Open",
       closed: "Closed",

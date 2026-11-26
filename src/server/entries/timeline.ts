@@ -14,7 +14,7 @@ export const TIMELINE_PAGE_SIZE = 50;
 
 export type TimelineEvent =
   | { kind: "entry"; at: Date; entry: EntryListItem }
-  | { kind: "enrolment"; at: Date; id: string; title: string };
+  | { kind: "enrolment" | "duty"; at: Date; id: string; title: string };
 
 export type TimelinePage = {
   events: TimelineEvent[];
@@ -69,7 +69,9 @@ export async function listChildTimeline(
       // A row deleted between the two queries simply drops out of the page.
       if (entry) events.push({ kind: "entry", at: row.at, entry });
     } else {
-      events.push({ kind: "enrolment", at: row.at, id: row.refId, title: row.title });
+      // The view names the source in `ref_table`; each gets its own row label.
+      const kind = row.refTable === "team_member" ? "duty" : "enrolment";
+      events.push({ kind, at: row.at, id: row.refId, title: row.title });
     }
   }
 

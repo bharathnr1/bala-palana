@@ -21,6 +21,14 @@ export const vChildTimeline = pgView("v_child_timeline", {
   categoryKey: text("category_key"),
 }).existing();
 
+/** Cycles served per child, duty and academic year (M3-02, read by M3-05). */
+export const vDutyCounts = pgView("v_duty_counts", {
+  childId: uuid("child_id").notNull(),
+  dutyId: uuid("duty_id").notNull(),
+  academicYear: text("academic_year").notNull(),
+  cyclesServed: integer("cycles_served").notNull(),
+}).existing();
+
 /**
  * The children who need attention and why (M2-06). Only staff-visible entries
  * feed it, because every role reads it and an aggregate cannot be filtered per
