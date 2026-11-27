@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { academicYearEnd, academicYearOf, academicYearStart } from "@/lib/academic-year";
+import {
+  academicYearEnd,
+  academicYearOf,
+  academicYearStart,
+  shiftAcademicYear,
+} from "@/lib/academic-year";
 
 describe("academicYearOf", () => {
   it("starts a new year on 1 June (D15)", () => {
@@ -25,6 +30,12 @@ describe("academicYearOf", () => {
     expect(academicYearOf("2029-06-01", 6)).toBe("2029-30");
     expect(() => academicYearOf("2026-06-01", 0)).toThrow(RangeError);
     expect(() => academicYearOf("2026-06-01", 13)).toThrow(RangeError);
+  });
+
+  it("shifts a label by whole years", () => {
+    expect(shiftAcademicYear("2026-27", -1)).toBe("2025-26");
+    expect(shiftAcademicYear("2026-27", 1)).toBe("2027-28");
+    expect(shiftAcademicYear("2029-30", 1)).toBe("2030-31");
   });
 
   it("returns the year's first and last day", () => {

@@ -8,7 +8,7 @@ import { AppError } from "@/server/auth/errors";
 import { assertCan } from "@/server/auth/permissions";
 import type { SessionUser } from "@/server/auth/session";
 import { getDb } from "@/server/db/client";
-import { assessment, child, lookup } from "@/server/db/schema";
+import { assessment, child, enrolment, lookup } from "@/server/db/schema";
 
 const grade = alias(lookup, "grade");
 const term = alias(lookup, "term");
@@ -163,6 +163,32 @@ export async function listClassAssessments(
     .orderBy(asc(child.fullName), asc(subject.sort));
 
   return rows.map((row) => ({ ...toRow(row), childName: row.childName }));
+}
+
+export type ClassChild = { id: string; fullName: string };
+
+/**
+ * The children enrolled in one grade for one academic year (M4-02). A class is
+ * inherently small, so this list is not paginated; the enrolment join bounds it.
+ */
+export async function listClassChildren(
+  user: SessionUser,
+  filter: { academicYear: string; gradeKey: string },
+): Promise<ClassChild[]> {
+  assertCan(user, "assessment.read");
+  const gradeId = await lookupId("grade", filter.gradeKey);
+
+  return getDb()
+    .select({ id: child.id, fullName: child.fullName })
+    .from(enrolment)
+    .innerJoin(child, eq(child.id, enrolment.childId))
+    .where(
+      and(
+        eq(enrolment.academicYear, filter.academicYear),
+        eq(enrolment.gradeId, gradeId),
+      ),
+    )
+    .orderBy(asc(child.fullName), asc(child.id));
 }
 
 export type AssessmentOptions = {
