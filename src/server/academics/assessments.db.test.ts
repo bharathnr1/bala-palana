@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { strings } from "@/lib/strings";
 import type { SessionUser } from "@/server/auth/session";
 import { getDb } from "@/server/db/client";
-import { appUser, assessment, child, enrolment, lookup } from "@/server/db/schema";
+import { appUser, assessment, child, enrolment, entry, lookup } from "@/server/db/schema";
+import { createEntries, setEntryStatus } from "@/server/entries/mutations";
 import { listChildTimeline } from "@/server/entries/timeline";
 import { resetDatabase } from "../../../tests/db/helpers";
 
@@ -15,6 +16,7 @@ import {
 } from "./mutations";
 import {
   assessmentOptions,
+  childSubjectConcerns,
   listChildAssessments,
   listClassAssessments,
   listClassChildren,
@@ -271,6 +273,67 @@ describe("listClassChildren", () => {
       gradeKey: "grade_5",
     });
     expect(rows.map((row) => row.fullName)).toEqual(["Asha", "Bala"]);
+  });
+});
+
+describe("childSubjectConcerns", () => {
+  it("counts open concerns per subject and hides restricted rows from a teacher", async () => {
+    const coordinator = await makeUser("coordinator");
+    const teacher = await makeUser("teacher");
+    const childId = await makeChild("Concerned");
+
+    await createEntries(coordinator, {
+      childIds: [childId],
+      categoryKey: "concern",
+      subjectKey: "english",
+      note: "Reading.",
+    });
+    await createEntries(coordinator, {
+      childIds: [childId],
+      categoryKey: "concern",
+      subjectKey: "english",
+      note: "Spelling.",
+    });
+    const closed = await createEntries(coordinator, {
+      childIds: [childId],
+      categoryKey: "concern",
+      subjectKey: "mathematics",
+    });
+    await setEntryStatus(coordinator, { id: closed.ids[0]!, status: "closed" });
+    await createEntries(coordinator, { childIds: [childId], categoryKey: "concern" });
+    await createEntries(coordinator, {
+      childIds: [childId],
+      categoryKey: "observation",
+      subjectKey: "english",
+    });
+
+    // A restricted concern: the coordinator counts it, the teacher must not.
+    const [concernCategory] = await getDb()
+      .select({ id: lookup.id })
+      .from(lookup)
+      .where(and(eq(lookup.kind, "entry_category"), eq(lookup.key, "concern")))
+      .limit(1);
+    await getDb().insert(entry).values({
+      childId,
+      categoryId: concernCategory!.id,
+      subjectId: await lookupId("subject", "english"),
+      note: "Restricted concern.",
+      authorId: coordinator.id,
+      visibility: "restricted",
+      status: "open",
+    });
+
+    const forCoordinator = await childSubjectConcerns(coordinator, childId);
+    expect(forCoordinator.map((row) => [row.subjectKey, row.openCount])).toEqual([
+      ["english", 3],
+      [null, 1],
+    ]);
+
+    const forTeacher = await childSubjectConcerns(teacher, childId);
+    expect(forTeacher.map((row) => [row.subjectKey, row.openCount])).toEqual([
+      ["english", 2],
+      [null, 1],
+    ]);
   });
 });
 
