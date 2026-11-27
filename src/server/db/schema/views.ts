@@ -1,4 +1,4 @@
-import { date, integer, pgView, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import { date, integer, numeric, pgView, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 import { entryStatus, visibility } from "./enums";
 
@@ -42,6 +42,19 @@ export const vNeedsAttention = pgView("v_needs_attention", {
   daysSinceLastEntry: integer("days_since_last_entry").notNull(),
   lastAuthorId: uuid("last_author_id"),
   reasons: text("reasons").array().notNull(),
+}).existing();
+
+/**
+ * Per-subject assessment averages by class and term (M4-04). Labels, not ids,
+ * because the report is read as text and filtered by what it shows.
+ */
+export const vGradeSubjectSummary = pgView("v_grade_subject_summary", {
+  academicYear: text("academic_year").notNull(),
+  grade: text("grade").notNull(),
+  term: text("term").notNull(),
+  subject: text("subject").notNull(),
+  avgPct: numeric("avg_pct", { precision: 5, scale: 1 }).notNull(),
+  n: integer("n").notNull(),
 }).existing();
 
 /** Open entries with a follow-up date (M2-05); admissions join it in M5. */

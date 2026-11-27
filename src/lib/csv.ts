@@ -119,21 +119,21 @@ const optionalText = z.preprocess(
 
 export const importRowSchema = z
   .object({
-  full_name: z.string().trim().min(1).max(200),
-  preferred_name: optionalText,
-  dob: date,
-  stage: z.enum(CHILD_STAGES).default("student"),
-  grade: optionalText,
-  group: optionalText,
-  outside_school: optionalText,
-  guardian_name: optionalText,
-  guardian_phone: optionalText,
-  guardian_relation: optionalText,
-  consent: z.preprocess(
-    (value) => (typeof value === "string" ? value.trim().toLowerCase() : value),
-    z.enum(["yes", "no", ""]).optional(),
-  ),
-})
+    full_name: z.string().trim().min(1).max(200),
+    preferred_name: optionalText,
+    dob: date,
+    stage: z.enum(CHILD_STAGES).default("student"),
+    grade: optionalText,
+    group: optionalText,
+    outside_school: optionalText,
+    guardian_name: optionalText,
+    guardian_phone: optionalText,
+    guardian_relation: optionalText,
+    consent: z.preprocess(
+      (value) => (typeof value === "string" ? value.trim().toLowerCase() : value),
+      z.enum(["yes", "no", ""]).optional(),
+    ),
+  })
   // Consent is recorded, never assumed: a student row must say yes (03).
   .refine((row) => row.stage !== "student" || row.consent === "yes", {
     message: "consent must be yes for a student",
@@ -171,7 +171,9 @@ export function parseImport(text: string): ParsedImport {
     return {
       line: index + 2, // header is line 1
       values,
-      errors: result.success ? [] : result.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`),
+      errors: result.success
+        ? []
+        : result.error.issues.map((issue) => `${issue.path.join(".")}: ${issue.message}`),
     };
   });
 
@@ -181,6 +183,24 @@ export function parseImport(text: string): ParsedImport {
 /** Fields that identify an existing child, so a re-import changes nothing. */
 export function duplicateKey(row: { full_name: string; dob?: string }): string {
   return `${row.full_name.trim().toLowerCase()}|${row.dob ?? ""}`;
+}
+
+/**
+ * RFC 4180 text for an export (M4-04). A cell is quoted when it holds a comma,
+ * quote or newline, and a leading `=`, `+`, `-` or `@` gets a `'` so a
+ * spreadsheet never evaluates a stored label as a formula.
+ */
+export function toCsv(
+  header: readonly string[],
+  rows: readonly (readonly (string | number | null)[])[],
+): string {
+  const escape = (value: string | number | null): string => {
+    let text = value == null ? "" : String(value);
+    if (/^[=+\-@]/.test(text)) text = `'${text}`;
+    if (/[",\r\n]/.test(text)) text = `"${text.replace(/"/g, '""')}"`;
+    return text;
+  };
+  return `${[header, ...rows].map((row) => row.map(escape).join(",")).join("\r\n")}\r\n`;
 }
 
 /** What an import did: rows written, rows skipped as duplicates, rows read. */

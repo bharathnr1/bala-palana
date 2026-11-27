@@ -31,13 +31,22 @@ describe("groupAssessmentsByYear", () => {
     const years = groupAssessmentsByYear([
       row({ subjectKey: "english", subjectLabel: "English", gradeLetter: "A" }),
       row({ termKey: "term_2", termLabel: "Term 2", marks: 45, maxMarks: 50 }),
-      row({ termKey: "term_2", termLabel: "Term 2", subjectKey: "english", subjectLabel: "English", remark: "Improving." }),
+      row({
+        termKey: "term_2",
+        termLabel: "Term 2",
+        subjectKey: "english",
+        subjectLabel: "English",
+        remark: "Improving.",
+      }),
     ]);
 
     expect(years).toHaveLength(1);
     const year = years[0]!;
     expect(year.terms.map((term) => term.label)).toEqual(["Term 1", "Term 2"]);
-    expect(year.subjects.map((subject) => subject.subjectLabel)).toEqual(["English", "Mathematics"]);
+    expect(year.subjects.map((subject) => subject.subjectLabel)).toEqual([
+      "English",
+      "Mathematics",
+    ]);
     expect(year.subjects[0]?.cells.term_1).toEqual({ kind: "text", text: "A" });
     expect(year.subjects[0]?.cells.term_2).toEqual({ kind: "text", text: "Improving." });
     expect(year.subjects[1]?.cells.term_2).toEqual({

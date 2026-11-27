@@ -23,12 +23,12 @@ export function SubjectSparkline({
   const latest = points.at(-1);
 
   return (
-    <figure className="flex items-center gap-3 rounded-xl border border-border p-3">
+    <figure className="border-border flex items-center gap-3 rounded-xl border p-3">
       <figcaption className="min-w-0 flex-1 truncate text-sm">{label}</figcaption>
       <div aria-hidden className="h-12 w-24 shrink-0">
         <Chart points={points} />
       </div>
-      <span className="shrink-0 text-sm text-muted-foreground">
+      <span className="text-muted-foreground shrink-0 text-sm">
         {latest ? strings.academics.tab.trend(latest.termLabel, latest.pct) : ""}
       </span>
     </figure>

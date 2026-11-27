@@ -20,12 +20,7 @@ const markField = z.preprocess((value) => {
   if (text === "") return null;
   const parsed = Number(text);
   return Number.isNaN(parsed) ? value : parsed;
-}, z
-  .number()
-  .min(0, strings.academics.errors.markRange)
-  .max(9999.99, strings.academics.errors.markRange)
-  .nullable()
-  .optional());
+}, z.number().min(0, strings.academics.errors.markRange).max(9999.99, strings.academics.errors.markRange).nullable().optional());
 
 const optionalText = (max: number) =>
   z.preprocess(blankToUndefined, z.string().trim().max(max).optional());
@@ -38,7 +33,10 @@ const optionalText = (max: number) =>
 export const upsertAssessmentSchema = z
   .object({
     childId: z.uuid(),
-    academicYear: z.string().trim().regex(/^\d{4}-\d{2}$/, strings.academics.errors.year),
+    academicYear: z
+      .string()
+      .trim()
+      .regex(/^\d{4}-\d{2}$/, strings.academics.errors.year),
     gradeKey: z.string().trim().min(1).max(60),
     termKey: z.string().trim().min(1).max(60),
     subjectKey: z.string().trim().min(1).max(60),
@@ -47,11 +45,10 @@ export const upsertAssessmentSchema = z
     gradeLetter: optionalText(10),
     remark: optionalText(500),
   })
-  .refine(
-    (input) =>
-      input.marks != null || input.gradeLetter != null || input.remark != null,
-    { path: ["marks"], message: strings.academics.errors.emptyValue },
-  )
+  .refine((input) => input.marks != null || input.gradeLetter != null || input.remark != null, {
+    path: ["marks"],
+    message: strings.academics.errors.emptyValue,
+  })
   .refine(
     (input) => input.marks == null || input.maxMarks == null || input.marks <= input.maxMarks,
     { path: ["marks"], message: strings.academics.errors.marksAboveMax },

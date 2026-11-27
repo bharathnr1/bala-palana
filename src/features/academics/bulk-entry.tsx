@@ -204,15 +204,15 @@ export function BulkEntry({
         const status = statuses[initial.childId] ?? "idle";
 
         return (
-          <li key={initial.childId} className="rounded-xl border border-border p-3">
+          <li key={initial.childId} className="border-border rounded-xl border p-3">
             <div className="flex items-start justify-between gap-2">
               <span className="min-w-0 flex-1 font-medium">{row.childName}</span>
               <span
                 aria-live="polite"
                 className={
                   status === "error"
-                    ? "shrink-0 text-xs text-destructive"
-                    : "shrink-0 text-xs text-muted-foreground"
+                    ? "text-destructive shrink-0 text-xs"
+                    : "text-muted-foreground shrink-0 text-xs"
                 }
               >
                 {statusLabel(status)}
@@ -257,11 +257,11 @@ export function BulkEntry({
                 />
               </div>
             ) : (
-              <p className="mt-1 text-sm text-muted-foreground">{describe(row.values)}</p>
+              <p className="text-muted-foreground mt-1 text-sm">{describe(row.values)}</p>
             )}
 
             {rowErrors.form ? (
-              <p role="alert" className="mt-2 text-sm text-destructive">
+              <p role="alert" className="text-destructive mt-2 text-sm">
                 {rowErrors.form}
               </p>
             ) : null}
@@ -292,7 +292,7 @@ function Field({
   const errorId = `${id}-error`;
   return (
     <div className="min-w-0">
-      <label htmlFor={id} className="text-xs text-muted-foreground">
+      <label htmlFor={id} className="text-muted-foreground text-xs">
         {label}
       </label>
       <input
@@ -308,7 +308,7 @@ function Field({
         className={INPUT}
       />
       {error ? (
-        <p id={errorId} role="alert" className="mt-1 text-xs text-destructive">
+        <p id={errorId} role="alert" className="text-destructive mt-1 text-xs">
           {error}
         </p>
       ) : null}

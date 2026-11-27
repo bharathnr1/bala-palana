@@ -130,9 +130,7 @@ export default async function ChildProfilePage({
     : false;
   const canDeleteEntry = thread
     ? can(user, "entry.delete_any") ||
-      (can(user, "entry.edit_own") &&
-        isAuthor &&
-        withinSelfDeleteWindow(thread.entry.createdAt))
+      (can(user, "entry.edit_own") && isAuthor && withinSelfDeleteWindow(thread.entry.createdAt))
     : false;
 
   const subtitle = profile.enrolment
@@ -147,11 +145,11 @@ export default async function ChildProfilePage({
         <ChildAvatar name={profile.fullName} className="size-16 text-xl" />
         <div className="min-w-0 flex-1 space-y-1">
           <h1 className="text-2xl font-semibold">{profile.fullName}</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-muted-foreground text-sm">
             {subtitle || strings.children.stage[profile.stage]}
             {profile.preferredName ? ` · ${profile.preferredName}` : ""}
           </p>
-          <span className="inline-block rounded-full bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
+          <span className="bg-secondary text-secondary-foreground inline-block rounded-full px-2 py-0.5 text-xs">
             {strings.children.stage[profile.stage]}
           </span>
         </div>
@@ -168,7 +166,7 @@ export default async function ChildProfilePage({
       </header>
 
       <nav aria-label={strings.children.profile}>
-        <ul className="flex gap-1 overflow-x-auto border-b border-border">
+        <ul className="border-border flex gap-1 overflow-x-auto border-b">
           {tabs.map((entry) => {
             const isActive = entry.key === active?.key;
             return (
@@ -178,8 +176,8 @@ export default async function ChildProfilePage({
                   aria-current={isActive ? "page" : undefined}
                   className={
                     isActive
-                      ? "-mb-px block border-b-2 border-primary px-3 py-3 text-sm font-medium text-foreground"
-                      : "block px-3 py-3 text-sm text-muted-foreground hover:text-foreground"
+                      ? "border-primary text-foreground -mb-px block border-b-2 px-3 py-3 text-sm font-medium"
+                      : "text-muted-foreground hover:text-foreground block px-3 py-3 text-sm"
                   }
                 >
                   {strings.children.tabs[entry.key]}
