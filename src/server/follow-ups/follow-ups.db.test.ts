@@ -71,7 +71,7 @@ describe("listOpenFollowUps", () => {
     const { rows } = await listOpenFollowUps(coordinator);
 
     expect(rows.map((row) => row.note)).toEqual(["Overdue", "Upcoming"]);
-    expect(rows[0]?.entryId).toBe(overdue.ids[0]);
+    expect(rows[0]).toMatchObject({ kind: "entry", entryId: overdue.ids[0] });
     expect(rows[0]?.childName).toBe("FIRST Child");
     expect(rows[0]?.followUpOn).toBe(addDaysISO(todayISO(), -3));
   });

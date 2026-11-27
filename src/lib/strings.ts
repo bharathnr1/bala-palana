@@ -287,6 +287,7 @@ export const strings = {
       enrolment: "Enrolled",
       duty: "Duty",
       assessment: "Assessment",
+      admission: "Admission",
       followUp: (label: string) => `Follow-up ${label}`,
       open: "Open",
       closed: "Closed",
@@ -508,6 +509,18 @@ export const strings = {
       remarkTooLong: "A remark is at most 500 characters.",
       childMissing: "That child does not exist.",
       notFound: "That assessment no longer exists.",
+    },
+  },
+
+  admissions: {
+    errors: {
+      childName: "Enter the child's name.",
+      date: "Use the date format YYYY-MM-DD.",
+      notFound: "That admission does not exist.",
+      stageUnknown: "Choose a valid stage.",
+      sourceUnknown: "Choose a valid source.",
+      relationUnknown: "Choose a valid relation.",
+      assigneeUnknown: "That person cannot own an admission.",
     },
   },
 
