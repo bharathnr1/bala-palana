@@ -3,6 +3,7 @@ import "server-only";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
+import { ADMISSION_EVENT_KINDS, type AdmissionEventKind } from "@/lib/admissions";
 import { todayISO } from "@/lib/dates";
 import { strings } from "@/lib/strings";
 import { AppError } from "@/server/auth/errors";
@@ -35,8 +36,7 @@ const optionalDate = z.preprocess(
 const optionalLookupKey = z.preprocess(blankToUndefined, z.string().trim().max(60).optional());
 
 /** Event kinds a person can add; a stage change goes through `changeStatus`. */
-export const EVENT_KINDS = ["interview", "assessment", "activity", "observation", "note"] as const;
-export type EventKind = (typeof EVENT_KINDS)[number];
+export type EventKind = AdmissionEventKind;
 
 /**
  * An enquiry creates the child as an `applicant`, her guardian and the
@@ -66,7 +66,7 @@ export const changeStatusSchema = z.object({
 
 export const addEventSchema = z.object({
   admissionId: z.uuid(),
-  kind: z.enum(EVENT_KINDS),
+  kind: z.enum(ADMISSION_EVENT_KINDS),
   occurredOn: optionalDate,
   note: optionalText(2000),
 });

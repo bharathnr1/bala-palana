@@ -6,6 +6,7 @@
  * invalidation that only works inside a request.
  */
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { action } from "@/server/auth/action";
 
@@ -20,8 +21,9 @@ import {
   setNextActionSchema,
 } from "./mutations";
 
-function revalidateAdmission(childId: string): void {
+function revalidateAdmission(childId: string, admissionId: string): void {
   revalidatePath("/admissions");
+  revalidatePath(`/admissions/${admissionId}`);
   revalidatePath("/follow-ups");
   revalidatePath("/");
   revalidatePath(`/children/${childId}`);
@@ -30,24 +32,24 @@ function revalidateAdmission(childId: string): void {
 export const createAdmissionEnquiry = action(createEnquirySchema, async (input, user) => {
   const saved = await createEnquiry(user, input);
   revalidatePath("/children");
-  revalidateAdmission(saved.childId);
-  return saved;
+  revalidateAdmission(saved.childId, saved.admissionId);
+  redirect(`/admissions/${saved.admissionId}`);
 });
 
 export const changeAdmissionStatus = action(changeStatusSchema, async (input, user) => {
   const saved = await changeStatus(user, input);
-  revalidateAdmission(saved.childId);
+  revalidateAdmission(saved.childId, saved.id);
   return saved;
 });
 
 export const addAdmissionEvent = action(addEventSchema, async (input, user) => {
   const saved = await addEvent(user, input);
-  revalidateAdmission(saved.childId);
+  revalidateAdmission(saved.childId, saved.id);
   return saved;
 });
 
 export const setAdmissionNextAction = action(setNextActionSchema, async (input, user) => {
   const saved = await setNextAction(user, input);
-  revalidateAdmission(saved.childId);
+  revalidateAdmission(saved.childId, saved.id);
   return saved;
 });
