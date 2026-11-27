@@ -5,14 +5,17 @@ import { notFound } from "next/navigation";
 import { ChildAvatar } from "@/components/child-avatar";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
+import { AcademicsTab } from "@/features/academics/academics-tab";
 import { EntrySheet } from "@/features/entries/entry-sheet";
 import { JourneyTimeline } from "@/features/entries/journey-timeline";
 import { ResponsibilitiesPanel } from "@/features/duties/responsibilities-panel";
 import { RememberView } from "@/features/children/remember-view";
+import { groupAssessmentsByYear } from "@/lib/academic-progress";
 import { shiftAcademicYear } from "@/lib/academic-year";
 import { can } from "@/lib/permissions";
 import { withinSelfDeleteWindow } from "@/lib/entry-rules";
 import { strings } from "@/lib/strings";
+import { childSubjectConcerns, listChildAssessments } from "@/server/academics/queries";
 import { requireScreen } from "@/server/auth/guards";
 import { currentAcademicYear, getChild } from "@/server/children/queries";
 import { childDutyCounts, childDutyHistory, childResponsibilities } from "@/server/duties/profile";
@@ -87,6 +90,14 @@ export default async function ChildProfilePage({
     : null;
   const settings = journeyData?.[0] ?? null;
   const timeline = journeyData?.[1] ?? null;
+
+  // The Academics tab (M4-03): every year's marks and the open concerns.
+  const isAcademics = active?.key === "academics";
+  const academicsData = isAcademics
+    ? await Promise.all([listChildAssessments(user, id), childSubjectConcerns(user, id)])
+    : null;
+  const assessmentYears = academicsData ? groupAssessmentsByYear(academicsData[0]) : [];
+  const concerns = academicsData?.[1] ?? [];
 
   // The Responsibilities tab (M3-05): roles, duty totals for one academic
   // year, and the cycle-by-cycle history.
@@ -180,7 +191,9 @@ export default async function ChildProfilePage({
       </nav>
 
       <section className="pt-4">
-        {isResponsibilities ? (
+        {isAcademics ? (
+          <AcademicsTab years={assessmentYears} concerns={concerns} />
+        ) : isResponsibilities ? (
           <ResponsibilitiesPanel
             childId={profile.id}
             roles={roles}
