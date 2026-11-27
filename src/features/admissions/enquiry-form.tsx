@@ -164,7 +164,7 @@ export function EnquiryForm({
             error={errors.assignedTo?.[0]}
           >
             <select id="assignedTo" name="assignedTo" className={INPUT}>
-              <option value="">{strings.admissions.enquiry.fields.none}</option>
+              <option value="">{strings.admissions.enquiry.fields.me}</option>
               {options.assignees.map((person) => (
                 <option key={person.id} value={person.id}>
                   {person.name}

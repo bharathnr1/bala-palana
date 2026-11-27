@@ -550,6 +550,7 @@ export const strings = {
         nextAction: "Next action",
         followUpOn: "Follow-up date",
         owner: "Owner",
+        me: "Me",
         none: "None",
       },
       save: "Save enquiry",
