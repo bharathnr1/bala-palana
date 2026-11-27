@@ -92,6 +92,13 @@
       "when": 1795762003011,
       "tag": "0012_grade_summary",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1795772202199,
+      "tag": "0013_admissions_views",
+      "breakpoints": true
     }
   ]
 }

@@ -449,8 +449,13 @@ export async function seedDemo(): Promise<SeedSummary> {
       ),
     );
 
-    // Admissions in every status, for the children who are not students.
+    // Admissions in every status, for the children who are not students. Only
+    // the roles that can read admissions own them (03-auth-and-access).
     const admissionStatusKeys = Object.keys(statuses);
+    const admissionOwners = [
+      must(byRole.get("coordinator"), "coordinator"),
+      must(byRole.get("admin"), "admin"),
+    ];
     await db.insert(admission).values(
       children.slice(100).map((row, index) => ({
         childId: row.id,
@@ -464,7 +469,7 @@ export async function seedDemo(): Promise<SeedSummary> {
         ),
         nextAction: index % 3 === 0 ? "Call the family" : null,
         followUpOn: index % 3 === 0 ? isoDate(daysFromToday(-3)) : null,
-        assignedTo: must(authors[index % authors.length], "author"),
+        assignedTo: admissionOwners[index % admissionOwners.length],
       })),
     );
 

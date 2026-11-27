@@ -30,11 +30,13 @@ export function FollowUpList({
   const [isPending, startTransition] = useTransition();
 
   function closeRow(row: FollowUpRow): void {
-    setClosingId(row.entryId);
+    if (row.kind !== "entry") return;
+    const entryId = row.entryId;
+    setClosingId(entryId);
     setError(null);
     startTransition(async () => {
       const formData = new FormData();
-      formData.set("id", row.entryId);
+      formData.set("id", entryId);
       formData.set("status", "closed");
       const result = await changeEntryStatus(formData);
       setClosingId(null);
@@ -42,8 +44,21 @@ export function FollowUpList({
         setError(result.error.message);
         return;
       }
-      setCurrent((list) => list.filter((item) => item.entryId !== row.entryId));
+      setCurrent((list) =>
+        list.filter((item) => item.kind !== "entry" || item.entryId !== entryId),
+      );
     });
+  }
+
+  function rowKey(row: FollowUpRow): string {
+    return row.kind === "entry" ? `entry-${row.entryId}` : `admission-${row.admissionId}`;
+  }
+
+  /** An entry opens its thread; an admission opens the child's Admission tab. */
+  function rowHref(row: FollowUpRow): string {
+    return row.kind === "entry"
+      ? `/children/${row.childId}?tab=journey&entry=${row.entryId}`
+      : `/children/${row.childId}?tab=admission`;
   }
 
   const grouped = groupFollowUps(current);
@@ -75,13 +90,10 @@ export function FollowUpList({
             <ul className="space-y-2">
               {grouped[bucket].map((row) => (
                 <li
-                  key={row.entryId}
+                  key={rowKey(row)}
                   className="flex items-start gap-2 rounded-xl border border-border p-3"
                 >
-                  <Link
-                    href={`/children/${row.childId}?tab=journey&entry=${row.entryId}`}
-                    className="min-w-0 flex-1 space-y-0.5"
-                  >
+                  <Link href={rowHref(row)} className="min-w-0 flex-1 space-y-0.5">
                     <span className="block truncate font-medium">{row.childName}</span>
                     <span className="block truncate text-sm text-muted-foreground">
                       {[row.categoryLabel, row.note].filter(Boolean).join(" · ")}
@@ -97,17 +109,19 @@ export function FollowUpList({
                       {relativeDueLabel(row.followUpOn)}
                     </span>
                   </Link>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-11"
-                    loading={isPending && closingId === row.entryId}
-                    disabled={isPending && closingId !== row.entryId}
-                    onClick={() => closeRow(row)}
-                    aria-label={strings.followUps.closeLabel(row.childName)}
-                  >
-                    {strings.followUps.close}
-                  </Button>
+                  {row.kind === "entry" ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="h-11"
+                      loading={isPending && closingId === row.entryId}
+                      disabled={isPending && closingId !== row.entryId}
+                      onClick={() => closeRow(row)}
+                      aria-label={strings.followUps.closeLabel(row.childName)}
+                    >
+                      {strings.followUps.close}
+                    </Button>
+                  ) : null}
                 </li>
               ))}
             </ul>

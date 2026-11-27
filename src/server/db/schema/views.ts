@@ -57,9 +57,13 @@ export const vGradeSubjectSummary = pgView("v_grade_subject_summary", {
   n: integer("n").notNull(),
 }).existing();
 
-/** Open entries with a follow-up date (M2-05); admissions join it in M5. */
+/**
+ * Open follow-ups (M2-05): entries that are still open, plus admissions with a
+ * follow-up date (M5-01). `entry_id` and `admission_id` say which kind a row is;
+ * the owner is the entry's author or the admission's assignee.
+ */
 export const vOpenFollowUps = pgView("v_open_follow_ups", {
-  entryId: uuid("entry_id").notNull(),
+  entryId: uuid("entry_id"),
   childId: uuid("child_id").notNull(),
   childName: text("child_name").notNull(),
   categoryKey: text("category_key").notNull(),
@@ -67,8 +71,18 @@ export const vOpenFollowUps = pgView("v_open_follow_ups", {
   note: text("note"),
   followUpOn: date("follow_up_on").notNull(),
   status: entryStatus("status").notNull(),
-  authorId: uuid("author_id").notNull(),
-  authorName: text("author_name").notNull(),
+  authorId: uuid("author_id"),
+  authorName: text("author_name"),
   parentId: uuid("parent_id"),
   visibility: visibility("visibility").notNull(),
+  admissionId: uuid("admission_id"),
+}).existing();
+
+/** Admissions per stage, with the follow-ups due today or earlier (M5-01). */
+export const vAdmissionsFunnel = pgView("v_admissions_funnel", {
+  status: text("status").notNull(),
+  count: integer("count").notNull(),
+  followUpsDue: integer("follow_ups_due").notNull(),
+  // The stage order the board renders in; not shown.
+  sort: integer("sort").notNull(),
 }).existing();

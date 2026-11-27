@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, desc, eq, lt } from "drizzle-orm";
+import { and, desc, eq, lt, ne } from "drizzle-orm";
 
 import { assertCan, can } from "@/server/auth/permissions";
 import type { SessionUser } from "@/server/auth/session";
@@ -14,7 +14,12 @@ export const TIMELINE_PAGE_SIZE = 50;
 
 export type TimelineEvent =
   | { kind: "entry"; at: Date; entry: EntryListItem }
-  | { kind: "enrolment" | "duty" | "assessment"; at: Date; id: string; title: string };
+  | {
+      kind: "enrolment" | "duty" | "assessment" | "admission";
+      at: Date;
+      id: string;
+      title: string;
+    };
 
 export type TimelinePage = {
   events: TimelineEvent[];
@@ -39,6 +44,11 @@ export async function listChildTimeline(
   const conditions = [eq(vChildTimeline.childId, childId)];
   if (!can(user, "restricted.read")) {
     conditions.push(eq(vChildTimeline.visibility, "staff"));
+  }
+  // Admission events are staff content but not for every role; a teacher has
+  // no `admission.read` (03-auth-and-access § Permission matrix).
+  if (!can(user, "admission.read")) {
+    conditions.push(ne(vChildTimeline.kind, "admission"));
   }
   if (options.before) conditions.push(lt(vChildTimeline.at, options.before));
 
@@ -75,7 +85,9 @@ export async function listChildTimeline(
           ? "duty"
           : row.refTable === "assessment"
             ? "assessment"
-            : "enrolment";
+            : row.refTable === "admission_event"
+              ? "admission"
+              : "enrolment";
       events.push({ kind, at: row.at, id: row.refId, title: row.title });
     }
   }

@@ -87,7 +87,9 @@ export function JourneyTimeline({
                       ? strings.entries.timeline.duty
                       : row.kind === "assessment"
                         ? strings.entries.timeline.assessment
-                        : strings.entries.timeline.enrolment}{" "}
+                        : row.kind === "admission"
+                          ? strings.entries.timeline.admission
+                          : strings.entries.timeline.enrolment}{" "}
                     · {row.title}
                   </span>
                   <span className="shrink-0 text-xs">{formatDateTimeIST(row.at)}</span>

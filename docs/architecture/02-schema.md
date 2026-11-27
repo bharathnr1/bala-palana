@@ -85,6 +85,8 @@ Unique `(kind, key)`; index `(kind, active, sort)`.
 
 **`admission_event`**: id, `admission_id → admission`, `kind admission_event_kind`, `occurred_on date not null`, `status_id → lookup(admission_status)` null (set for `status_change`), `note text`, `author_id → app_user`.
 
+A stage change always writes a `status_change` event in the same transaction, so no stage moves silently (M5-01). An interview event also sets `interview_on` to its date.
+
 ### Timeline
 
 **`entry`**: the backbone (D6).
