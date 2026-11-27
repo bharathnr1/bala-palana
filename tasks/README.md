@@ -72,7 +72,7 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | M3-06 | E2E | QA | M3-03, M3-04 | done |
 | **M4** | **Academics** ([M4.md](M4.md)) | | | |
 | M4-01 | Assessments domain | Feature A | M0-04 | done |
-| M4-02 | Bulk entry | Feature A | M4-01 | todo |
+| M4-02 | Bulk entry | Feature A | M4-01 | done |
 | M4-03 | Academics tab | Feature B | M4-01, M2-01 | todo |
 | M4-04 | Grade summary report | Feature B | M4-01 | todo |
 | **M5** | **Admissions** ([M5.md](M5.md)) | | | |
