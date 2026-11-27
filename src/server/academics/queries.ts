@@ -1,18 +1,19 @@
 import "server-only";
 
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNull } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 import { strings } from "@/lib/strings";
 import { AppError } from "@/server/auth/errors";
-import { assertCan } from "@/server/auth/permissions";
+import { assertCan, can } from "@/server/auth/permissions";
 import type { SessionUser } from "@/server/auth/session";
 import { getDb } from "@/server/db/client";
-import { assessment, child, enrolment, lookup } from "@/server/db/schema";
+import { assessment, child, enrolment, entry, lookup } from "@/server/db/schema";
 
 const grade = alias(lookup, "grade");
 const term = alias(lookup, "term");
 const subject = alias(lookup, "subject");
+const category = alias(lookup, "category");
 
 export type AssessmentRow = {
   id: string;
@@ -189,6 +190,44 @@ export async function listClassChildren(
       ),
     )
     .orderBy(asc(child.fullName), asc(child.id));
+}
+
+export type SubjectConcern = {
+  subjectKey: string | null;
+  subjectLabel: string | null;
+  openCount: number;
+};
+
+/**
+ * A child's open concerns grouped by subject (M4-03), newest concerns in the
+ * journey. The visibility filter is the query's, as in every entry read (D13).
+ */
+export async function childSubjectConcerns(
+  user: SessionUser,
+  childId: string,
+): Promise<SubjectConcern[]> {
+  assertCan(user, "child.read");
+
+  const conditions = [
+    eq(entry.childId, childId),
+    eq(category.kind, "entry_category"),
+    eq(category.key, "concern"),
+    eq(entry.status, "open"),
+    isNull(entry.deletedAt),
+  ];
+  if (!can(user, "restricted.read")) conditions.push(eq(entry.visibility, "staff"));
+
+  const openCount = count(entry.id);
+  const rows = await getDb()
+    .select({ subjectKey: subject.key, subjectLabel: subject.label, openCount })
+    .from(entry)
+    .innerJoin(category, eq(entry.categoryId, category.id))
+    .leftJoin(subject, eq(entry.subjectId, subject.id))
+    .where(and(...conditions))
+    .groupBy(subject.key, subject.label)
+    .orderBy(desc(openCount), asc(subject.label));
+
+  return rows.map((row) => ({ ...row, openCount: Number(row.openCount) }));
 }
 
 export type AssessmentOptions = {

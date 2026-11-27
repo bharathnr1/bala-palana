@@ -491,6 +491,13 @@ export const strings = {
     saved: "Saved",
     saving: "Saving…",
     saveFailed: "Not saved. Try again.",
+    tab: {
+      noData: "No assessments recorded yet.",
+      concernsTitle: "Open concerns by subject",
+      noSubject: "No subject",
+      trend: (label: string, pct: number) => `${label}: ${pct}%`,
+      notRecorded: "—",
+    },
     errors: {
       markRange: "Marks must be between 0 and 9999.99.",
       year: "Use the academic year format YYYY-YY.",
