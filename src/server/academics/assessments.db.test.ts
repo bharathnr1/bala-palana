@@ -9,11 +9,7 @@ import { createEntries, setEntryStatus } from "@/server/entries/mutations";
 import { listChildTimeline } from "@/server/entries/timeline";
 import { resetDatabase } from "../../../tests/db/helpers";
 
-import {
-  deleteAssessment,
-  upsertAssessment,
-  type UpsertAssessmentInput,
-} from "./mutations";
+import { deleteAssessment, upsertAssessment, type UpsertAssessmentInput } from "./mutations";
 import {
   assessmentOptions,
   childSubjectConcerns,
@@ -125,13 +121,15 @@ describe("database constraints (06-testing § Required tests by area)", () => {
     const childId = await makeChild("Empty");
 
     await expect(
-      getDb().insert(assessment).values({
-        childId,
-        academicYear: "2026-27",
-        termId: await lookupId("term", "term_1"),
-        subjectId: await lookupId("subject", "english"),
-        recordedBy: admin.id,
-      }),
+      getDb()
+        .insert(assessment)
+        .values({
+          childId,
+          academicYear: "2026-27",
+          termId: await lookupId("term", "term_1"),
+          subjectId: await lookupId("subject", "english"),
+          recordedBy: admin.id,
+        }),
     ).rejects.toThrow();
   });
 
@@ -140,25 +138,29 @@ describe("database constraints (06-testing § Required tests by area)", () => {
     const childId = await makeChild("Over");
 
     await expect(
-      getDb().insert(assessment).values({
+      getDb()
+        .insert(assessment)
+        .values({
+          childId,
+          academicYear: "2026-27",
+          termId: await lookupId("term", "term_1"),
+          subjectId: await lookupId("subject", "english"),
+          marks: "101",
+          maxMarks: "100",
+          recordedBy: admin.id,
+        }),
+    ).rejects.toThrow();
+
+    await getDb()
+      .insert(assessment)
+      .values({
         childId,
         academicYear: "2026-27",
         termId: await lookupId("term", "term_1"),
         subjectId: await lookupId("subject", "english"),
-        marks: "101",
-        maxMarks: "100",
+        gradeLetter: "A",
         recordedBy: admin.id,
-      }),
-    ).rejects.toThrow();
-
-    await getDb().insert(assessment).values({
-      childId,
-      academicYear: "2026-27",
-      termId: await lookupId("term", "term_1"),
-      subjectId: await lookupId("subject", "english"),
-      gradeLetter: "A",
-      recordedBy: admin.id,
-    });
+      });
     expect(await getDb().select().from(assessment)).toHaveLength(1);
   });
 });
@@ -175,9 +177,9 @@ describe("deleteAssessment", () => {
     await deleteAssessment(coordinator, { id: saved.id });
     expect(await getDb().select().from(assessment)).toHaveLength(0);
 
-    await expect(
-      deleteAssessment(coordinator, { id: saved.id }),
-    ).rejects.toThrow(strings.academics.errors.notFound);
+    await expect(deleteAssessment(coordinator, { id: saved.id })).rejects.toThrow(
+      strings.academics.errors.notFound,
+    );
   });
 });
 
@@ -247,8 +249,9 @@ describe("queries", () => {
     expect(options.terms.map((row) => row.key)).toEqual(["term_1", "term_2", "annual"]);
     expect(options.subjects.map((row) => row.key)).toContain("mathematics");
 
-    await expect(listChildAssessments(management, "00000000-0000-4000-8000-000000000000"))
-      .resolves.toEqual([]);
+    await expect(
+      listChildAssessments(management, "00000000-0000-4000-8000-000000000000"),
+    ).resolves.toEqual([]);
   });
 });
 
@@ -261,12 +264,14 @@ describe("listClassChildren", () => {
     const gradeFive = await lookupId("grade", "grade_5");
     const gradeSix = await lookupId("grade", "grade_6");
 
-    await getDb().insert(enrolment).values([
-      { childId: asha, academicYear: "2026-27", gradeId: gradeFive },
-      { childId: bala, academicYear: "2026-27", gradeId: gradeFive },
-      { childId: other, academicYear: "2026-27", gradeId: gradeSix },
-      { childId: other, academicYear: "2025-26", gradeId: gradeFive },
-    ]);
+    await getDb()
+      .insert(enrolment)
+      .values([
+        { childId: asha, academicYear: "2026-27", gradeId: gradeFive },
+        { childId: bala, academicYear: "2026-27", gradeId: gradeFive },
+        { childId: other, academicYear: "2026-27", gradeId: gradeSix },
+        { childId: other, academicYear: "2025-26", gradeId: gradeFive },
+      ]);
 
     const rows = await listClassChildren(admin, {
       academicYear: "2026-27",
@@ -313,15 +318,17 @@ describe("childSubjectConcerns", () => {
       .from(lookup)
       .where(and(eq(lookup.kind, "entry_category"), eq(lookup.key, "concern")))
       .limit(1);
-    await getDb().insert(entry).values({
-      childId,
-      categoryId: concernCategory!.id,
-      subjectId: await lookupId("subject", "english"),
-      note: "Restricted concern.",
-      authorId: coordinator.id,
-      visibility: "restricted",
-      status: "open",
-    });
+    await getDb()
+      .insert(entry)
+      .values({
+        childId,
+        categoryId: concernCategory!.id,
+        subjectId: await lookupId("subject", "english"),
+        note: "Restricted concern.",
+        authorId: coordinator.id,
+        visibility: "restricted",
+        status: "open",
+      });
 
     const forCoordinator = await childSubjectConcerns(coordinator, childId);
     expect(forCoordinator.map((row) => [row.subjectKey, row.openCount])).toEqual([

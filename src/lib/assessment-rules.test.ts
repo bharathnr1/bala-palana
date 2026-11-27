@@ -31,9 +31,9 @@ describe("validateAssessmentValues", () => {
     expect(
       validateAssessmentValues({ marks: "", maxMarks: "", gradeLetter: "", remark: "" }).form,
     ).toBe(strings.academics.errors.emptyValue);
-    expect(
-      validateAssessmentValues({ ...blank, gradeLetter: "A".repeat(11) }).gradeLetter,
-    ).toBe(strings.academics.errors.gradeLetterTooLong);
+    expect(validateAssessmentValues({ ...blank, gradeLetter: "A".repeat(11) }).gradeLetter).toBe(
+      strings.academics.errors.gradeLetterTooLong,
+    );
     expect(validateAssessmentValues({ ...blank, remark: "x".repeat(501) }).remark).toBe(
       strings.academics.errors.remarkTooLong,
     );

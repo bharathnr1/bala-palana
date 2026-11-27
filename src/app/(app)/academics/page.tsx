@@ -99,7 +99,7 @@ export default async function AcademicsPage({
 
       <form method="get" className="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-5 sm:items-end">
         <div>
-          <label htmlFor="academics-year" className="text-xs text-muted-foreground">
+          <label htmlFor="academics-year" className="text-muted-foreground text-xs">
             {strings.academics.year}
           </label>
           <select id="academics-year" name="year" defaultValue={year} className={SELECT}>
@@ -112,7 +112,7 @@ export default async function AcademicsPage({
         </div>
 
         <div>
-          <label htmlFor="academics-grade" className="text-xs text-muted-foreground">
+          <label htmlFor="academics-grade" className="text-muted-foreground text-xs">
             {strings.academics.grade}
           </label>
           <select
@@ -131,7 +131,7 @@ export default async function AcademicsPage({
         </div>
 
         <div>
-          <label htmlFor="academics-term" className="text-xs text-muted-foreground">
+          <label htmlFor="academics-term" className="text-muted-foreground text-xs">
             {strings.academics.term}
           </label>
           <select id="academics-term" name="term" defaultValue={termKey ?? ""} className={SELECT}>
@@ -145,7 +145,7 @@ export default async function AcademicsPage({
         </div>
 
         <div>
-          <label htmlFor="academics-subject" className="text-xs text-muted-foreground">
+          <label htmlFor="academics-subject" className="text-muted-foreground text-xs">
             {strings.academics.subject}
           </label>
           <select
@@ -175,7 +175,7 @@ export default async function AcademicsPage({
       ) : (
         <div className="space-y-3">
           {!canWrite ? (
-            <p className="text-sm text-muted-foreground">{strings.academics.readOnly}</p>
+            <p className="text-muted-foreground text-sm">{strings.academics.readOnly}</p>
           ) : null}
           <BulkEntry
             // A different class is a different list; the key reseeds the form.

@@ -34,18 +34,18 @@ export function AcademicsTab({
           <section key={year.academicYear} aria-labelledby={`academics-${year.academicYear}`}>
             <h3
               id={`academics-${year.academicYear}`}
-              className="mb-2 text-sm font-semibold text-muted-foreground"
+              className="text-muted-foreground mb-2 text-sm font-semibold"
             >
               {year.academicYear}
             </h3>
 
-            <div className="overflow-x-auto rounded-xl border border-border">
+            <div className="border-border overflow-x-auto rounded-xl border">
               <table className="w-full min-w-max border-collapse text-sm">
                 <thead>
                   <tr className="bg-muted/50">
                     <th
                       scope="col"
-                      className="sticky left-0 bg-muted px-3 py-2 text-left font-medium"
+                      className="bg-muted sticky left-0 px-3 py-2 text-left font-medium"
                     >
                       {strings.academics.subject}
                     </th>
@@ -58,15 +58,15 @@ export function AcademicsTab({
                 </thead>
                 <tbody>
                   {year.subjects.map((subject) => (
-                    <tr key={subject.subjectKey} className="border-t border-border">
+                    <tr key={subject.subjectKey} className="border-border border-t">
                       <th
                         scope="row"
-                        className="sticky left-0 bg-background px-3 py-2 text-left font-medium"
+                        className="bg-background sticky left-0 px-3 py-2 text-left font-medium"
                       >
                         {subject.subjectLabel}
                       </th>
                       {year.terms.map((term) => (
-                        <td key={term.key} className="px-3 py-2 text-muted-foreground">
+                        <td key={term.key} className="text-muted-foreground px-3 py-2">
                           {cellText(subject.cells[term.key] ?? null)}
                         </td>
                       ))}
@@ -91,20 +91,17 @@ export function AcademicsTab({
 
       {concerns.length > 0 ? (
         <section aria-labelledby="academics-concerns">
-          <h3
-            id="academics-concerns"
-            className="mb-2 text-sm font-semibold text-muted-foreground"
-          >
+          <h3 id="academics-concerns" className="text-muted-foreground mb-2 text-sm font-semibold">
             {strings.academics.tab.concernsTitle}
           </h3>
           <ul className="flex flex-wrap gap-2">
             {concerns.map((concern) => (
               <li
                 key={concern.subjectKey ?? "none"}
-                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-border px-3 text-sm"
+                className="border-border inline-flex min-h-11 items-center gap-2 rounded-full border px-3 text-sm"
               >
                 <span>{concern.subjectLabel ?? strings.academics.tab.noSubject}</span>
-                <span className="rounded-full bg-secondary px-2 text-xs text-secondary-foreground">
+                <span className="bg-secondary text-secondary-foreground rounded-full px-2 text-xs">
                   {concern.openCount}
                 </span>
               </li>

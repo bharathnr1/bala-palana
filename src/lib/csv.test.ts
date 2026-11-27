@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { duplicateKey, IMPORT_TEMPLATE, parseCsv, parseImport } from "./csv";
+import { duplicateKey, IMPORT_TEMPLATE, parseCsv, parseImport, toCsv } from "./csv";
 
 describe("parseCsv", () => {
   it("splits plain rows and drops blank lines", () => {
@@ -69,6 +69,28 @@ describe("parseImport", () => {
     expect(result.error).toBeUndefined();
     expect(result.rows).toHaveLength(1);
     expect(result.rows[0]?.errors).toEqual([]);
+  });
+});
+
+describe("toCsv", () => {
+  it("quotes commas, quotes and newlines and ends rows with CRLF", () => {
+    expect(
+      toCsv(
+        ["name", "note"],
+        [
+          ["Sharma, Ananya", 'Said "yes"'],
+          ["Line", "one\ntwo"],
+        ],
+      ),
+    ).toBe('name,note\r\n"Sharma, Ananya","Said ""yes"""\r\nLine,"one\ntwo"\r\n');
+  });
+
+  it("neutralises a label a spreadsheet would treat as a formula", () => {
+    expect(toCsv(["subject"], [["=SUM(A1)"]])).toBe("subject\r\n'=SUM(A1)\r\n");
+  });
+
+  it("turns null into an empty cell", () => {
+    expect(toCsv(["a", "b"], [[null, 3]])).toBe("a,b\r\n,3\r\n");
   });
 });
 

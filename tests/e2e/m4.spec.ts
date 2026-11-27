@@ -16,7 +16,10 @@ async function signIn(page: Page, name: string): Promise<void> {
 }
 
 function firstClassRow(page: Page) {
-  return page.locator("li").filter({ has: page.getByLabel("Marks") }).first();
+  return page
+    .locator("li")
+    .filter({ has: page.getByLabel("Marks") })
+    .first();
 }
 
 test("a teacher enters marks with inline validation and no reload", async ({ page }) => {

@@ -183,12 +183,7 @@ export async function listClassChildren(
     .select({ id: child.id, fullName: child.fullName })
     .from(enrolment)
     .innerJoin(child, eq(child.id, enrolment.childId))
-    .where(
-      and(
-        eq(enrolment.academicYear, filter.academicYear),
-        eq(enrolment.gradeId, gradeId),
-      ),
-    )
+    .where(and(eq(enrolment.academicYear, filter.academicYear), eq(enrolment.gradeId, gradeId)))
     .orderBy(asc(child.fullName), asc(child.id));
 }
 
@@ -243,12 +238,7 @@ export async function assessmentOptions(user: SessionUser): Promise<AssessmentOp
   const rows = await getDb()
     .select({ kind: lookup.kind, key: lookup.key, label: lookup.label })
     .from(lookup)
-    .where(
-      and(
-        eq(lookup.active, true),
-        inArray(lookup.kind, ["grade", "term", "subject"]),
-      ),
-    )
+    .where(and(eq(lookup.active, true), inArray(lookup.kind, ["grade", "term", "subject"])))
     .orderBy(asc(lookup.kind), asc(lookup.sort));
 
   return {

@@ -83,8 +83,7 @@ export const strings = {
     reasons: {
       overdue_follow_ups: (count: number) =>
         count === 1 ? "1 follow-up overdue" : `${count} follow-ups overdue`,
-      open_concerns: (count: number) =>
-        count === 1 ? "1 open concern" : `${count} open concerns`,
+      open_concerns: (count: number) => (count === 1 ? "1 open concern" : `${count} open concerns`),
       concern_subjects: (count: number) => `Concerns in ${count} subjects`,
       stale: (days: number) => `No entry in ${days} days`,
     },
@@ -509,6 +508,31 @@ export const strings = {
       remarkTooLong: "A remark is at most 500 characters.",
       childMissing: "That child does not exist.",
       notFound: "That assessment no longer exists.",
+    },
+  },
+
+  reports: {
+    title: "Reports",
+    filters: {
+      year: "Academic year",
+      grade: "Grade",
+      term: "Term",
+      all: "All",
+      show: "Show",
+    },
+    gradeSummary: {
+      title: "Grade summary",
+      hint: "Per-subject assessment averages by term.",
+      chart: "Average by subject",
+      empty: "No assessments match these filters.",
+      export: "Export CSV",
+      columns: {
+        grade: "Grade",
+        term: "Term",
+        subject: "Subject",
+        average: "Average",
+        count: "Assessments",
+      },
     },
   },
 

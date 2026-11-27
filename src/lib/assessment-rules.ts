@@ -38,10 +38,7 @@ export function validateAssessmentValues(values: AssessmentValues): AssessmentEr
   if (values.marks.trim() !== "" && (marks == null || marks < 0 || marks > MAX_MARK)) {
     errors.marks = strings.academics.errors.markRange;
   }
-  if (
-    values.maxMarks.trim() !== "" &&
-    (maxMarks == null || maxMarks < 0 || maxMarks > MAX_MARK)
-  ) {
+  if (values.maxMarks.trim() !== "" && (maxMarks == null || maxMarks < 0 || maxMarks > MAX_MARK)) {
     errors.maxMarks = strings.academics.errors.markRange;
   }
   if (marks != null && maxMarks != null && marks > maxMarks) {
@@ -68,8 +65,6 @@ export function validateAssessmentValues(values: AssessmentValues): AssessmentEr
 /** A row with nothing recorded: clearing it means removing an existing row. */
 export function isBlankValues(values: AssessmentValues): boolean {
   return (
-    values.marks.trim() === "" &&
-    values.gradeLetter.trim() === "" &&
-    values.remark.trim() === ""
+    values.marks.trim() === "" && values.gradeLetter.trim() === "" && values.remark.trim() === ""
   );
 }
