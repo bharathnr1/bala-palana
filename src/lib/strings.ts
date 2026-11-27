@@ -287,6 +287,7 @@ export const strings = {
       loadError: "The timeline could not load. Try again.",
       enrolment: "Enrolled",
       duty: "Duty",
+      assessment: "Assessment",
       followUp: (label: string) => `Follow-up ${label}`,
       open: "Open",
       closed: "Closed",
@@ -471,6 +472,19 @@ export const strings = {
       `Copied ${teams} ${teams === 1 ? "team" : "teams"} and ${members} ${
         members === 1 ? "child" : "children"
       }.`,
+  },
+
+  academics: {
+    errors: {
+      markRange: "Marks must be between 0 and 9999.99.",
+      year: "Use the academic year format YYYY-YY.",
+      emptyValue: "Enter marks, a grade letter or a remark.",
+      marksAboveMax: "Marks cannot be more than the maximum.",
+      unknownLookup: (kind: string, key: string) => `Unknown ${kind} "${key}".`,
+      unknownClass: "That grade or term no longer exists.",
+      childMissing: "That child does not exist.",
+      notFound: "That assessment no longer exists.",
+    },
   },
 
   settings: {
