@@ -104,8 +104,12 @@ export function AdmissionsBoard({
   const terminal = columns.filter((column) => column.isTerminal);
   const terminalCount = terminal.reduce((sum, column) => sum + column.count, 0);
   const visibleColumns = columns.filter((column) => !column.isTerminal || showTerminal);
+  // Prefer the requested stage, then the first stage that has work in it, so a
+  // mobile reader does not land on an empty column while others hold cards.
   const active =
-    visibleColumns.find((column) => column.key === activeStatusKey) ?? visibleColumns[0];
+    visibleColumns.find((column) => column.key === activeStatusKey) ??
+    visibleColumns.find((column) => column.rows.length > 0) ??
+    visibleColumns[0];
 
   return (
     <>
