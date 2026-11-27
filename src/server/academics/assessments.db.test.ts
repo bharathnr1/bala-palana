@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { strings } from "@/lib/strings";
 import type { SessionUser } from "@/server/auth/session";
 import { getDb } from "@/server/db/client";
-import { appUser, assessment, child, lookup } from "@/server/db/schema";
+import { appUser, assessment, child, enrolment, lookup } from "@/server/db/schema";
 import { listChildTimeline } from "@/server/entries/timeline";
 import { resetDatabase } from "../../../tests/db/helpers";
 
@@ -13,7 +13,12 @@ import {
   upsertAssessment,
   type UpsertAssessmentInput,
 } from "./mutations";
-import { assessmentOptions, listChildAssessments, listClassAssessments } from "./queries";
+import {
+  assessmentOptions,
+  listChildAssessments,
+  listClassAssessments,
+  listClassChildren,
+} from "./queries";
 
 beforeEach(async () => {
   await resetDatabase();
@@ -242,6 +247,30 @@ describe("queries", () => {
 
     await expect(listChildAssessments(management, "00000000-0000-4000-8000-000000000000"))
       .resolves.toEqual([]);
+  });
+});
+
+describe("listClassChildren", () => {
+  it("lists the children enrolled in the grade for that year, by name", async () => {
+    const admin = await makeUser("admin");
+    const asha = await makeChild("Asha");
+    const bala = await makeChild("Bala");
+    const other = await makeChild("Other Grade");
+    const gradeFive = await lookupId("grade", "grade_5");
+    const gradeSix = await lookupId("grade", "grade_6");
+
+    await getDb().insert(enrolment).values([
+      { childId: asha, academicYear: "2026-27", gradeId: gradeFive },
+      { childId: bala, academicYear: "2026-27", gradeId: gradeFive },
+      { childId: other, academicYear: "2026-27", gradeId: gradeSix },
+      { childId: other, academicYear: "2025-26", gradeId: gradeFive },
+    ]);
+
+    const rows = await listClassChildren(admin, {
+      academicYear: "2026-27",
+      gradeKey: "grade_5",
+    });
+    expect(rows.map((row) => row.fullName)).toEqual(["Asha", "Bala"]);
   });
 });
 

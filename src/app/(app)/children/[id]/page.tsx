@@ -9,6 +9,7 @@ import { EntrySheet } from "@/features/entries/entry-sheet";
 import { JourneyTimeline } from "@/features/entries/journey-timeline";
 import { ResponsibilitiesPanel } from "@/features/duties/responsibilities-panel";
 import { RememberView } from "@/features/children/remember-view";
+import { shiftAcademicYear } from "@/lib/academic-year";
 import { can } from "@/lib/permissions";
 import { withinSelfDeleteWindow } from "@/lib/entry-rules";
 import { strings } from "@/lib/strings";
@@ -39,12 +40,6 @@ const TABS: readonly { key: TabKey; action: Parameters<typeof can>[1] }[] = [
 
 function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
-}
-
-/** `2026-27` shifted by a year, for the duties year chips. */
-function shiftYear(label: string, by: number): string {
-  const startYear = Number(label.slice(0, 4)) + by;
-  return `${startYear}-${String((startYear + 1) % 100).padStart(2, "0")}`;
 }
 
 /** The journey filter chips share the ChipGroup look without being buttons. */
@@ -111,7 +106,9 @@ export default async function ChildProfilePage({
   const dutyCounts = responsibilitiesData?.[2] ?? [];
   const currentYear = responsibilitiesData?.[3] ?? null;
   const countsYear = requestedYear ?? currentYear ?? "";
-  const yearOptions = currentYear ? [0, -1, -2].map((by) => shiftYear(currentYear, by)) : [];
+  const yearOptions = currentYear
+    ? [0, -1, -2].map((by) => shiftAcademicYear(currentYear, by))
+    : [];
 
   const backHref = `/children/${profile.id}?tab=journey${
     activeCategory ? `&category=${activeCategory.key}` : ""

@@ -35,10 +35,16 @@ const remove = action(deleteAssessmentSchema, async (input, user) => {
   return result;
 });
 
-export async function saveAssessment(formData: FormData): Promise<ActionResult<unknown>> {
+export type SavedAssessment = { id: string; childId: string };
+
+export async function saveAssessment(
+  formData: FormData,
+): Promise<ActionResult<SavedAssessment>> {
   return save(formData);
 }
 
-export async function removeAssessment(formData: FormData): Promise<ActionResult<unknown>> {
+export async function removeAssessment(
+  formData: FormData,
+): Promise<ActionResult<SavedAssessment>> {
   return remove(formData);
 }

@@ -25,6 +25,15 @@ export function academicYearOf(date: string | Date, startMonth: number = 6): str
   return `${startYear}-${endYear}`;
 }
 
+/** The label `by` years after (or before) `label`, e.g. `shiftAcademicYear("2026-27", -1)` is `2025-26`. */
+export function shiftAcademicYear(label: string, by: number): string {
+  const startYear = Number(label.slice(0, 4)) + by;
+  if (!Number.isInteger(startYear) || startYear < 1000) {
+    throw new RangeError(`Bad academic year label: ${label}`);
+  }
+  return `${startYear}-${String((startYear + 1) % 100).padStart(2, "0")}`;
+}
+
 /** First day (`YYYY-MM-DD`) of the academic year labelled `label`. */
 export function academicYearStart(label: string, startMonth: number = 6): string {
   const startYear = Number(label.slice(0, 4));
