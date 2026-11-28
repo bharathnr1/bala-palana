@@ -7,14 +7,17 @@ import { Button } from "@/components/ui/button";
 import {
   AddEventForm,
   ChangeStatusForm,
+  ConvertToStudentForm,
   NextActionForm,
 } from "@/features/admissions/admission-forms";
-import { formatDate, formatDateOrDash, isOverdue } from "@/lib/dates";
+import { AdmissionTimeline } from "@/features/admissions/admission-timeline";
+import { formatDate, formatDateOrDash, isOverdue, todayISO } from "@/lib/dates";
 import { can } from "@/lib/permissions";
 import { strings } from "@/lib/strings";
 import { cn } from "@/lib/utils";
 import { admissionOptions, getAdmission } from "@/server/admissions/queries";
 import { requireScreen } from "@/server/auth/guards";
+import { childLookups } from "@/server/children/queries";
 
 export const metadata: Metadata = { title: strings.nav.admissions };
 
@@ -41,6 +44,10 @@ export default async function AdmissionDetailPage({
   const options = await admissionOptions(user);
   const canWrite = can(user, "admission.write");
   const overdue = admission.followUpOn ? isOverdue(admission.followUpOn) : false;
+  // Conversion is a one-way step for an applicant; a student's history is
+  // read-only here (M5-03).
+  const canConvert = canWrite && admission.stage === "applicant";
+  const convertLookups = canConvert ? await childLookups() : null;
 
   return (
     <>
@@ -157,38 +164,28 @@ export default async function AdmissionDetailPage({
         <h2 id="admission-events" className="mb-3 text-sm font-semibold">
           {strings.admissions.detail.events}
         </h2>
-        {admission.events.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-            {strings.admissions.detail.eventsEmpty}
-          </p>
-        ) : (
-          <ol className="space-y-3">
-            {admission.events.map((event) => (
-              <li key={event.id} className="flex gap-3">
-                <span className="mt-1.5 size-2 shrink-0 rounded-full bg-primary" aria-hidden />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium">
-                    {strings.admissions.eventKinds[event.kind]}
-                    {event.statusLabel ? ` · ${event.statusLabel}` : ""}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(event.occurredOn)}
-                    {event.authorName ? ` · ${strings.admissions.detail.by(event.authorName)}` : ""}
-                  </p>
-                  {event.note ? (
-                    <p className="mt-1 text-sm whitespace-pre-line">{event.note}</p>
-                  ) : null}
-                </div>
-              </li>
-            ))}
-          </ol>
-        )}
+        <AdmissionTimeline events={admission.events} />
       </section>
 
       {canWrite ? (
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          {convertLookups ? (
+            <section className="rounded-xl border border-border p-4 lg:col-span-2">
+              <ConvertToStudentForm
+                admissionId={admission.id}
+                today={todayISO()}
+                grades={convertLookups.grades}
+                groups={convertLookups.groups}
+                consentRecorded={admission.consentGivenAt !== null}
+              />
+            </section>
+          ) : null}
+
           <section className="rounded-xl border border-border p-4">
             <ChangeStatusForm
+              // A new stage remounts the form, so its uncontrolled select
+              // shows the stage the page now reports (M5-03).
+              key={admission.statusKey}
               admissionId={admission.id}
               statuses={options.statuses}
               currentStatusKey={admission.statusKey}

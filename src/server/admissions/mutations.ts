@@ -3,6 +3,7 @@ import "server-only";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 
+import { academicYearOf } from "@/lib/academic-year";
 import { ADMISSION_EVENT_KINDS, type AdmissionEventKind } from "@/lib/admissions";
 import { todayISO } from "@/lib/dates";
 import { strings } from "@/lib/strings";
@@ -16,8 +17,10 @@ import {
   appUser,
   child,
   childGuardian,
+  enrolment,
   guardian,
   lookup,
+  setting,
 } from "@/server/db/schema";
 
 const blankToUndefined = (value: unknown) =>
@@ -78,10 +81,21 @@ export const setNextActionSchema = z.object({
   assignedTo: z.preprocess(blankToUndefined, z.uuid().optional()),
 });
 
+export const convertToStudentSchema = z.object({
+  admissionId: z.uuid(),
+  // The consent checkbox arrives as "on" when ticked and is absent otherwise.
+  consent: z.preprocess((value) => value === "on" || value === true, z.boolean()),
+  joinedOn: z.iso.date(strings.admissions.errors.date),
+  gradeKey: optionalLookupKey,
+  groupKey: optionalLookupKey,
+  outsideSchool: optionalText(200),
+});
+
 export type CreateEnquiryInput = z.infer<typeof createEnquirySchema>;
 export type ChangeStatusInput = z.infer<typeof changeStatusSchema>;
 export type AddEventInput = z.infer<typeof addEventSchema>;
 export type SetNextActionInput = z.infer<typeof setNextActionSchema>;
+export type ConvertToStudentInput = z.infer<typeof convertToStudentSchema>;
 
 async function lookupId(tx: Tx, kind: string, key: string, unknown: string): Promise<string> {
   const [row] = await tx
@@ -91,6 +105,18 @@ async function lookupId(tx: Tx, kind: string, key: string, unknown: string): Pro
     .limit(1);
   if (!row) throw new AppError("INVALID", unknown);
   return row.id;
+}
+
+/** The academic year a joined date falls in, using the setting's start month (D15). */
+async function academicYearFor(tx: Tx, date: string): Promise<string> {
+  const [row] = await tx
+    .select({ value: setting.value })
+    .from(setting)
+    .where(eq(setting.key, "academic_year_start_month"))
+    .limit(1);
+  const startMonth =
+    typeof row?.value === "number" && row.value >= 1 && row.value <= 12 ? row.value : 6;
+  return academicYearOf(date, startMonth);
 }
 
 async function requireAdmission(
@@ -329,5 +355,90 @@ export async function createEnquiry(
     });
 
     return { childId: created.id, admissionId: saved.id };
+  });
+}
+
+/**
+ * Converts an applicant into a student (M5-03): records consent, the joined
+ * date and the first enrolment, moves the child to `student`, and closes the
+ * admission at `selected_as_student` with its stage event — all in one
+ * transaction. The admission record survives (D5), so its events stay in the
+ * child's Journey.
+ */
+export async function convertToStudent(
+  user: SessionUser,
+  input: ConvertToStudentInput,
+): Promise<{ id: string; childId: string }> {
+  assertCan(user, "admission.write");
+
+  return mutate(user, async (tx) => {
+    const existing = await requireAdmission(tx, input.admissionId);
+    const [applicant] = await tx
+      .select({ stage: child.stage, consentGivenAt: child.consentGivenAt })
+      .from(child)
+      .where(eq(child.id, existing.childId))
+      .limit(1);
+    if (!applicant) throw new AppError("NOT_FOUND", strings.children.errors.notFound);
+    if (applicant.stage !== "applicant") {
+      throw new AppError("INVALID", strings.admissions.errors.notApplicant);
+    }
+    // Consent is required before a child becomes a student (03 § Rules beyond
+    // the matrix). Consent already on file satisfies the gate.
+    if (!input.consent && !applicant.consentGivenAt) {
+      throw new AppError("INVALID", strings.admissions.errors.consent);
+    }
+
+    const statusId = await lookupId(
+      tx,
+      "admission_status",
+      "selected_as_student",
+      strings.admissions.errors.stageUnknown,
+    );
+    const gradeId = input.gradeKey
+      ? await lookupId(tx, "grade", input.gradeKey, strings.admissions.errors.gradeUnknown)
+      : null;
+    const groupId = input.groupKey
+      ? await lookupId(tx, "group", input.groupKey, strings.admissions.errors.groupUnknown)
+      : null;
+
+    await tx
+      .update(child)
+      .set({
+        stage: "student",
+        joinedOn: input.joinedOn,
+        consentGivenAt: applicant.consentGivenAt ?? new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(child.id, existing.childId));
+
+    const academicYear = await academicYearFor(tx, input.joinedOn);
+    const outsideSchool = input.outsideSchool ?? null;
+    await tx
+      .insert(enrolment)
+      .values({
+        childId: existing.childId,
+        academicYear,
+        gradeId,
+        groupId,
+        outsideSchool,
+      })
+      .onConflictDoUpdate({
+        target: [enrolment.childId, enrolment.academicYear],
+        set: { gradeId, groupId, outsideSchool },
+      });
+
+    await tx
+      .update(admission)
+      .set({ statusId, updatedAt: new Date() })
+      .where(eq(admission.id, input.admissionId));
+
+    await insertEvent(tx, user.id, {
+      admissionId: input.admissionId,
+      kind: "status_change",
+      occurredOn: input.joinedOn,
+      statusId,
+    });
+
+    return { id: input.admissionId, childId: existing.childId };
   });
 }
