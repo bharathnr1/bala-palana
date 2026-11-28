@@ -77,9 +77,9 @@ M0-01 → M0-03 → M0-04 → M0-06 → M0-07 → M0-08 → M2-02 → M2-04 → 
 | M4-04 | Grade summary report | Feature B | M4-01 | done |
 | **M5** | **Admissions** ([M5.md](M5.md)) | | | |
 | M5-01 | Admissions domain | Feature A | M0-04 | done |
-| M5-02 | Admissions board | Feature A | M5-01 | todo |
-| M5-03 | Convert to student | Feature B | M5-01 | todo |
-| M5-04 | E2E | QA | M5-02, M5-03 | todo |
+| M5-02 | Admissions board | Feature A | M5-01 | done |
+| M5-03 | Convert to student | Feature B | M5-01 | done |
+| M5-04 | E2E | QA | M5-02, M5-03 | done |
 | **M6** | **Health, documents, family, achievements** ([M6.md](M6.md)) | | | |
 | M6-01 | Health | Feature A | M2-01 | todo |
 | M6-02 | Documents | Feature B | M1-01 | todo |
