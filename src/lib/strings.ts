@@ -18,6 +18,7 @@ export const strings = {
     signOut: "Sign out",
     testModeTitle: "Test sign-in",
     testModeHint: "Choose an account to continue.",
+    noSignUpHint: "Accounts are created by the admin. Ask the admin to add your email.",
     notInvited: "You haven't been invited. Ask the admin.",
     inactive: "This account is deactivated. Ask the admin.",
     invalidCredentials: "Email or password is not correct.",
@@ -35,6 +36,28 @@ export const strings = {
   account: {
     title: "Account",
     role: "Role",
+  },
+
+  help: {
+    title: "Help",
+    description: "Short answers about using the app. Search, or browse the sections below.",
+    searchLabel: "Search help",
+    searchPlaceholder: "For example: add a duty",
+    search: "Search",
+    clear: "Clear search",
+    resultCount: (count: number) => (count === 1 ? "1 article matches" : `${count} articles match`),
+    noResultsTitle: "Nothing matched",
+    noResultsBody: "Try another word, or browse every article below.",
+    backToAll: "Show all articles",
+    sections: {
+      start: "Getting started",
+      children: "Children and observations",
+      duties: "Duties",
+      admissions: "Admissions",
+      academics: "Academics and reports",
+      admin: "Admin",
+    },
+    needHelpSigningIn: "Need help signing in?",
   },
 
   nav: {
@@ -537,8 +560,7 @@ export const strings = {
       showClosed: (count: number) => `Show closed stages (${count})`,
       hideClosed: "Hide closed stages",
       closedToggle: "Closed stages",
-      showingFirst: (count: number) =>
-        `Showing the first ${count} admissions, most urgent first.`,
+      showingFirst: (count: number) => `Showing the first ${count} admissions, most urgent first.`,
       followUpsDue: (count: number) =>
         count === 1 ? "1 follow-up due" : `${count} follow-ups due`,
       enquiryOn: (date: string) => `Enquiry ${date}`,

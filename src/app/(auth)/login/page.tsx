@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { asc, eq } from "drizzle-orm";
+import Link from "next/link";
 
 import { Alert } from "@/components/alert";
 import { PasswordInput } from "@/components/password-input";
@@ -61,7 +62,7 @@ export default async function LoginPage({
             type="email"
             required
             autoComplete="email"
-            className="h-11 w-full rounded-lg border border-input bg-background px-3"
+            className="border-input bg-background h-11 w-full rounded-lg border px-3"
           />
         </div>
 
@@ -77,10 +78,16 @@ export default async function LoginPage({
         </SubmitButton>
       </form>
 
+      <p className="text-muted-foreground text-sm">{strings.auth.noSignUpHint}</p>
+
+      <Link href="/help" className="text-sm underline underline-offset-4">
+        {strings.help.needHelpSigningIn}
+      </Link>
+
       {testMode ? (
-        <section className="space-y-2 border-t border-border pt-4">
+        <section className="border-border space-y-2 border-t pt-4">
           <h2 className="text-sm font-semibold">{strings.auth.testModeTitle}</h2>
-          <p className="text-sm text-muted-foreground">{strings.auth.testModeHint}</p>
+          <p className="text-muted-foreground text-sm">{strings.auth.testModeHint}</p>
           <ul className="space-y-2">
             {testUsers.map((user) => (
               <li key={user.id}>
