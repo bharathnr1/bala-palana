@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 
 import { ServiceWorkerRegister } from "@/components/shell/service-worker-register";
 import { strings } from "@/lib/strings";
+import { THEME_COLORS, THEME_INIT_SCRIPT } from "@/lib/theme";
 
 import "./globals.css";
 
@@ -17,10 +18,6 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#fbf7f2" },
-    { media: "(prefers-color-scheme: dark)", color: "#17110d" },
-  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -28,7 +25,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full antialiased">
+    // Light is the default; the script in <head> adds the dark class for a
+    // stored dark choice before paint, so hydration must tolerate the difference.
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+      <head>
+        {/* Rendered here so the theme script can keep it in step with the choice. */}
+        <meta name="theme-color" content={THEME_COLORS.light} />
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body className="flex min-h-full flex-col">
         {children}
         <ServiceWorkerRegister />

@@ -3,6 +3,7 @@ import { asc, eq } from "drizzle-orm";
 
 import { Alert } from "@/components/alert";
 import { PasswordInput } from "@/components/password-input";
+import { ThemeToggle } from "@/components/shell/theme-toggle";
 import { SubmitButton } from "@/components/submit-button";
 import { env } from "@/lib/env";
 import { strings } from "@/lib/strings";
@@ -37,9 +38,12 @@ export default async function LoginPage({
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center gap-6 px-4 py-10">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold">{strings.appName}</h1>
-        <p className="text-muted-foreground">{strings.auth.title}</p>
+      <div className="flex items-start justify-between gap-3">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold">{strings.appName}</h1>
+          <p className="text-muted-foreground">{strings.auth.title}</p>
+        </div>
+        <ThemeToggle />
       </div>
 
       {error ? (

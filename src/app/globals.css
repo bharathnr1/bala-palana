@@ -8,6 +8,8 @@
    neutral greys, status colours only for status. Components use these names
    only; never hard-code a colour. */
 :root {
+  /* The root layout starts light; the theme switch adds `.dark` for dark. */
+  color-scheme: light;
   --background: oklch(0.978 0.008 73);
   --foreground: oklch(0.24 0.021 55);
   --card: oklch(1 0 0);
@@ -42,38 +44,8 @@
   --sidebar-ring: oklch(0.566 0.145 46);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --background: oklch(0.19 0.012 55);
-    --foreground: oklch(0.94 0.012 60);
-    --card: oklch(0.235 0.014 55);
-    --card-foreground: oklch(0.94 0.012 60);
-    --popover: oklch(0.235 0.014 55);
-    --popover-foreground: oklch(0.94 0.012 60);
-    --primary: oklch(0.68 0.14 50);
-    --primary-foreground: oklch(0.19 0.012 55);
-    --secondary: oklch(0.27 0.015 55);
-    --secondary-foreground: oklch(0.94 0.012 60);
-    --muted: oklch(0.27 0.015 55);
-    --muted-foreground: oklch(0.72 0.02 60);
-    --accent: oklch(0.3 0.02 55);
-    --accent-foreground: oklch(0.94 0.012 60);
-    --destructive: oklch(0.7 0.19 25);
-    --border: oklch(1 0 0 / 12%);
-    --input: oklch(1 0 0 / 16%);
-    --ring: oklch(0.68 0.14 50);
-    --sidebar: oklch(0.235 0.014 55);
-    --sidebar-foreground: oklch(0.94 0.012 60);
-    --sidebar-primary: oklch(0.68 0.14 50);
-    --sidebar-primary-foreground: oklch(0.19 0.012 55);
-    --sidebar-accent: oklch(0.3 0.02 55);
-    --sidebar-accent-foreground: oklch(0.94 0.012 60);
-    --sidebar-border: oklch(1 0 0 / 12%);
-    --sidebar-ring: oklch(0.68 0.14 50);
-  }
-}
-
 .dark {
+  color-scheme: dark;
   --background: oklch(0.19 0.012 55);
   --foreground: oklch(0.94 0.012 60);
   --card: oklch(0.235 0.014 55);
