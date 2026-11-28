@@ -1,8 +1,9 @@
 "use client";
 
-import type { ComponentProps } from "react";
+import { useEffect, type ComponentProps } from "react";
 import { useFormStatus } from "react-dom";
 
+import { finishAction, startAction } from "@/components/navigation-progress";
 import { Button } from "@/components/ui/button";
 
 /**
@@ -21,6 +22,14 @@ export function SubmitButton({
   iconOnly?: boolean;
 }) {
   const { pending } = useFormStatus();
+
+  // The form's action does not change the URL, so give the page the same top
+  // bar a navigation gets while the write runs.
+  useEffect(() => {
+    if (!pending) return;
+    startAction();
+    return () => finishAction();
+  }, [pending]);
 
   return (
     <Button {...props} type="submit" loading={pending}>
