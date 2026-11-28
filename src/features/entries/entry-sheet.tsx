@@ -2,13 +2,14 @@
 
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Alert } from "@/components/alert";
 import { Button } from "@/components/ui/button";
 import { FollowUpChips } from "@/components/follow-up-chips";
 import { formatDate, formatDateTimeIST, relativeDueLabel } from "@/lib/dates";
 import { strings } from "@/lib/strings";
+import { useActionRun } from "@/lib/use-action-run";
 import type { ActionResult } from "@/server/auth/action";
 import {
   addEntryFollowUp,
@@ -48,8 +49,7 @@ export function EntrySheet({
   const [mode, setMode] = useState<Mode>("view");
   const [note, setNote] = useState(thread.entry.note ?? "");
   const [followUpOn, setFollowUpOn] = useState(thread.entry.followUpOn ?? "");
-  const [error, setError] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const { run, busy, pendingKey, error } = useActionRun();
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -60,47 +60,43 @@ export function EntrySheet({
     dialogRef.current?.close();
   }
 
-  function run(
+  function submit(
+    key: string,
     action: (formData: FormData) => Promise<ActionResult<unknown>>,
     formData: FormData,
     after?: () => void,
   ): void {
-    startTransition(async () => {
-      const result = await action(formData);
-      if (!result.ok) {
-        setError(result.error.message);
-        return;
-      }
-      setError(null);
-      setMode("view");
-      after?.();
-      router.refresh();
+    run(key, () => action(formData), {
+      onSuccess: () => {
+        setMode("view");
+        after?.();
+      },
     });
   }
 
   function submitFollowUp(formData: FormData): void {
-    run(addEntryFollowUp, formData);
+    submit("followUp", addEntryFollowUp, formData);
   }
 
   function submitCorrective(formData: FormData): void {
-    run(createEntry, formData);
+    submit("corrective", createEntry, formData);
   }
 
   function submitEdit(formData: FormData): void {
-    run(editEntry, formData);
+    submit("edit", editEntry, formData);
   }
 
   function toggleStatus(): void {
     const formData = new FormData();
     formData.set("id", thread.entry.id);
     formData.set("status", thread.entry.status === "open" ? "closed" : "open");
-    run(changeEntryStatus, formData);
+    submit("status", changeEntryStatus, formData);
   }
 
   function submitDelete(): void {
     const formData = new FormData();
     formData.set("id", thread.entry.id);
-    run(removeEntry, formData, close);
+    submit("delete", removeEntry, formData, close);
   }
 
   const isOpen = thread.entry.status === "open";
@@ -164,8 +160,10 @@ export function EntrySheet({
               <FollowUpChips value={followUpOn} onChange={setFollowUpOn} />
               <input type="hidden" name="followUpOn" value={followUpOn} />
               <div className="flex gap-2">
-                <Button type="submit" className="h-11" loading={isPending}>
-                  {isPending ? strings.entries.sheet.saving : strings.entries.sheet.saveEdit}
+                <Button type="submit" className="h-11" loading={pendingKey === "edit"}>
+                  {pendingKey === "edit"
+                    ? strings.entries.sheet.saving
+                    : strings.entries.sheet.saveEdit}
                 </Button>
                 <Button type="button" variant="outline" className="h-11" onClick={() => setMode("view")}>
                   {strings.entries.sheet.cancel}
@@ -234,8 +232,21 @@ export function EntrySheet({
               </Button>
             ) : null}
             {canClose && thread.entry.status ? (
-              <Button type="button" variant="outline" className="h-11" loading={isPending} onClick={toggleStatus}>
-                {isOpen ? strings.entries.sheet.closeEntry : strings.entries.sheet.reopenEntry}
+              <Button
+                type="button"
+                variant="outline"
+                className="h-11"
+                loading={pendingKey === "status"}
+                disabled={busy}
+                onClick={toggleStatus}
+              >
+                {pendingKey === "status"
+                  ? isOpen
+                    ? strings.entries.sheet.closing
+                    : strings.entries.sheet.reopening
+                  : isOpen
+                    ? strings.entries.sheet.closeEntry
+                    : strings.entries.sheet.reopenEntry}
               </Button>
             ) : null}
             {canEdit ? (
@@ -248,10 +259,11 @@ export function EntrySheet({
                 type="button"
                 variant="ghost"
                 className="h-11 text-destructive"
-                loading={isPending}
+                loading={pendingKey === "delete"}
+                disabled={busy}
                 onClick={submitDelete}
               >
-                {strings.entries.sheet.delete}
+                {pendingKey === "delete" ? strings.entries.sheet.deleting : strings.entries.sheet.delete}
               </Button>
             ) : null}
           </div>
@@ -290,8 +302,14 @@ export function EntrySheet({
             <FollowUpChips value={followUpOn} onChange={setFollowUpOn} />
             <input type="hidden" name="followUpOn" value={followUpOn} />
             <div className="flex gap-2">
-              <Button type="submit" className="h-11" loading={isPending}>
-                {isPending ? strings.entries.sheet.saving : strings.entries.sheet.save}
+              <Button
+                type="submit"
+                className="h-11"
+                loading={pendingKey === "followUp" || pendingKey === "corrective"}
+              >
+                {pendingKey === "followUp" || pendingKey === "corrective"
+                  ? strings.entries.sheet.saving
+                  : strings.entries.sheet.save}
               </Button>
               <Button type="button" variant="outline" className="h-11" onClick={() => setMode("view")}>
                 {strings.entries.sheet.cancel}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 
 import { Alert } from "@/components/alert";
+import { finishAction, startAction } from "@/components/navigation-progress";
 import { Button } from "@/components/ui/button";
 import { relativeDueLabel } from "@/lib/dates";
 import { groupFollowUps, FOLLOW_UP_BUCKETS } from "@/lib/follow-ups";
@@ -34,19 +35,24 @@ export function FollowUpList({
     const entryId = row.entryId;
     setClosingId(entryId);
     setError(null);
+    startAction();
     startTransition(async () => {
-      const formData = new FormData();
-      formData.set("id", entryId);
-      formData.set("status", "closed");
-      const result = await changeEntryStatus(formData);
-      setClosingId(null);
-      if (!result.ok) {
-        setError(result.error.message);
-        return;
+      try {
+        const formData = new FormData();
+        formData.set("id", entryId);
+        formData.set("status", "closed");
+        const result = await changeEntryStatus(formData);
+        if (!result.ok) {
+          setError(result.error.message);
+          return;
+        }
+        setCurrent((list) =>
+          list.filter((item) => item.kind !== "entry" || item.entryId !== entryId),
+        );
+      } finally {
+        setClosingId(null);
+        finishAction();
       }
-      setCurrent((list) =>
-        list.filter((item) => item.kind !== "entry" || item.entryId !== entryId),
-      );
     });
   }
 
@@ -119,7 +125,9 @@ export function FollowUpList({
                       onClick={() => closeRow(row)}
                       aria-label={strings.followUps.closeLabel(row.childName)}
                     >
-                      {strings.followUps.close}
+                      {isPending && closingId === row.entryId
+                        ? strings.followUps.closing
+                        : strings.followUps.close}
                     </Button>
                   ) : null}
                 </li>

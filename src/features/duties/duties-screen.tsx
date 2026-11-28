@@ -2,8 +2,7 @@
 
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { Alert } from "@/components/alert";
 import { ChildAvatar } from "@/components/child-avatar";
@@ -11,11 +10,12 @@ import { ChildPicker, type PickerChild } from "@/components/child-picker";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import { cycleLabel } from "@/lib/cycles";
 import { formatDate } from "@/lib/dates";
 import { strings } from "@/lib/strings";
+import { useActionRun } from "@/lib/use-action-run";
 import { cn } from "@/lib/utils";
-import type { ActionResult } from "@/server/auth/action";
 import {
   addTeam,
   addTeamChildren,
@@ -59,26 +59,11 @@ export function DutiesScreen({
   pickerChildren: PickerChild[];
   canWrite: boolean;
 }) {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
+  const { run, busy, pendingKey, error, success } = useActionRun();
   const [panel, setPanel] = useState<Panel>(null);
   const [menu, setMenu] = useState<BoardMember | null>(null);
   const [addingTo, setAddingTo] = useState<BoardTeam | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
-
-  function run<T>(call: () => Promise<ActionResult<T>>, done?: () => void): void {
-    setError(null);
-    startTransition(async () => {
-      const result = await call();
-      if (!result.ok) {
-        setError(result.error.message);
-        return;
-      }
-      done?.();
-      router.refresh();
-    });
-  }
 
   if (!selected) {
     return (
@@ -100,7 +85,7 @@ export function DutiesScreen({
   const strayTeams = board.filter((team) => !duties.some((duty) => duty.id === team.dutyId));
 
   function moveToTeam(memberId: string, toTeamId: string): void {
-    run(() => moveMember(form({ id: memberId, toTeamId })));
+    run("move", () => moveMember(form({ id: memberId, toTeamId })));
   }
 
   return (
@@ -140,23 +125,25 @@ export function DutiesScreen({
             type="button"
             variant="outline"
             className="h-11"
+            loading={pendingKey === "copy"}
+            disabled={busy}
             onClick={() =>
-              run(
-                () => copyLastCycle(form({ cycleId: selected.id })),
-                () => setPanel(null),
-              )
+              run("copy", () => copyLastCycle(form({ cycleId: selected.id })), {
+                onSuccess: () => setPanel(null),
+                successMessage: (counts) => strings.duties.copied(counts.teams, counts.members),
+              })
             }
-            disabled={isPending}
           >
-            {strings.duties.copyLastCycle}
+            {pendingKey === "copy" ? strings.duties.copying : strings.duties.copyLastCycle}
           </Button>
           <Button
             type="button"
             variant="outline"
             className="h-11"
-            disabled={isPending}
+            loading={pendingKey === "status"}
+            disabled={busy}
             onClick={() =>
-              run(() =>
+              run("status", () =>
                 setCycleStatus(
                   form({
                     id: selected.id,
@@ -166,21 +153,29 @@ export function DutiesScreen({
               )
             }
           >
-            {selected.status === "paused" ? strings.duties.resume : strings.duties.pause}
+            {pendingKey === "status"
+              ? strings.duties.updating
+              : selected.status === "paused"
+                ? strings.duties.resume
+                : strings.duties.pause}
           </Button>
           <Button
             type="button"
             variant="outline"
             className="h-11"
-            disabled={isPending || selected.status === "skipped"}
-            onClick={() => run(() => setCycleStatus(form({ id: selected.id, status: "skipped" })))}
+            loading={pendingKey === "skip"}
+            disabled={busy || selected.status === "skipped"}
+            onClick={() =>
+              run("skip", () => setCycleStatus(form({ id: selected.id, status: "skipped" })))
+            }
           >
-            {strings.duties.skip}
+            {pendingKey === "skip" ? strings.duties.updating : strings.duties.skip}
           </Button>
           <Button
             type="button"
             variant="outline"
             className="h-11"
+            disabled={busy}
             onClick={() => setPanel(panel === "dates" ? null : "dates")}
           >
             {strings.duties.editDates}
@@ -189,6 +184,7 @@ export function DutiesScreen({
             type="button"
             variant="outline"
             className="h-11"
+            disabled={busy}
             onClick={() => setPanel(panel === "split" ? null : "split")}
           >
             {strings.duties.split}
@@ -198,19 +194,21 @@ export function DutiesScreen({
               type="button"
               variant="outline"
               className="h-11"
-              disabled={isPending}
+              loading={pendingKey === "merge"}
+              disabled={busy}
               onClick={() => {
                 if (!window.confirm(strings.duties.confirmMerge)) return;
-                run(() => mergeCycles(form({ id: selected.id, withId: next.id })));
+                run("merge", () => mergeCycles(form({ id: selected.id, withId: next.id })));
               }}
             >
-              {strings.duties.mergeNext}
+              {pendingKey === "merge" ? strings.duties.merging : strings.duties.mergeNext}
             </Button>
           ) : null}
         </div>
       ) : null}
 
       {error ? <Alert tone="error">{error}</Alert> : null}
+      {success ? <Alert tone="success">{success}</Alert> : null}
 
       {panel === "dates" ? (
         <form
@@ -219,6 +217,7 @@ export function DutiesScreen({
             event.preventDefault();
             const data = new FormData(event.currentTarget);
             run(
+              "dates",
               () =>
                 updateCycleDates(
                   form({
@@ -227,7 +226,7 @@ export function DutiesScreen({
                     endOn: String(data.get("endOn") ?? ""),
                   }),
                 ),
-              () => setPanel(null),
+              { onSuccess: () => setPanel(null) },
             );
           }}
         >
@@ -249,8 +248,8 @@ export function DutiesScreen({
               className="border-input bg-background h-11 rounded-lg border px-3"
             />
           </label>
-          <Button type="submit" className="h-11" loading={isPending}>
-            {isPending ? strings.duties.saving : strings.duties.save}
+          <Button type="submit" className="h-11" loading={pendingKey === "dates"}>
+            {pendingKey === "dates" ? strings.duties.saving : strings.duties.save}
           </Button>
         </form>
       ) : null}
@@ -262,8 +261,9 @@ export function DutiesScreen({
             event.preventDefault();
             const data = new FormData(event.currentTarget);
             run(
+              "split",
               () => splitCycle(form({ id: selected.id, on: String(data.get("on") ?? "") })),
-              () => setPanel(null),
+              { onSuccess: () => setPanel(null) },
             );
           }}
         >
@@ -276,8 +276,8 @@ export function DutiesScreen({
               className="border-input bg-background h-11 rounded-lg border px-3"
             />
           </label>
-          <Button type="submit" className="h-11" loading={isPending}>
-            {isPending ? strings.duties.saving : strings.duties.save}
+          <Button type="submit" className="h-11" loading={pendingKey === "split"}>
+            {pendingKey === "split" ? strings.duties.saving : strings.duties.save}
           </Button>
         </form>
       ) : null}
@@ -299,12 +299,17 @@ export function DutiesScreen({
                   type="button"
                   variant="outline"
                   className="h-11"
-                  disabled={isPending}
+                  loading={pendingKey === `addTeam:${duty.id}`}
+                  disabled={busy}
                   onClick={() =>
-                    run(() => addTeam(form({ cycleId: selected.id, dutyId: duty.id })))
+                    run(`addTeam:${duty.id}`, () =>
+                      addTeam(form({ cycleId: selected.id, dutyId: duty.id })),
+                    )
                   }
                 >
-                  {strings.duties.addTeam}
+                  {pendingKey === `addTeam:${duty.id}`
+                    ? strings.duties.adding
+                    : strings.duties.addTeam}
                 </Button>
               ) : null}
             </div>
@@ -383,6 +388,16 @@ export function DutiesScreen({
                 ))}
               </div>
             )}
+
+            {pendingKey === `addTeam:${duty.id}` ? (
+              <p
+                role="status"
+                className="border-border text-muted-foreground flex items-center gap-2 rounded-xl border border-dashed px-4 py-4 text-sm"
+              >
+                <Spinner className="size-3.5" />
+                {strings.duties.addingTeam}
+              </p>
+            ) : null}
           </section>
         ))}
       </div>
@@ -391,16 +406,17 @@ export function DutiesScreen({
         <MemberSheet
           member={menu}
           teams={board.filter((team) => team.id !== teamIdOf(board, menu.memberId))}
-          pending={isPending}
+          pending={busy}
+          pendingKey={pendingKey}
           onClose={() => setMenu(null)}
           onRole={(role) =>
-            run(
-              () => setMemberRoleAction(form({ id: menu.memberId, role })),
-              () => setMenu(null),
-            )
+            run("role", () => setMemberRoleAction(form({ id: menu.memberId, role })), {
+              onSuccess: () => setMenu(null),
+            })
           }
           onDates={(fromOn, toOn) =>
             run(
+              "memberDates",
               () =>
                 setMemberDatesAction(
                   form({
@@ -409,21 +425,19 @@ export function DutiesScreen({
                     ...(toOn ? { toOn } : {}),
                   }),
                 ),
-              () => setMenu(null),
+              { onSuccess: () => setMenu(null) },
             )
           }
           onMove={(toTeamId) =>
-            run(
-              () => moveMember(form({ id: menu.memberId, toTeamId })),
-              () => setMenu(null),
-            )
+            run("move", () => moveMember(form({ id: menu.memberId, toTeamId })), {
+              onSuccess: () => setMenu(null),
+            })
           }
           onRemove={() => {
             if (!window.confirm(strings.duties.confirmRemove)) return;
-            run(
-              () => removeMember(form({ id: menu.memberId })),
-              () => setMenu(null),
-            );
+            run("remove", () => removeMember(form({ id: menu.memberId })), {
+              onSuccess: () => setMenu(null),
+            });
           }}
         />
       ) : null}
@@ -432,12 +446,13 @@ export function DutiesScreen({
         <AddChildrenSheet
           team={addingTo}
           pickerChildren={pickerChildren}
-          pending={isPending}
+          pending={busy}
           onClose={() => setAddingTo(null)}
           onAdd={(ids) =>
             run(
+              "addChildren",
               () => addTeamChildren(form({ teamId: addingTo.id, childIds: ids.join(",") })),
-              () => setAddingTo(null),
+              { onSuccess: () => setAddingTo(null) },
             )
           }
         />
@@ -454,6 +469,7 @@ function MemberSheet({
   member,
   teams,
   pending,
+  pendingKey,
   onClose,
   onRole,
   onDates,
@@ -463,6 +479,7 @@ function MemberSheet({
   member: BoardMember;
   teams: BoardTeam[];
   pending: boolean;
+  pendingKey: string | null;
   onClose: () => void;
   onRole: (role: "lead" | "member") => void;
   onDates: (fromOn: string, toOn: string) => void;
@@ -486,19 +503,25 @@ function MemberSheet({
           type="button"
           variant="outline"
           className="h-11"
+          loading={pendingKey === "role"}
           disabled={pending}
           onClick={() => onRole(member.role === "lead" ? "member" : "lead")}
         >
-          {member.role === "lead" ? strings.duties.makeMember : strings.duties.makeLead}
+          {pendingKey === "role"
+            ? strings.duties.updating
+            : member.role === "lead"
+              ? strings.duties.makeMember
+              : strings.duties.makeLead}
         </Button>
         <Button
           type="button"
           variant="outline"
           className="text-destructive h-11"
+          loading={pendingKey === "remove"}
           disabled={pending}
           onClick={onRemove}
         >
-          {strings.duties.remove}
+          {pendingKey === "remove" ? strings.duties.removing : strings.duties.remove}
         </Button>
       </div>
 
@@ -525,10 +548,11 @@ function MemberSheet({
       <Button
         type="button"
         className="h-11 w-full"
+        loading={pendingKey === "memberDates"}
         disabled={pending}
         onClick={() => onDates(fromOn, toOn)}
       >
-        {strings.duties.setDates}
+        {pendingKey === "memberDates" ? strings.duties.saving : strings.duties.setDates}
       </Button>
 
       {teams.length > 0 ? (
@@ -541,10 +565,11 @@ function MemberSheet({
                 type="button"
                 variant="outline"
                 className="h-11"
+                loading={pendingKey === "move"}
                 disabled={pending}
                 onClick={() => onMove(team.id)}
               >
-                {team.label}
+                {pendingKey === "move" ? strings.duties.updating : team.label}
               </Button>
             ))}
           </div>
@@ -593,10 +618,11 @@ function AddChildrenSheet({
       <Button
         type="button"
         className="h-11"
+        loading={pending}
         disabled={pending || selected.length === 0}
         onClick={() => onAdd(selected)}
       >
-        {pending ? strings.duties.saving : strings.duties.save}
+        {pending ? strings.duties.adding : strings.duties.save}
       </Button>
     </Modal>
   );

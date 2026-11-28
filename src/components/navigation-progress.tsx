@@ -41,6 +41,13 @@ let showTimer: ReturnType<typeof setTimeout> | undefined;
 let hideTimer: ReturnType<typeof setTimeout> | undefined;
 let safetyTimer: ReturnType<typeof setTimeout> | undefined;
 let shownAt = 0;
+// Server Actions do not change the URL, so they bracket the bar themselves.
+// The count keeps it running while actions overlap.
+let activeActions = 0;
+// A navigation and an action can overlap (a reader taps a link mid-save).
+// Each side records that it is still running, and the last one completes the
+// bar, so neither can leave it stuck on screen.
+let navPending = false;
 
 function clearTimers() {
   clearTimeout(showTimer);
@@ -51,6 +58,7 @@ function clearTimers() {
 
 /** Called on a link click, a GET form submit, or a navigation we start ourselves. */
 export function startNavigation() {
+  navPending = true;
   if (status === "loading") return;
   clearTimers();
   if (status === "done") setStatus("idle");
@@ -59,12 +67,15 @@ export function startNavigation() {
     shownAt = Date.now();
     setStatus("loading");
     // Never leave the bar running if the route failed to report completion.
-    safetyTimer = setTimeout(finishNavigation, SAFETY_MS);
+    safetyTimer = setTimeout(resetAndFinish, SAFETY_MS);
   }, SHOW_DELAY_MS);
 }
 
 /** Called when the URL settles, or when a navigation never happened. */
 export function finishNavigation() {
+  navPending = false;
+  // A Server Action still running owns the bar; its own finish completes it.
+  if (activeActions > 0) return;
   clearTimers();
 
   if (status !== "loading") {
@@ -77,10 +88,42 @@ export function finishNavigation() {
   hideTimer = setTimeout(() => setStatus("idle"), remaining + 250);
 }
 
+/** The last-resort completion: clear both sides and stop the bar. */
+function resetAndFinish() {
+  activeActions = 0;
+  navPending = false;
+  finishNavigation();
+}
+
 /**
- * The thin progress bar at the top of the app during route changes
- * (04-ui-spec § Look and feel). Server Actions do not change the URL, so they
- * report their own progress through the submit button's spinner instead.
+ * Starts the bar for a Server Action, at once: the reader has already tapped,
+ * so there is no prefetch delay to wait out. Call {@link finishAction} when the
+ * action (and the refresh it triggers) is done.
+ */
+export function startAction() {
+  activeActions += 1;
+  if (activeActions > 1) return;
+  // A navigation already showing the bar will finish it when the URL settles.
+  if (status === "loading") return;
+
+  clearTimers();
+  shownAt = Date.now();
+  setStatus("loading");
+  // Never leave the bar running if the action never reports completion.
+  safetyTimer = setTimeout(resetAndFinish, SAFETY_MS);
+}
+
+/** Completes the bar once the last running action is done. */
+export function finishAction() {
+  if (activeActions > 0) activeActions -= 1;
+  if (activeActions > 0 || navPending) return;
+  finishNavigation();
+}
+
+/**
+ * The thin progress bar at the top of the app during route changes and Server
+ * Actions (04-ui-spec § Feedback and loading). A mutation's own button still
+ * carries the spinner and pending label; the bar is the page-level signal.
  */
 export function NavigationProgress() {
   const pathname = usePathname();

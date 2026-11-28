@@ -37,12 +37,14 @@ Mobile-first (360 px), Android Chrome as the primary target; desktop gets wider 
 Every action acknowledges the tap at once.
 
 - **Route changes**: a thin indeterminate bar at the top of the screen, shown after a 120 ms delay so prefetched screens do not flash it; it completes when the URL settles.
+- **Server Actions**: the same bar starts at once when a write begins and stays until the refreshed screen has rendered, so an action never looks like a dead tap. The control that was tapped also spins and swaps to a pending label.
+- **Board actions**: creating a duties team shows a pending row in the duty's section until the team card arrives.
 - **Links**: the tapped nav item's icon becomes a spinner while its route loads.
 - **Forms**: submit buttons disable, show a spinner and swap to a pending label (`Saving…`, `Signing in…`). Buttons whose only content is an icon show just the spinner.
 - **Messages**: one `Alert` style for errors and successes; errors interrupt a screen reader, successes are announced politely.
 - **Password fields**: a show/hide control, and the field keeps its autocomplete hint.
 - **Empty results**: a filtered list whose search finds nothing offers "Clear filters" instead of a dead end.
-- **Skeletons**: each route group has a `loading.tsx` that mirrors the screen, and each screen fades in briefly. Skeletons announce themselves through `role="status"`.
+- **Skeletons**: each route group has a `loading.tsx` that mirrors the screen (the list-shaped routes share `ListPageSkeleton`), and each screen fades in briefly. Skeletons announce themselves through `role="status"`.
 - **Longer reads**: the CSV preview says "Reading file…" while the browser parses the chosen file.
 - **Filters and search**: they navigate through the router inside a transition, so a filter change applies immediately rather than waiting for a second tap.
 
