@@ -6,6 +6,7 @@ import { ChildAvatar } from "@/components/child-avatar";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { AcademicsTab } from "@/features/academics/academics-tab";
+import { AdmissionTab } from "@/features/admissions/admission-tab";
 import { EntrySheet } from "@/features/entries/entry-sheet";
 import { JourneyTimeline } from "@/features/entries/journey-timeline";
 import { ResponsibilitiesPanel } from "@/features/duties/responsibilities-panel";
@@ -16,6 +17,7 @@ import { can } from "@/lib/permissions";
 import { withinSelfDeleteWindow } from "@/lib/entry-rules";
 import { strings } from "@/lib/strings";
 import { childSubjectConcerns, listChildAssessments } from "@/server/academics/queries";
+import { getAdmissionForChild } from "@/server/admissions/queries";
 import { requireScreen } from "@/server/auth/guards";
 import { currentAcademicYear, getChild } from "@/server/children/queries";
 import { childDutyCounts, childDutyHistory, childResponsibilities } from "@/server/duties/profile";
@@ -121,6 +123,11 @@ export default async function ChildProfilePage({
     ? [0, -1, -2].map((by) => shiftAcademicYear(currentYear, by))
     : [];
 
+  // The Admission tab (M5-03): the enquiry and its history, still attached to
+  // the same child after conversion (D5).
+  const isAdmission = active?.key === "admission";
+  const admission = isAdmission ? await getAdmissionForChild(user, id) : null;
+
   const backHref = `/children/${profile.id}?tab=journey${
     activeCategory ? `&category=${activeCategory.key}` : ""
   }`;
@@ -191,6 +198,12 @@ export default async function ChildProfilePage({
       <section className="pt-4">
         {isAcademics ? (
           <AcademicsTab years={assessmentYears} concerns={concerns} />
+        ) : isAdmission ? (
+          admission ? (
+            <AdmissionTab admission={admission} />
+          ) : (
+            <EmptyState title={strings.admissions.tab.empty} />
+          )
         ) : isResponsibilities ? (
           <ResponsibilitiesPanel
             childId={profile.id}

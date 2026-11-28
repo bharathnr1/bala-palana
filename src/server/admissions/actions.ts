@@ -15,6 +15,8 @@ import {
   addEventSchema,
   changeStatus,
   changeStatusSchema,
+  convertToStudent,
+  convertToStudentSchema,
   createEnquiry,
   createEnquirySchema,
   setNextAction,
@@ -53,3 +55,14 @@ export const setAdmissionNextAction = action(setNextActionSchema, async (input, 
   revalidateAdmission(saved.childId, saved.id);
   return saved;
 });
+
+export const convertAdmissionToStudent = action(
+  convertToStudentSchema,
+  async (input, user) => {
+    const saved = await convertToStudent(user, input);
+    // The child list, her profile and the board's terminal column all change.
+    revalidatePath("/children");
+    revalidateAdmission(saved.childId, saved.id);
+    return saved;
+  },
+);

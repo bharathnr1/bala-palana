@@ -203,6 +203,7 @@ export type AdmissionDetail = {
   dob: string | null;
   stage: ChildStage;
   joinedOn: string | null;
+  consentGivenAt: Date | null;
   enquiryOn: string;
   interviewOn: string | null;
   nextAction: string | null;
@@ -238,6 +239,7 @@ export async function getAdmission(
       dob: child.dob,
       stage: child.stage,
       joinedOn: child.joinedOn,
+      consentGivenAt: child.consentGivenAt,
       enquiryOn: admission.enquiryOn,
       interviewOn: admission.interviewOn,
       nextAction: admission.nextAction,
@@ -296,6 +298,7 @@ export async function getAdmission(
     dob: row.dob,
     stage: row.stage,
     joinedOn: row.joinedOn,
+    consentGivenAt: row.consentGivenAt,
     enquiryOn: row.enquiryOn,
     interviewOn: row.interviewOn,
     nextAction: row.nextAction,
@@ -310,4 +313,20 @@ export async function getAdmission(
     guardians,
     events,
   };
+}
+
+/** The same detail, found from the child's profile (M5-03 Admission tab). */
+export async function getAdmissionForChild(
+  user: SessionUser,
+  childId: string,
+): Promise<AdmissionDetail | null> {
+  assertCan(user, "admission.read");
+
+  const [row] = await getDb()
+    .select({ id: admission.id })
+    .from(admission)
+    .where(eq(admission.childId, childId))
+    .limit(1);
+
+  return row ? getAdmission(user, row.id) : null;
 }

@@ -10,6 +10,7 @@ import type { ActionResult } from "@/server/auth/action";
 import {
   addAdmissionEvent,
   changeAdmissionStatus,
+  convertAdmissionToStudent,
   setAdmissionNextAction,
 } from "@/server/admissions/actions";
 import type { StatusOption } from "@/server/admissions/queries";
@@ -233,6 +234,109 @@ export function NextActionForm({
 
       <SubmitButton className="h-11" pendingChildren={strings.admissions.detail.saving}>
         {strings.admissions.detail.save}
+      </SubmitButton>
+    </form>
+  );
+}
+
+type LookupChoice = { key: string; label: string };
+
+/**
+ * Converts an applicant into a student (M5-03): consent, joined date, grade and
+ * the outside school. The server records the first enrolment and closes the
+ * admission at `selected_as_student` in one transaction.
+ */
+export function ConvertToStudentForm({
+  admissionId,
+  today,
+  grades,
+  groups,
+  consentRecorded,
+}: {
+  admissionId: string;
+  today: string;
+  grades: LookupChoice[];
+  groups: LookupChoice[];
+  consentRecorded: boolean;
+}) {
+  const { formAction, pending, errors, error, saved } =
+    useAdmissionForm(convertAdmissionToStudent);
+
+  return (
+    <form action={formAction} aria-busy={pending} className="space-y-3">
+      <h2 className="text-sm font-semibold">{strings.admissions.convert.title}</h2>
+      <FormFeedback error={error} saved={saved} />
+      <input type="hidden" name="admissionId" value={admissionId} />
+
+      <label className="bg-secondary flex items-start gap-3 rounded-lg p-3">
+        <input
+          type="checkbox"
+          name="consent"
+          defaultChecked={consentRecorded}
+          className="mt-0.5 size-5"
+        />
+        <span>
+          <span className="block text-sm font-medium">{strings.admissions.convert.consent}</span>
+          <span className="block text-xs text-muted-foreground">
+            {strings.admissions.convert.consentHint}
+          </span>
+        </span>
+      </label>
+      {errors.consent?.[0] ? (
+        <p role="alert" className="text-xs text-destructive">
+          {errors.consent[0]}
+        </p>
+      ) : null}
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Field
+          id="joinedOn"
+          label={strings.admissions.convert.joinedOn}
+          error={errors.joinedOn?.[0]}
+        >
+          <input
+            id="joinedOn"
+            name="joinedOn"
+            type="date"
+            required
+            defaultValue={today}
+            className={INPUT}
+          />
+        </Field>
+
+        <Field id="gradeKey" label={strings.admissions.convert.grade} error={errors.gradeKey?.[0]}>
+          <select id="gradeKey" name="gradeKey" className={INPUT}>
+            <option value="">{strings.admissions.enquiry.fields.none}</option>
+            {grades.map((grade) => (
+              <option key={grade.key} value={grade.key}>
+                {grade.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field id="groupKey" label={strings.admissions.convert.group} error={errors.groupKey?.[0]}>
+          <select id="groupKey" name="groupKey" className={INPUT}>
+            <option value="">{strings.admissions.enquiry.fields.none}</option>
+            {groups.map((group) => (
+              <option key={group.key} value={group.key}>
+                {group.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+
+        <Field
+          id="outsideSchool"
+          label={strings.admissions.convert.outsideSchool}
+          error={errors.outsideSchool?.[0]}
+        >
+          <input id="outsideSchool" name="outsideSchool" maxLength={200} className={INPUT} />
+        </Field>
+      </div>
+
+      <SubmitButton className="h-11" pendingChildren={strings.admissions.convert.saving}>
+        {strings.admissions.convert.save}
       </SubmitButton>
     </form>
   );
